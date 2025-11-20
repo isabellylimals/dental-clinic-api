@@ -41,7 +41,7 @@ public class Paciente extends Usuario {
     }
 
     // --- GETTERS E SETTERS ---
-
+    
     public String getCpf() {
         return cpf;
     }
@@ -74,5 +74,9 @@ public class Paciente extends Usuario {
                 ", DataNascimento: " + this.dataNascimento +
                 ", Endereco: '" + this.endereco + '\'' +
                 ']';
+    }
+
+    public void setTipoUsuario(String paciente) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

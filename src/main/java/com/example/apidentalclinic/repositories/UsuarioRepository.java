@@ -12,9 +12,6 @@ import com.example.apidentalclinic.models.Usuario;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     
-    // Busca genérica por email (Login)
     Optional<Usuario> findByEmail(String email);
-
-    // Busca específica por tipo (Ex: Listar apenas MEDICO)
     List<Usuario> findByTipoUsuario(TipoUsuario tipoUsuario);
 }

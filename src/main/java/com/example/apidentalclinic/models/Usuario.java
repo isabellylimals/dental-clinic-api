@@ -110,8 +110,8 @@ public abstract class Usuario {
         return tipoUsuario;
     }
 
-    public void setTipoUsuario(TipoUsuario tipoUsuario) {
-        this.tipoUsuario = tipoUsuario;
+    public void setTipoUsuario(TipoUsuario paciente) {
+        this.tipoUsuario = paciente;
     }
 
     public String getTelefone() {

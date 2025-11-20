@@ -10,7 +10,14 @@ import com.example.apidentalclinic.enums.StatusConsulta;
 @Entity
 @Table(name = "consulta")
 public class Consulta {
+    @Transient
+    private Integer idPaciente;
 
+    @Transient
+    private Integer idMedico;
+
+    @Transient
+    private Integer idServico;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idConsulta;
@@ -40,8 +47,16 @@ public class Consulta {
     // --- CONSTRUTOR VAZIO ---
     public Consulta() {
     }
+        public Integer getIdPaciente() { return idPaciente; }
+        public void setIdPaciente(Integer idPaciente) { this.idPaciente = idPaciente; }
 
-    // --- SEU CONSTRUTOR ORIGINAL ---
+        public Integer getIdMedico() { return idMedico; }
+        public void setIdMedico(Integer idMedico) { this.idMedico = idMedico; }
+
+        public Integer getIdServico() { return idServico; }
+        public void setIdServico(Integer idServico) { this.idServico = idServico; }
+
+
     public Consulta(int idConsulta, Date dataHora, Medico medico,
             Paciente paciente, Servico servico, StatusConsulta status) {
         this.idConsulta = idConsulta;
