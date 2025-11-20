@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastrar Paciente</title>
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        input, button { width: 300px; margin-bottom: 10px; padding: 8px; }
+        #listaPacientes { margin-top: 30px; border-top: 2px solid #ccc; padding-top: 20px; }
+        .erro { color: red; }
+        .sucesso { color: green; }
+    </style>
+</head>
+<body>
+
+<h2>Cadastrar Paciente</h2>
+
+<input id="nome" placeholder="Nome"><br>
+<input id="email" placeholder="Email"><br>
+<input id="senha" type="password" placeholder="Senha"><br>
+<input id="telefone" placeholder="Telefone"><br>
+<input id="cpf" placeholder="CPF"><br>
+<input id="dataNascimento" type="date"><br>
+<input id="endereco" placeholder="Endereço"><br>
+
+<button onclick="cadastrar()">Cadastrar</button>
+
+<p id="mensagem"></p>
+
+<h3>Pacientes cadastrados</h3>
+<div id="listaPacientes"></div>
+
+<script>
+    const API = "http://localhost:8080/api/pacientes";
+
+    async function cadastrar() {
+        const paciente = {
+            nome: document.getElementById("nome").value,
+            email: document.getElementById("email").value,
+            senha: document.getElementById("senha").value,
+            telefone: document.getElementById("telefone").value,
+            cpf: document.getElementById("cpf").value,
+            dataNascimento: document.getElementById("dataNascimento").value,
+            endereco: document.getElementById("endereco").value
+        };
+
+        try {
+            const resposta = await fetch(API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(paciente)
+            });
+
+            // Se deu erro (400)
+            if (!resposta.ok) {
+                const erro = await resposta.text();
+                document.getElementById("mensagem").innerHTML =
+                    `<span class="erro">Erro: ${erro}</span>`;
+                return;
+            }
+
+            document.getElementById("mensagem").innerHTML =
+                `<span class="sucesso">Paciente cadastrado com sucesso!</span>`;
+
+            listarPacientes();
+
+        } catch (e) {
+            document.getElementById("mensagem").innerHTML =
+                `<span class="erro">Erro ao conectar ao servidor.</span>`;
+        }
+    }
+
+    async function listarPacientes() {
+        const div = document.getElementById("listaPacientes");
+        div.innerHTML = "Carregando...";
+
+        const resposta = await fetch(API);
+        const lista = await resposta.json();
+
+        div.innerHTML = lista.map(p =>
+            `<p><b>${p.nome}</b> – CPF: ${p.cpf}</p>`
+        ).join("");
+    }
+
+    listarPacientes();
+</script>
+
+</body>
+</html>

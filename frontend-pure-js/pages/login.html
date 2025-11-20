@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #eee; }
+        .card { background: white; padding: 40px; border-radius: 8px; width: 300px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        a { display: block; margin-top: 15px; color: #007bff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🔐 Login</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="senha" placeholder="Senha">
+        <button onclick="logar()">Entrar</button>
+        <a href="cadastro-publico.html">Não tem conta? Cadastre-se</a>
+    </div>
+
+    <script>
+        async function logar() {
+            const email = document.getElementById("email").value;
+            const senha = document.getElementById("senha").value;
+
+            try {
+                const res = await fetch("http://localhost:8080/api/usuarios/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, senha })
+                });
+
+                if (res.status === 200) {
+                    const usuario = await res.json();
+                    localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
+
+                    // REDIRECIONAMENTO INTELIGENTE
+                    if (usuario.tipoUsuario === "ADMINISTRADOR") {
+                        window.location.href = "painel-admin.html";
+                    } else {
+                        window.location.href = "perfil.html";
+                    }
+                } else {
+                    alert("Login inválido!");
+                }
+            } catch(e) { console.error(e); }
+        }
+    </script>
+</body>
+</html>

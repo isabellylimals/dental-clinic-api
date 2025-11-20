@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Meu Perfil</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 600px; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
+        h2 { border-bottom: 2px solid #007bff; padding-bottom: 10px; color: #333; display: flex; justify-content: space-between; align-items: center; }
+        .badge { font-size: 12px; background: #007bff; color: white; padding: 5px 10px; border-radius: 20px; }
+
+        label { display: block; margin-top: 15px; font-weight: 600; color: #555; }
+        input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        input[readonly] { background-color: #e9ecef; color: #6c757d; cursor: not-allowed; }
+
+        .btn-group { margin-top: 30px; display: flex; gap: 10px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
+        
+        .btn-save { background-color: #28a745; }
+        .btn-save:hover { background-color: #218838; }
+        
+        /* Botão Vermelho Perigoso */
+        .btn-danger { background-color: #dc3545; }
+        .btn-danger:hover { background-color: #c82333; }
+        
+        .btn-logout { background-color: #6c757d; }
+        .btn-logout:hover { background-color: #5a6268; }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>
+            <span id="tituloNome">Meu Perfil</span>
+            <span id="badgeTipo" class="badge">USUÁRIO</span>
+        </h2>
+
+        <label>Nome Completo:</label>
+        <input type="text" id="nome">
+
+        <label>Email (Não alterável):</label>
+        <input type="email" id="email" readonly>
+
+        <label>Telefone:</label>
+        <input type="text" id="telefone">
+        
+        <label>Senha (Digite nova para alterar):</label>
+        <input type="text" id="senha">
+
+        <div id="areaPaciente" class="hidden">
+            <label>CPF:</label>
+            <input type="text" id="cpf" readonly>
+            <label>Endereço:</label>
+            <input type="text" id="endereco">
+        </div>
+
+        <div id="areaMedico" class="hidden">
+            <label>CRM:</label>
+            <input type="text" id="crm" readonly>
+            <label>Especialidade:</label>
+            <input type="text" id="especialidade">
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-logout" onclick="sair()">🚪 Sair</button>
+            <button class="btn-danger" onclick="desativarMinhaConta()">🗑️ Desativar Minha Conta</button>
+            <button class="btn-save" onclick="salvarAlteracoes()">💾 Salvar Dados</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. VERIFICAR LOGIN
+        const usuarioStr = localStorage.getItem("usuarioLogado");
+        if (!usuarioStr) {
+            alert("Você não está logado!");
+            window.location.href = "login.html";
+        }
+        let usuario = JSON.parse(usuarioStr);
+
+        // 2. PREENCHER A TELA
+        document.getElementById("tituloNome").innerText = usuario.nome;
+        document.getElementById("badgeTipo").innerText = usuario.tipoUsuario;
+        
+        document.getElementById("nome").value = usuario.nome;
+        document.getElementById("email").value = usuario.email;
+        document.getElementById("telefone").value = usuario.telefone;
+        document.getElementById("senha").value = usuario.senha;
+
+        if (usuario.tipoUsuario === "PACIENTE") {
+            document.getElementById("areaPaciente").classList.remove("hidden");
+            document.getElementById("cpf").value = usuario.cpf;
+            document.getElementById("endereco").value = usuario.endereco; // Pode editar
+        } else if (usuario.tipoUsuario === "MEDICO") {
+            document.getElementById("areaMedico").classList.remove("hidden");
+            document.getElementById("crm").value = usuario.crm;
+            document.getElementById("especialidade").value = usuario.especialidade; // Pode editar
+        }
+
+        // --- FUNÇÃO: SALVAR ---
+        async function salvarAlteracoes() {
+            usuario.nome = document.getElementById("nome").value;
+            usuario.telefone = document.getElementById("telefone").value;
+            usuario.senha = document.getElementById("senha").value;
+
+            if (usuario.tipoUsuario === "PACIENTE") {
+                usuario.endereco = document.getElementById("endereco").value;
+            } else if (usuario.tipoUsuario === "MEDICO") {
+                usuario.especialidade = document.getElementById("especialidade").value;
+            }
+
+            try {
+                const res = await fetch("http://localhost:8080/api/usuarios/editar", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(usuario)
+                });
+
+                if (res.status === 200) {
+                    const usuarioAtualizado = await res.json();
+                    localStorage.setItem("usuarioLogado", JSON.stringify(usuarioAtualizado));
+                    alert("✅ Dados atualizados com sucesso!");
+                } else {
+                    alert("Erro ao salvar.");
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // --- FUNÇÃO: DESATIVAR A PRÓPRIA CONTA ---
+        async function desativarMinhaConta() {
+            let confirmacao = confirm("TEM CERTEZA?\n\nAo desativar sua conta, você NÃO PODERÁ mais fazer login.\nVocê terá que pedir ao Admin para reativar.");
+            
+            if (!confirmacao) return;
+
+            try {
+                // Chama o método DELETE do Backend (que faz o soft delete: status = false)
+                const res = await fetch(`http://localhost:8080/api/usuarios/${usuario.idUsuario}`, {
+                    method: "DELETE"
+                });
+
+                if (res.status === 200) {
+                    alert("Sua conta foi desativada. Você será desconectado.");
+                    
+                    // LIMPA O LOGIN E MANDA EMBORA
+                    sair();
+                } else {
+                    alert("Erro ao desativar conta.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Erro de conexão.");
+            }
+        }
+
+        function sair() {
+            localStorage.removeItem("usuarioLogado");
+            window.location.href = "login.html";
+        }
+    </script>
+
+</body>
+</html>

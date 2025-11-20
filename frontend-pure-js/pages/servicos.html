@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinica Dental - Gestão de Serviços</title>
+    <style>
+        /* --- ESTILO (CSS) --- */
+        :root {
+            --primary: #007bff;
+            --success: #28a745;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); padding: 20px; margin: 0; display: flex; justify-content: center; }
+        
+        .container { width: 100%; max-width: 900px; }
+
+        h2 { color: #333; text-align: center; margin-bottom: 30px; }
+
+        /* Cards (Caixas) */
+        .card { background: var(--card-bg); padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .card h3 { margin-top: 0; border-bottom: 2px solid var(--primary); padding-bottom: 10px; display: inline-block; }
+
+        /* Formulários */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
+        input:focus, textarea:focus { border-color: var(--primary); outline: none; }
+
+        /* Botões */
+        .btn-group { display: flex; gap: 10px; align-items: flex-end; }
+        button { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; color: white; }
+        .btn-save { background-color: var(--success); width: 100%; }
+        .btn-save:hover { background-color: #218838; }
+        .btn-search { background-color: var(--primary); }
+        .btn-search:hover { background-color: #0069d9; }
+        .btn-all { background-color: #6c757d; }
+
+        /* Tabela */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 5px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: var(--primary); color: white; font-weight: 600; }
+        tr:hover { background-color: #f1f1f1; }
+
+        /* Mensagens */
+        #mensagem { text-align: center; font-weight: bold; margin-top: 10px; min-height: 20px; }
+        .sucesso { color: var(--success); }
+        .erro { color: #dc3545; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🦷 Sistema da Clínica - Serviços</h2>
+
+        <div class="card">
+            <h3>Novo Serviço</h3>
+            <div class="form-group">
+                <label>Nome do Serviço:</label>
+                <input type="text" id="nome" placeholder="Ex: Clareamento a Laser">
+            </div>
+            <div class="form-group">
+                <label>Descrição:</label>
+                <textarea id="descricao" rows="3" placeholder="Ex: Procedimento estético para clarear os dentes..."></textarea>
+            </div>
+            <button class="btn-save" onclick="cadastrarServico()">💾 Salvar Serviço no Banco</button>
+            <p id="mensagem"></p>
+        </div>
+
+        <div class="card">
+            <h3>Serviços Cadastrados</h3>
+            
+            <div class="btn-group" style="margin-bottom: 15px;">
+                <div style="flex-grow: 1;">
+                    <label>Pesquisar:</label>
+                    <input type="text" id="buscaInput" placeholder="Digite o nome para buscar...">
+                </div>
+                <button class="btn-search" onclick="buscarServicos()">🔍 Buscar</button>
+                <button class="btn-all" onclick="carregarTodos()">🔄 Ver Todos</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th width="10%">ID</th>
+                        <th width="30%">Nome</th>
+                        <th width="60%">Descrição</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaCorpo">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:8080/api/servicos";
+
+        // 1. CADASTRAR (POST)
+        async function cadastrarServico() {
+            const nome = document.getElementById("nome").value;
+            const descricao = document.getElementById("descricao").value;
+            const msg = document.getElementById("mensagem");
+
+            if(!nome) { alert("O nome é obrigatório!"); return; }
+
+            // IMPORTANTE: As chaves do JSON (nomeServico) devem ser iguais ao seu JAVA (Model)
+            const dados = {
+                nomeServico: nome,
+                descricao: descricao
+            };
+
+            try {
+                const resposta = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dados)
+                });
+
+                if (resposta.status === 201) {
+                    msg.innerText = "✅ Serviço cadastrado com sucesso!";
+                    msg.className = "sucesso";
+                    // Limpar campos
+                    document.getElementById("nome").value = "";
+                    document.getElementById("descricao").value = "";
+                    // Atualizar tabela
+                    carregarTodos();
+                } else {
+                    msg.innerText = "❌ Erro ao cadastrar.";
+                    msg.className = "erro";
+                }
+            } catch (erro) {
+                console.error(erro);
+                alert("Erro de conexão com o servidor!");
+            }
+        }
+
+        // 2. LISTAR TODOS (GET)
+        async function carregarTodos() {
+            try {
+                const resposta = await fetch(API_URL);
+                const servicos = await resposta.json();
+                preencherTabela(servicos);
+            } catch (erro) {
+                console.error("Erro ao carregar:", erro);
+            }
+        }
+
+        // 3. BUSCAR (GET com Filtro)
+        async function buscarServicos() {
+            const termo = document.getElementById("buscaInput").value;
+            if (!termo) { carregarTodos(); return; } // Se vazio, carrega tudo
+
+            try {
+                const resposta = await fetch(`${API_URL}/buscar?nome=${termo}`);
+                const servicos = await resposta.json();
+                preencherTabela(servicos);
+            } catch (erro) {
+                console.error("Erro ao buscar:", erro);
+            }
+        }
+
+        // AUXILIAR: Preencher o HTML da Tabela
+        function preencherTabela(lista) {
+            const tbody = document.getElementById("tabelaCorpo");
+            tbody.innerHTML = ""; // Limpa tabela
+
+            if(lista.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Nenhum serviço encontrado.</td></tr>";
+                return;
+            }
+
+            lista.forEach(servico => {
+                const linha = `
+                    <tr>
+                        <td>${servico.idServico}</td>
+                        <td><strong>${servico.nomeServico}</strong></td>
+                        <td>${servico.descricao}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += linha;
+            });
+        }
+
+        // Iniciar carregando a lista
+        carregarTodos();
+    </script>
+
+</body>
+</html>

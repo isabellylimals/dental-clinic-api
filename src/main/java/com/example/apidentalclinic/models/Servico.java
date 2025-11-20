@@ -1,0 +1,64 @@
+package com.example.apidentalclinic.models;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "servico")
+public class Servico {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int idServico;
+
+    @Column(name = "nomeServico", nullable = false)
+    private String nomeServico;
+
+    @Column(columnDefinition = "TEXT")
+    private String descricao;
+
+    // --- CONSTRUTOR VAZIO (OBRIGATÓRIO) ---
+    public Servico() {
+    }
+
+    // --- SEU CONSTRUTOR ORIGINAL ---
+    public Servico(int idServico, String nomeServico, String descricao) {
+        this.idServico = idServico;
+        this.nomeServico = nomeServico;
+        this.descricao = descricao;
+    }
+
+    // --- GETTERS E SETTERS ---
+
+    public int getIdServico() {
+        return idServico;
+    }
+
+    public void setIdServico(int idServico) {
+        this.idServico = idServico;
+    }
+
+    public String getNomeServico() {
+        return nomeServico;
+    }
+
+    public void setNomeServico(String nomeServico) {
+        this.nomeServico = nomeServico;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    @Override
+    public String toString() {
+        return "Servico [" +
+                "IdServico: " + this.idServico +
+                ", Nome: '" + this.nomeServico + '\'' +
+                ", Descricao: '" + this.descricao + '\'' +
+                ']';
+    }
+}
