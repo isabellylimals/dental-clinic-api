@@ -87,4 +87,48 @@ public class ConsultaController {
         List<Consulta> consultas = consultaRepository.findByPacienteCpf(cpf);
         return ResponseEntity.ok(consultas);
     }
+     @PostMapping("/cancelar")
+    public ResponseEntity<?> cancelarConsulta(@RequestBody Map<String, Integer> body) {
+    try {
+        Integer idConsulta = body.get("idConsulta");
+
+        Consulta consulta = consultaRepository.findById(idConsulta)
+                .orElse(null);
+
+        if (consulta == null) {
+            return ResponseEntity.status(404).body("Consulta não encontrada");
+        }
+
+        consulta.setStatus(StatusConsulta.CANCELADA);
+        consultaRepository.save(consulta);
+
+        return ResponseEntity.ok("Consulta cancelada com sucesso!");
+
+    } catch (Exception e) {
+        return ResponseEntity.badRequest()
+                .body("Erro ao cancelar consulta: " + e.getMessage());
+    }
+}
+    @PostMapping("/atualizar-status")
+    public ResponseEntity<?> atualizarStatus(@RequestBody Map<String, Integer> body) {
+    try {
+        Integer idConsulta = body.get("idConsulta");
+
+        Consulta consulta = consultaRepository.findById(idConsulta)
+                .orElse(null);
+
+        if (consulta == null) {
+            return ResponseEntity.status(404).body("Consulta não encontrada");
+        }
+
+        consulta.setStatus(StatusConsulta.REALIZADA);
+        consultaRepository.save(consulta);
+
+        return ResponseEntity.ok("Status da consulta atualizado com sucesso!");
+
+    } catch (Exception e) {
+        return ResponseEntity.badRequest()
+                .body("Erro ao atualizar consulta " + e.getMessage());
+    }
+}
 }
