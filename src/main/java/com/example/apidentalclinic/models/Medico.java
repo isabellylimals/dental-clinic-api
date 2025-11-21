@@ -1,9 +1,13 @@
 package com.example.apidentalclinic.models;
+import java.util.List;
+
 import com.example.apidentalclinic.enums.TipoUsuario;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +20,9 @@ public class Medico extends Usuario {
     private String crm;
 
     private String especialidade;
+@OneToMany(mappedBy = "medico")
+@JsonIgnore
+private List<Consulta> consultas;
 
     public Medico() {
         this.setTipoUsuario(TipoUsuario.MEDICO);

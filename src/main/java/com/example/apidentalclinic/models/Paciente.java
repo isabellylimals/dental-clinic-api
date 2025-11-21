@@ -4,12 +4,15 @@ package com.example.apidentalclinic.models;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 import com.example.apidentalclinic.enums.TipoUsuario;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @DiscriminatorValue("PACIENTE") // Valor que vai para a coluna 'tipo_usuario_db' no SQL
@@ -23,6 +26,9 @@ public class Paciente extends Usuario {
     private Date dataNascimento;
 
     private String endereco;
+@OneToMany(mappedBy = "paciente")
+@JsonIgnore
+private List<Consulta> consultas;
 
     // Construtor padrão define o tipo
     public Paciente() {
@@ -76,7 +82,9 @@ public class Paciente extends Usuario {
                 ']';
     }
 
-    public void setTipoUsuario(String paciente) {
+    public boolean isAnamneseValidada() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+ 
 }

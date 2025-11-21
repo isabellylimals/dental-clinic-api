@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.apidentalclinic.enums.TipoUsuario;
 import com.example.apidentalclinic.models.Medico;
 import com.example.apidentalclinic.models.Paciente;
+import com.example.apidentalclinic.repositories.MedicoRepository;
 import com.example.apidentalclinic.services.MedicoService;
 
 @RestController
@@ -22,7 +23,8 @@ public class MedicoController {
 
     @Autowired
     private MedicoService medicoService;
-
+    @Autowired
+    private MedicoRepository medicoRepository;
     @GetMapping("/buscar-pacientes")
     public List<Paciente> buscar(@RequestParam String cpf) {
         return medicoService.buscarPaciente(cpf);
@@ -43,5 +45,9 @@ public class MedicoController {
     @GetMapping("/listar-todos")
     public List<Paciente> listarTodos() {
         return medicoService.visualizarPacientesCadastrados();
+    }
+   @GetMapping
+    public List<Medico> listarMedicos() {
+        return medicoRepository.findAll();
     }
 }

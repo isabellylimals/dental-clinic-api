@@ -1,5 +1,9 @@
 package com.example.apidentalclinic.models;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -15,6 +19,9 @@ public class Servico {
 
     @Column(columnDefinition = "TEXT")
     private String descricao;
+@OneToMany(mappedBy = "servico")
+@JsonIgnore
+private List<Consulta> consultas;
 
     // --- CONSTRUTOR VAZIO (OBRIGATÓRIO) ---
     public Servico() {

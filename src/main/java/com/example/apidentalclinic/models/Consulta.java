@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 import com.example.apidentalclinic.enums.StatusConsulta;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 
 @Entity
@@ -27,17 +28,20 @@ public class Consulta {
 
     // RELACIONAMENTOS (Chaves Estrangeiras)
     
-    @ManyToOne // Muitas consultas para Um médico
-    @JoinColumn(name = "idMedico", nullable = false) // Nome da coluna no banco
-    private Medico medico;
+   @ManyToOne
+@JsonIgnoreProperties({"consultas"})
+@JoinColumn(name = "idMedico", nullable = false)
+private Medico medico;
 
-    @ManyToOne // Muitas consultas para Um paciente
-    @JoinColumn(name = "idPaciente", nullable = false)
-    private Paciente paciente;
+@ManyToOne
+@JsonIgnoreProperties({"consultas"})
+@JoinColumn(name = "idPaciente", nullable = false)
+private Paciente paciente;
 
-    @ManyToOne // Muitas consultas para Um serviço
-    @JoinColumn(name = "idServico", nullable = false)
-    private Servico servico;
+@ManyToOne
+@JsonIgnoreProperties({"consultas"})
+@JoinColumn(name = "idServico", nullable = false)
+private Servico servico;
 
     // ENUM mapeado para a coluna 'stats' do banco
     @Enumerated(EnumType.STRING)
@@ -117,20 +121,16 @@ public class Consulta {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        String medicoNome = (this.medico != null) ? this.medico.getNome() : "N/A";
-        String pacienteNome = (this.paciente != null) ? this.paciente.getNome() : "N/A";
-        // Atenção: getNomeServico() só vai funcionar quando você formatar a classe Servico
-        String servicoNome = (this.servico != null) ? this.servico.getNomeServico() : "N/A";
+  @Override
+public String toString() {
+    return "Consulta{" +
+            "idConsulta=" + idConsulta +
+            ", dataHora=" + dataHora +
+            ", idPaciente=" + idPaciente +
+            ", idMedico=" + idMedico +
+            ", idServico=" + idServico +
+            ", status=" + status +
+            '}';
+}
 
-        return "Consulta [" +
-                "IdConsulta: " + this.idConsulta +
-                ", DataHora: " + this.dataHora +
-                ", Medico: '" + medicoNome + '\'' +
-                ", Paciente: '" + pacienteNome + '\'' +
-                ", Servico: '" + servicoNome + '\'' +
-                ", Status: " + this.status +
-                ']';
-    }
 }

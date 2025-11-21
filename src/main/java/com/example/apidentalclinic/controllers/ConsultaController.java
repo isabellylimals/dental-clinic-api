@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.apidentalclinic.enums.StatusConsulta;
+import com.example.apidentalclinic.enums.TipoUsuario;
 import com.example.apidentalclinic.models.Consulta;
 import com.example.apidentalclinic.models.Medico;
 import com.example.apidentalclinic.models.Paciente;
@@ -34,59 +35,70 @@ public class ConsultaController {
     @Autowired
     private ServicoRepository servicoRepository;
 
-    @PostMapping("/cadastrar")
-    public ResponseEntity<?> solicitar(@RequestBody Consulta consulta) {
-        try {
 
-            Paciente paciente = pacienteRepository.findById(consulta.getIdPaciente())
-                    .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
-
-            Medico medico = medicoRepository.findById(consulta.getIdMedico())
-                    .orElseThrow(() -> new RuntimeException("Médico não encontrado"));
-
-            Servico servico = servicoRepository.findById(consulta.getIdServico())
-                    .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
-
-          
-            consulta.setPaciente(paciente);
-            consulta.setMedico(medico);
-            consulta.setServico(servico);
-
-            Consulta salva = consultaRepository.save(consulta);
-            return ResponseEntity.ok(salva);
-
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Erro ao cadastrar consulta: " + e.getMessage());
-        }
-    }
-   @PostMapping("/confirmar")
-    public ResponseEntity<?> agendar(@RequestBody Map<String, Integer> body) {
+@PostMapping("/solicitar")
+public ResponseEntity<?> solicitar(@RequestBody Consulta consulta) {
     try {
-        Integer idConsulta = body.get("idConsulta");
+        Paciente paciente = pacienteRepository.findById(consulta.getIdPaciente())
+                .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
 
-        Consulta consulta = consultaRepository.findById(idConsulta)
-                .orElse(null);
+        Medico medico = medicoRepository.findById(consulta.getIdMedico())
+                .orElseThrow(() -> new RuntimeException("Médico não encontrado"));
 
-        if (consulta == null) {
-            return ResponseEntity.status(404).body("Consulta não encontrada");
-        }
+        Servico servico = servicoRepository.findById(consulta.getIdServico())
+                .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
 
-        consulta.setStatus(StatusConsulta.CONFIRMADA);
-        consultaRepository.save(consulta);
+        consulta.setPaciente(paciente);
+        consulta.setMedico(medico);
+        consulta.setServico(servico);
 
-        return ResponseEntity.ok("Consulta confirmada com sucesso!");
+        Consulta salva = consultaRepository.save(consulta);
+        return ResponseEntity.ok(salva);
 
     } catch (Exception e) {
-        return ResponseEntity.badRequest()
-                .body("Erro ao confirmar consulta: " + e.getMessage());
+        return ResponseEntity.badRequest().body("Erro ao cadastrar consulta: " + e.getMessage());
     }
 }
 
-    @GetMapping("/buscar-por-cpf")
-    public ResponseEntity<?> buscarConsultasPorPaciente(@RequestParam String cpf) {
-        List<Consulta> consultas = consultaRepository.findByPacienteCpf(cpf);
-        return ResponseEntity.ok(consultas);
+   @PostMapping("/agendar")
+public ResponseEntity<?> agendar(@RequestBody Consulta consulta) {
+
+    try {
+
+        if (!consulta.getPaciente().isAnamneseValidada()) {
+            return ResponseEntity.badRequest()
+                .body("A anamnese do paciente deve ser validada antes do agendamento.");
+        }
+
+      
+        boolean conflito = consultaRepository.existsByMedicoIdAndDataHora(
+                consulta.getMedico().getIdUsuario(),
+                consulta.getDataHora()
+        );
+
+        if (conflito) {
+            return ResponseEntity.badRequest()
+                    .body("Já existe uma consulta marcada neste horário para esse médico.");
+        }
+
+        consulta.setStatus(StatusConsulta.CONFIRMADA);
+
+        Consulta salva = consultaRepository.save(consulta);
+
+        return ResponseEntity.ok(salva);
+
+    } catch (Exception e) {
+        return ResponseEntity.badRequest()
+                .body("Erro ao agendar consulta: " + e.getMessage());
     }
+}
+
+@GetMapping("/buscar-por-cpf")
+public ResponseEntity<?> buscarConsultasPorPaciente(@RequestParam String cpf) {
+    List<Consulta> consultas = consultaRepository.findByPacienteCpf(cpf);
+    return ResponseEntity.ok(consultas);
+}
+
      @PostMapping("/cancelar")
     public ResponseEntity<?> cancelarConsulta(@RequestBody Map<String, Integer> body) {
     try {
