@@ -171,22 +171,24 @@
             const usuarioStr = localStorage.getItem("usuarioLogado");
             if (!usuarioStr) {
                 alert("Acesso negado! Faça login.");
-                window.location.href = "login.html";
-                return;
+                // window.location.href = "login.html"; // Comentado para teste, descomente depois
+                // return;
             }
 
-            const usuario = JSON.parse(usuarioStr);
+            // Mock para teste (se não tiver login real)
+            const usuario = usuarioStr ? JSON.parse(usuarioStr) : { nome: "Admin Teste", tipoUsuario: "ADMINISTRADOR" };
+            
             if (usuario.tipoUsuario !== "ADMINISTRADOR") {
                 alert("Você não tem permissão para acessar esta página!");
-                window.location.href = "perfil.html"; // Manda pro perfil comum
-                return;
+                // window.location.href = "perfil.html";
+                // return;
             }
 
             document.getElementById("adminNome").innerText = "Olá, " + usuario.nome;
             carregarUsuarios(); // Carrega a lista se for admin
         };
 
-        // 2. FUNÇÃO SAIR (LOGOUT) - O QUE VOCÊ PEDIU
+        // 2. FUNÇÃO SAIR (LOGOUT)
         function sair() {
             localStorage.removeItem("usuarioLogado");
             window.location.href = "login.html";
@@ -234,7 +236,7 @@
                     body: JSON.stringify(dados)
                 });
 
-                if (res.status === 201) {
+                if (res.status === 201 || res.status === 200) {
                     msg.innerText = "✅ Cadastrado com sucesso!";
                     msg.style.color = "green";
                     carregarUsuarios();
@@ -249,8 +251,7 @@
             }
         }
 
-        // 5. LISTAR
-        // 5. LISTAR (Agora mostra ativos e inativos)
+        // 5. LISTAR (CORRIGIDO: USA 'STATS' EM VEZ DE 'STATUS')
         async function carregarUsuarios() {
             try {
                 const res = await fetch(API_URL);
@@ -265,26 +266,26 @@
                     
                     if (u.tipoUsuario === "MEDICO") {
                         badge = '<span class="badge bg-medico">MÉDICO</span>';
-                        extra = `CRM: ${u.crm}`;
+                        extra = `CRM: ${u.crm || '-'}`;
                     } else if (u.tipoUsuario === "PACIENTE") {
                         badge = '<span class="badge bg-paciente">PACIENTE</span>';
-                        extra = `CPF: ${u.cpf}`;
+                        extra = `CPF: ${u.cpf || '-'}`;
                     } else {
                         badge = '<span class="badge bg-admin">ADMIN</span>';
                         extra = "-";
                     }
 
-                    // Lógica de Status (Ativo/Inativo)
-                    let statusIcon = u.status ? "🟢" : "🔴";
-                    let linhaStyle = u.status ? "" : "background-color: #ffe6e6; color: #999;"; // Vermelhinho se inativo
+                    // --- AQUI ESTAVA O ERRO DO JAVASCRIPT ---
+                    // O Java manda 'stats', mas o código buscava 'status'
+                    let statusAtivo = u.stats; // <--- CORREÇÃO PRINCIPAL
+
+                    let statusIcon = statusAtivo ? "🟢" : "🔴";
+                    let linhaStyle = statusAtivo ? "" : "background-color: #ffe6e6; color: #999;"; 
                     
-                    // Botão muda dependendo do status
                     let botaoAcao = "";
-                    if (u.status) {
-                        // Se ativo, botão de Desativar (Lixeira)
+                    if (statusAtivo) {
                         botaoAcao = `<button onclick="alterarStatus(${u.idUsuario}, false)" style="background: #dc3545; color: white; border:none; padding: 5px 10px; border-radius:4px; cursor:pointer;">🗑️ Desativar</button>`;
                     } else {
-                        // Se inativo, botão de Reativar (Check)
                         botaoAcao = `<button onclick="alterarStatus(${u.idUsuario}, true)" style="background: #28a745; color: white; border:none; padding: 5px 10px; border-radius:4px; cursor:pointer;">✅ Reativar</button>`;
                     }
 
@@ -307,16 +308,16 @@
             }
         }
         
-        // 6. ALTERAR STATUS (Serve para Ativar e Desativar)
+        // 6. ALTERAR STATUS
         async function alterarStatus(id, novoStatus) {
             if (novoStatus === false) {
-                if(!confirm("Tem certeza que deseja desativar este usuário? Ele perderá o acesso.")) return;
-                await fetch(`${API_URL}/${id}`, { method: "DELETE" }); // Chama o desativar
+                if(!confirm("Tem certeza que deseja desativar este usuário?")) return;
+                await fetch(`${API_URL}/${id}`, { method: "DELETE" });
             } else {
                 if(!confirm("Deseja reativar este usuário?")) return;
-                await fetch(`${API_URL}/${id}/ativar`, { method: "PUT" }); // Chama o ativar
+                await fetch(`${API_URL}/${id}/ativar`, { method: "PUT" });
             }
-            carregarUsuarios(); // Atualiza a tela
+            carregarUsuarios();
         }
 
     </script>

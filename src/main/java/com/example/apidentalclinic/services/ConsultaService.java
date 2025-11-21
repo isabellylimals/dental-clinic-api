@@ -20,7 +20,10 @@ public class ConsultaService {
     }
 
     // Cadastrar (solicitar) uma nova consulta
+    // A anotação abaixo desativa o aviso amarelo do VS Code
+    @SuppressWarnings("null")
     public Consulta solicitar(Consulta consulta) {
+        // O Spring Data garante que o retorno não é nulo, então podemos retornar direto
         return consultaRepository.save(consulta);
     }
     

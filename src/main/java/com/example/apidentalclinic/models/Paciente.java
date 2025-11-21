@@ -83,7 +83,7 @@ private List<Consulta> consultas;
     }
 
     public boolean isAnamneseValidada() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return false; 
     }
 
  

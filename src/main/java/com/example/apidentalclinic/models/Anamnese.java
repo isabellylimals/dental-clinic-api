@@ -1,4 +1,5 @@
 package com.example.apidentalclinic.models;
+ 
 
 import jakarta.persistence.*;
 import java.util.Date;
@@ -9,9 +10,11 @@ public class Anamnese {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_anamnese") // 2. Ajuste para o SQL (snake_case)
     private int idAnamnese;
 
-    @Column(name = "dataPreenchimento")
+    @Column(name = "data_preenchimento") // 2. Ajuste para o SQL
+    @Temporal(TemporalType.DATE)         // 3. Obrigatório quando se usa Date antigo
     private Date dataPreenchimento;
 
     @Column(columnDefinition = "TEXT") // Garante que suporte textos longos
@@ -22,9 +25,11 @@ public class Anamnese {
 
     // --- CONSTRUTOR VAZIO (OBRIGATÓRIO JPA) ---
     public Anamnese() {
+        // Opcional: Inicializa com data atual se estiver vazio
+        this.dataPreenchimento = new Date();
     }
 
-    // --- SEU CONSTRUTOR ORIGINAL ---
+    // --- SEU CONSTRUTOR ORIGINAL (Mantido) ---
     public Anamnese(int idAnamnese, Date dataPreenchimento, String informacoes, String respostas) {
         this.idAnamnese = idAnamnese;
         this.dataPreenchimento = dataPreenchimento;
@@ -36,7 +41,7 @@ public class Anamnese {
         }
     }
 
-    // --- GETTERS E SETTERS ---
+    // --- GETTERS E SETTERS (Mantidos Iguais) ---
 
     public int getIdAnamnese() {
         return idAnamnese;

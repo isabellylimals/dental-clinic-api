@@ -16,7 +16,7 @@ public class PacienteService {
     private PacienteRepository pacienteRepository;
 
     public Paciente cadastrarPaciente(Paciente paciente) {
-        paciente.setTipoUsuario(TipoUsuario.PACIENTE); // <-- CORRETO
+        paciente.setTipoUsuario(TipoUsuario.PACIENTE); 
         paciente.setStats(true);
         return pacienteRepository.save(paciente);
     }
@@ -29,8 +29,17 @@ public class PacienteService {
         return pacienteRepository.findByCpfContainingIgnoreCase(cpf);
     }
 
+    // CORREÇÃO NO MÉTODO ATUALIZAR
     public Paciente atualizarPaciente(Integer id, Paciente novosDados) {
-        return pacienteRepository.findById(id)
+        // 1. Verificação de segurança
+        if (id == null) {
+            return null; // Ou lançar uma exceção
+        }
+
+        // 2. Converter para int primitivo (garante que não é nulo para o findById)
+        int idPaciente = id;
+
+        return pacienteRepository.findById(idPaciente)
                 .map(p -> {
                     p.setNome(novosDados.getNome());
                     p.setEmail(novosDados.getEmail());
@@ -43,8 +52,17 @@ public class PacienteService {
                 .orElse(null);
     }
 
+    // CORREÇÃO NO MÉTODO DESATIVAR
     public boolean desativarPaciente(Integer id) {
-        return pacienteRepository.findById(id)
+        // 1. Verificação de segurança
+        if (id == null) {
+            return false;
+        }
+
+        // 2. Converter para int primitivo
+        int idPaciente = id;
+
+        return pacienteRepository.findById(idPaciente)
                 .map(p -> {
                     p.setStats(false);
                     pacienteRepository.save(p);

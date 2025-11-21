@@ -14,7 +14,7 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Integer> {
 
     public boolean existsByDataHora(Date dataHora);
 
-    public boolean existsByMedicoIdAndDataHora(int idUsuario, Date dataHora);
+    boolean existsByMedicoIdUsuarioAndDataHora(int idUsuario, Date dataHora);
 
     Object findByPacienteCpfOrderByDataHoraDesc(String cpf);
 }

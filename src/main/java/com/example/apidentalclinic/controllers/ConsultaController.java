@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.apidentalclinic.enums.StatusConsulta;
-import com.example.apidentalclinic.enums.TipoUsuario;
 import com.example.apidentalclinic.models.Consulta;
 import com.example.apidentalclinic.models.Medico;
 import com.example.apidentalclinic.models.Paciente;
@@ -35,112 +34,136 @@ public class ConsultaController {
     @Autowired
     private ServicoRepository servicoRepository;
 
+    @PostMapping("/solicitar")
+    public ResponseEntity<?> solicitar(@RequestBody Consulta consulta) {
+        try {
+            // CORREÇÃO DEFINITIVA:
+            // 1. Extrair para variáveis locais primeiro
+            Integer idPaciente = consulta.getIdPaciente();
+            Integer idMedico = consulta.getIdMedico();
+            Integer idServico = consulta.getIdServico();
 
-@PostMapping("/solicitar")
-public ResponseEntity<?> solicitar(@RequestBody Consulta consulta) {
-    try {
-        Paciente paciente = pacienteRepository.findById(consulta.getIdPaciente())
-                .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
+            // 2. Verificar se as variáveis são nulas
+            if (idPaciente == null || idMedico == null || idServico == null) {
+                return ResponseEntity.badRequest().body("IDs de Paciente, Médico e Serviço são obrigatórios.");
+            }
 
-        Medico medico = medicoRepository.findById(consulta.getIdMedico())
-                .orElseThrow(() -> new RuntimeException("Médico não encontrado"));
+            // 3. Usar as variáveis locais (o compilador agora confia nelas)
+            Paciente paciente = pacienteRepository.findById(idPaciente)
+                    .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
 
-        Servico servico = servicoRepository.findById(consulta.getIdServico())
-                .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
+            Medico medico = medicoRepository.findById(idMedico)
+                    .orElseThrow(() -> new RuntimeException("Médico não encontrado"));
 
-        consulta.setPaciente(paciente);
-        consulta.setMedico(medico);
-        consulta.setServico(servico);
+            Servico servico = servicoRepository.findById(idServico)
+                    .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
 
-        Consulta salva = consultaRepository.save(consulta);
-        return ResponseEntity.ok(salva);
+            consulta.setPaciente(paciente);
+            consulta.setMedico(medico);
+            consulta.setServico(servico);
 
-    } catch (Exception e) {
-        return ResponseEntity.badRequest().body("Erro ao cadastrar consulta: " + e.getMessage());
-    }
-}
+            Consulta salva = consultaRepository.save(consulta);
+            return ResponseEntity.ok(salva);
 
-   @PostMapping("/agendar")
-public ResponseEntity<?> agendar(@RequestBody Consulta consulta) {
-
-    try {
-
-        if (!consulta.getPaciente().isAnamneseValidada()) {
-            return ResponseEntity.badRequest()
-                .body("A anamnese do paciente deve ser validada antes do agendamento.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erro ao cadastrar consulta: " + e.getMessage());
         }
-
-      
-        boolean conflito = consultaRepository.existsByMedicoIdAndDataHora(
-                consulta.getMedico().getIdUsuario(),
-                consulta.getDataHora()
-        );
-
-        if (conflito) {
-            return ResponseEntity.badRequest()
-                    .body("Já existe uma consulta marcada neste horário para esse médico.");
-        }
-
-        consulta.setStatus(StatusConsulta.CONFIRMADA);
-
-        Consulta salva = consultaRepository.save(consulta);
-
-        return ResponseEntity.ok(salva);
-
-    } catch (Exception e) {
-        return ResponseEntity.badRequest()
-                .body("Erro ao agendar consulta: " + e.getMessage());
     }
-}
 
-@GetMapping("/buscar-por-cpf")
-public ResponseEntity<?> buscarConsultasPorPaciente(@RequestParam String cpf) {
-    List<Consulta> consultas = consultaRepository.findByPacienteCpf(cpf);
-    return ResponseEntity.ok(consultas);
-}
+    @PostMapping("/agendar")
+    public ResponseEntity<?> agendar(@RequestBody Consulta consulta) {
+        try {
+            if (consulta.getPaciente() == null || consulta.getMedico() == null) {
+                 return ResponseEntity.badRequest().body("Dados de Paciente ou Médico incompletos.");
+            }
 
-     @PostMapping("/cancelar")
+            if (!consulta.getPaciente().isAnamneseValidada()) {
+                return ResponseEntity.badRequest()
+                        .body("A anamnese do paciente deve ser validada antes do agendamento.");
+            }
+
+            boolean conflito = consultaRepository.existsByMedicoIdUsuarioAndDataHora(
+                    consulta.getMedico().getIdUsuario(),
+                    consulta.getDataHora()
+            );
+
+            if (conflito) {
+                return ResponseEntity.badRequest()
+                        .body("Já existe uma consulta marcada neste horário para esse médico.");
+            }
+
+            consulta.setStatus(StatusConsulta.CONFIRMADA);
+            Consulta salva = consultaRepository.save(consulta);
+
+            return ResponseEntity.ok(salva);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body("Erro ao agendar consulta: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/buscar-por-cpf")
+    public ResponseEntity<?> buscarConsultasPorPaciente(@RequestParam String cpf) {
+        List<Consulta> consultas = consultaRepository.findByPacienteCpf(cpf);
+        return ResponseEntity.ok(consultas);
+    }
+
+    @PostMapping("/cancelar")
     public ResponseEntity<?> cancelarConsulta(@RequestBody Map<String, Integer> body) {
-    try {
-        Integer idConsulta = body.get("idConsulta");
+        try {
+            Integer idRaw = body.get("idConsulta");
 
-        Consulta consulta = consultaRepository.findById(idConsulta)
-                .orElse(null);
+            if (idRaw == null) {
+                return ResponseEntity.badRequest().body("O ID da consulta é obrigatório.");
+            }
 
-        if (consulta == null) {
-            return ResponseEntity.status(404).body("Consulta não encontrada");
+            int idConsulta = idRaw;
+
+            Consulta consulta = consultaRepository.findById(idConsulta)
+                    .orElse(null);
+
+            if (consulta == null) {
+                return ResponseEntity.status(404).body("Consulta não encontrada");
+            }
+
+            consulta.setStatus(StatusConsulta.CANCELADA);
+            consultaRepository.save(consulta);
+
+            return ResponseEntity.ok("Consulta cancelada com sucesso!");
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body("Erro ao cancelar consulta: " + e.getMessage());
         }
-
-        consulta.setStatus(StatusConsulta.CANCELADA);
-        consultaRepository.save(consulta);
-
-        return ResponseEntity.ok("Consulta cancelada com sucesso!");
-
-    } catch (Exception e) {
-        return ResponseEntity.badRequest()
-                .body("Erro ao cancelar consulta: " + e.getMessage());
     }
-}
+
     @PostMapping("/atualizar-status")
     public ResponseEntity<?> atualizarStatus(@RequestBody Map<String, Integer> body) {
-    try {
-        Integer idConsulta = body.get("idConsulta");
+        try {
+            Integer idRaw = body.get("idConsulta");
 
-        Consulta consulta = consultaRepository.findById(idConsulta)
-                .orElse(null);
+            if (idRaw == null) {
+                return ResponseEntity.badRequest().body("O ID da consulta é obrigatório.");
+            }
 
-        if (consulta == null) {
-            return ResponseEntity.status(404).body("Consulta não encontrada");
+            int idConsulta = idRaw;
+
+            Consulta consulta = consultaRepository.findById(idConsulta)
+                    .orElse(null);
+
+            if (consulta == null) {
+                return ResponseEntity.status(404).body("Consulta não encontrada");
+            }
+
+            consulta.setStatus(StatusConsulta.REALIZADA);
+            consultaRepository.save(consulta);
+
+            return ResponseEntity.ok("Status da consulta atualizado com sucesso!");
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body("Erro ao atualizar consulta " + e.getMessage());
         }
-
-        consulta.setStatus(StatusConsulta.REALIZADA);
-        consultaRepository.save(consulta);
-
-        return ResponseEntity.ok("Status da consulta atualizado com sucesso!");
-
-    } catch (Exception e) {
-        return ResponseEntity.badRequest()
-                .body("Erro ao atualizar consulta " + e.getMessage());
     }
-}
 }
