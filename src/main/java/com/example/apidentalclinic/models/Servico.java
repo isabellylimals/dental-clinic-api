@@ -1,9 +1,7 @@
 package com.example.apidentalclinic.models;
 
 import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -19,22 +17,18 @@ public class Servico {
 
     @Column(columnDefinition = "TEXT")
     private String descricao;
-@OneToMany(mappedBy = "servico")
-@JsonIgnore
-private List<Consulta> consultas;
+    @OneToMany(mappedBy = "servico")
+    @JsonIgnore
+    private List<Consulta> consultas;
 
-    // --- CONSTRUTOR VAZIO (OBRIGATÓRIO) ---
     public Servico() {
     }
 
-    // --- SEU CONSTRUTOR ORIGINAL ---
     public Servico(int idServico, String nomeServico, String descricao) {
         this.idServico = idServico;
         this.nomeServico = nomeServico;
         this.descricao = descricao;
     }
-
-    // --- GETTERS E SETTERS ---
 
     public int getIdServico() {
         return idServico;

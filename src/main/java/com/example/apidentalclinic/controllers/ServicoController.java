@@ -2,13 +2,11 @@ package com.example.apidentalclinic.controllers;
 
 import com.example.apidentalclinic.models.Servico;
 import com.example.apidentalclinic.services.ServicoService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull; // <--- 1. IMPORTAR ISSO
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -34,7 +32,7 @@ public class ServicoController {
         List<Servico> servicos = servicoService.buscarServicoPorNome(nome);
         return ResponseEntity.ok(servicos);
     }
-    
+
     @PostMapping
     public ResponseEntity<Servico> adicionarServico(@RequestBody @NonNull Servico servico) {
         Servico novoServico = servicoService.salvar(servico);

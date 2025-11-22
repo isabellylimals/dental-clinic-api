@@ -2,6 +2,8 @@ package com.example.apidentalclinic.models;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import com.example.apidentalclinic.enums.StatusConsulta;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -21,14 +23,15 @@ import jakarta.persistence.Transient;
 @Table(name = "consulta")
 public class Consulta {
 
+   
     @Transient
-    private Integer idPaciente;
+    private String cpfPacienteInput;
 
     @Transient
-    private Integer idMedico;
+    private String especialidadeInput; 
 
     @Transient
-    private Integer idServico;
+    private String nomeServicoInput;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,19 +40,18 @@ public class Consulta {
     @Column(name = "dataHora", nullable = false)
     private LocalDateTime dataHora;
 
-    // RELACIONAMENTOS
     @ManyToOne
-    @JsonIgnoreProperties({"consultas"})
+    @JsonIgnoreProperties({ "consultas" })
     @JoinColumn(name = "idMedico", nullable = false)
     private Medico medico;
 
     @ManyToOne
-    @JsonIgnoreProperties({"consultas"})
+    @JsonIgnoreProperties({ "consultas" })
     @JoinColumn(name = "idPaciente", nullable = false)
     private Paciente paciente;
 
     @ManyToOne
-    @JsonIgnoreProperties({"consultas"})
+    @JsonIgnoreProperties({ "consultas" })
     @JoinColumn(name = "idServico", nullable = false)
     private Servico servico;
 
@@ -57,11 +59,38 @@ public class Consulta {
     @Column(name = "stats")
     private StatusConsulta status;
 
-    // --- CONSTRUTOR VAZIO ---
-    public Consulta() {}
+   
+    public Consulta() {
+    }
+
+ 
+    public String getCpfPacienteInput() {
+        return cpfPacienteInput;
+    }
+
+    public void setCpfPacienteInput(String cpfPacienteInput) {
+        this.cpfPacienteInput = cpfPacienteInput;
+    }
+
+    public String getEspecialidadeInput() {
+        return especialidadeInput;
+    }
+
+    public void setEspecialidadeInput(String especialidadeInput) {
+        this.especialidadeInput = especialidadeInput;
+    }
+
+    public String getNomeServicoInput() {
+        return nomeServicoInput;
+    }
+
+    public void setNomeServicoInput(String nomeServicoInput) {
+        this.nomeServicoInput = nomeServicoInput;
+    }
+
 
     public Consulta(int idConsulta, LocalDateTime dataHora, Medico medico,
-                    Paciente paciente, Servico servico, StatusConsulta status) {
+            Paciente paciente, Servico servico, StatusConsulta status) {
         this.idConsulta = idConsulta;
         this.dataHora = dataHora;
         this.medico = medico;
@@ -70,22 +99,23 @@ public class Consulta {
         this.status = status;
     }
 
-    // --- GETTERS E SETTERS ---
 
-    public Integer getIdPaciente() { return idPaciente; }
-    public void setIdPaciente(Integer idPaciente) { this.idPaciente = idPaciente; }
 
-    public Integer getIdMedico() { return idMedico; }
-    public void setIdMedico(Integer idMedico) { this.idMedico = idMedico; }
+    public int getIdConsulta() {
+        return idConsulta;
+    }
 
-    public Integer getIdServico() { return idServico; }
-    public void setIdServico(Integer idServico) { this.idServico = idServico; }
+    public void setIdConsulta(int idConsulta) {
+        this.idConsulta = idConsulta;
+    }
 
-    public int getIdConsulta() { return idConsulta; }
-    public void setIdConsulta(int idConsulta) { this.idConsulta = idConsulta; }
+    public LocalDateTime getDataHora() {
+        return dataHora;
+    }
 
-    public LocalDateTime getDataHora() { return dataHora; }
-    public void setDataHora(LocalDateTime dataHora) { this.dataHora = dataHora; }
+    public void setDataHora(LocalDateTime dataHora) {
+        this.dataHora = dataHora;
+    }
 
     public Medico getMedico() { return medico; }
     public void setMedico(Medico medico) { this.medico = medico; }
@@ -104,9 +134,9 @@ public class Consulta {
         return "Consulta{" +
                 "idConsulta=" + idConsulta +
                 ", dataHora=" + dataHora +
-                ", idPaciente=" + idPaciente +
-                ", idMedico=" + idMedico +
-                ", idServico=" + idServico +
+                ", cpfPacienteInput='" + cpfPacienteInput + '\'' +
+                ", especialidadeInput='" + especialidadeInput + '\'' +
+                ", nomeServicoInput='" + nomeServicoInput + '\'' +
                 ", status=" + status +
                 '}';
     }

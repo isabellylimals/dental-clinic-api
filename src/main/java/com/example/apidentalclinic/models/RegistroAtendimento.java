@@ -1,7 +1,7 @@
 package com.example.apidentalclinic.models;
 
 import jakarta.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "registro_atendimento")
@@ -12,31 +12,27 @@ public class RegistroAtendimento {
     private int idRegistroAtendimento;
 
     @Column(name = "dataHora")
-    private Date dataHora;
+    private LocalDate dataHora; 
 
     @Column(columnDefinition = "TEXT")
     private String observacoes;
 
-    // --- RELACIONAMENTOS (Adicionados conforme seu SQL) ---
-
     @ManyToOne
-    @JoinColumn(name = "idProntuario", nullable = false) // FK Obrigatória
+    @JoinColumn(name = "idProntuario", nullable = false) 
     private Prontuario prontuario;
 
     @ManyToOne
-    @JoinColumn(name = "idMedico") // FK Opcional (pode ser null)
+    @JoinColumn(name = "idMedico") 
     private Medico medico;
 
     @ManyToOne
-    @JoinColumn(name = "idConsulta") // FK Opcional
+    @JoinColumn(name = "idConsulta") 
     private Consulta consulta;
 
-    // --- CONSTRUTOR VAZIO (OBRIGATÓRIO) ---
     public RegistroAtendimento() {
     }
 
-    // --- SEU CONSTRUTOR (Atualizado com os relacionamentos) ---
-    public RegistroAtendimento(int idRegistroAtendimento, Date dataHora, String observacoes,
+    public RegistroAtendimento(int idRegistroAtendimento, LocalDate dataHora, String observacoes,
                                Prontuario prontuario, Medico medico, Consulta consulta) {
         this.idRegistroAtendimento = idRegistroAtendimento;
         this.dataHora = dataHora;
@@ -46,7 +42,6 @@ public class RegistroAtendimento {
         this.consulta = consulta;
     }
 
-    // --- GETTERS E SETTERS ---
 
     public int getIdRegistroAtendimento() {
         return idRegistroAtendimento;
@@ -56,11 +51,12 @@ public class RegistroAtendimento {
         this.idRegistroAtendimento = idRegistroAtendimento;
     }
 
-    public Date getDataHora() {
+    public LocalDate getDataHora() {
         return dataHora;
     }
 
-    public void setDataHora(Date dataHora) {
+    
+    public void setDataHora(LocalDate dataHora) {
         this.dataHora = dataHora;
     }
 

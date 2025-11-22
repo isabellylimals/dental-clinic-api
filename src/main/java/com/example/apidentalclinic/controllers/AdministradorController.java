@@ -13,21 +13,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.apidentalclinic.enums.TipoUsuario;
+import com.example.apidentalclinic.models.Administrador;
 import com.example.apidentalclinic.models.Medico;
 import com.example.apidentalclinic.models.Paciente;
-import com.example.apidentalclinic.repositories.MedicoRepository;
-import com.example.apidentalclinic.services.ConsultaService;
-import com.example.apidentalclinic.services.MedicoService;
+import com.example.apidentalclinic.services.AdministradorService;
 
 @RestController
-@RequestMapping("/api/medicos")
-public class MedicoController {
+@RequestMapping("/api/administrador")
+public class AdministradorController {
 
     @Autowired
-    private MedicoService medicoService;
+    private AdministradorService administradorService;
+    
     @Autowired
-    private MedicoRepository medicoRepository;
-    @GetMapping("/buscar-pacientes")
+    private AdministradorRepository administradorRepository;
+ 
+    /*@GetMapping("/buscar-pacientes")
     public List<Paciente> buscar(@RequestParam String cpf) {
         return medicoService.buscarPaciente(cpf);
     }
@@ -43,14 +44,15 @@ public class MedicoController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erro ao salvar: " + e.getMessage());
         }
-    }
+    }*/
+
     @GetMapping("/listar-todos")
     public List<Paciente> listarTodos() {
-        return medicoService.visualizarPacientesCadastrados();
+        return administradorService.visualizarPacientesCadastrados();
     }
    @GetMapping
     public List<Medico> listarMedicos() {
-        return medicoRepository.findAll();
+        return administradorRepository.findAll();
     }
     @Autowired
     private ConsultaService consultaService;

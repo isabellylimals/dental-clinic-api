@@ -15,7 +15,7 @@ public class Administrador extends Usuario {
         this.setTipoUsuario(TipoUsuario.ADMINISTRADOR);
     }
 
-    // --- SEU CONSTRUTOR ORIGINAL (Ajustado status -> stats) ---
+    
     public Administrador(String nome, String email, String senha,
             String telefone, boolean stats) {
         super(nome, email, senha, TipoUsuario.ADMINISTRADOR, telefone, stats);
@@ -26,4 +26,6 @@ public class Administrador extends Usuario {
         return super.toString().replace("]", "") +
                 ']';
     }
+
+    //gerar relatorio agendamento
 }

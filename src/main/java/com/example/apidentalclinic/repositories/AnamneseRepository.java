@@ -6,5 +6,4 @@ import com.example.apidentalclinic.models.Anamnese;
 
 @Repository
 public interface AnamneseRepository extends JpaRepository<Anamnese, Integer> {
-    // Métodos padrões do JPA já são suficientes
 }

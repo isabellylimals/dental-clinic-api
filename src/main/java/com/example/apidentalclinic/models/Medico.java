@@ -20,15 +20,15 @@ public class Medico extends Usuario {
     private String crm;
 
     private String especialidade;
-@OneToMany(mappedBy = "medico")
-@JsonIgnore
-private List<Consulta> consultas;
+    @OneToMany(mappedBy = "medico")
+    @JsonIgnore
+    private List<Consulta> consultas;
 
     public Medico() {
         this.setTipoUsuario(TipoUsuario.MEDICO);
     }
 
-    // --- SEU CONSTRUTOR ORIGINAL (Ajustado status -> stats) ---
+    
     public Medico(String nome, String email, String senha,
             String telefone, boolean stats, String crm, String especialidade) {
 
@@ -37,7 +37,7 @@ private List<Consulta> consultas;
         this.especialidade = especialidade;
     }
 
-    // --- GETTERS E SETTERS ---
+    
 
     public String getCrm() {
         return crm;

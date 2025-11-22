@@ -14,7 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@DiscriminatorValue("PACIENTE")
+@DiscriminatorValue("PACIENTE") 
 @Getter @Setter
 public class Paciente extends Usuario {
 
@@ -33,10 +33,12 @@ public class Paciente extends Usuario {
     @JsonIgnore
     private List<Consulta> consultas;
 
+    
     public Paciente() {
         this.setTipoUsuario(TipoUsuario.PACIENTE);
     }
 
+    
     public Paciente(String nome, String email, String senha,
                     String telefone, boolean stats, String cpf,
                     Date dataNascimento, String endereco) {
@@ -45,9 +47,35 @@ public class Paciente extends Usuario {
         this.cpf = cpf;
         this.dataNascimento = dataNascimento;
         this.endereco = endereco;
-        this.anamneseValidada = false;
     }
 
+    
+    
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
+
+    public Date getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(Date dataNascimento) {
+        this.dataNascimento = dataNascimento;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
+    }
+
+    
     @Override
     public String toString() {
         return super.toString().replace("]", "") +
