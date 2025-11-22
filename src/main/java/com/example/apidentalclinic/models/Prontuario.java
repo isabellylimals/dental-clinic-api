@@ -1,9 +1,10 @@
 package com.example.apidentalclinic.models;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "prontuario")
@@ -11,29 +12,31 @@ public class Prontuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_prontuario") // SQL: id_prontuario
     private int idProntuario;
 
-    @Column(name = "dataCriacao")
+    @Column(name = "data_criacao")  // SQL: data_criacao
+    @Temporal(TemporalType.DATE)
     private Date dataCriacao;
 
-    // RELACIONAMENTO 1:1 com Anamnese
-    @OneToOne(cascade = CascadeType.ALL) // Se salvar prontuário, salva anamnese junto
-    @JoinColumn(name = "idAnamnese")
-    private Anamnese anamnese;
-
-    // RELACIONAMENTO 1:1 com Paciente (Adicionado conforme seu SQL)
+    // RELACIONAMENTO 1:1 COM PACIENTE
     @OneToOne
-    @JoinColumn(name = "idPaciente", nullable = false, unique = true)
+    @JoinColumn(name = "id_paciente", unique = true, nullable = false) // SQL: id_paciente
     private Paciente paciente;
 
-    // RELACIONAMENTO 1:N com Registros
-    // 'mappedBy' indica que quem manda na relação é o atributo 'prontuario' na classe RegistroAtendimento
-    @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL)
-    private List<RegistroAtendimento> registros;
+    // RELACIONAMENTO 1:1 COM ANAMNESE
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_anamnese", unique = true) // SQL: id_anamnese
+    private Anamnese anamnese;
 
-    // --- CONSTRUTOR VAZIO ---
+    // RELACIONAMENTO 1:N COM REGISTROS
+    @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL)
+    @JsonManagedReference // Evita loop infinito no JSON
+    private List<RegistroAtendimento> registros = new ArrayList<>();
+
+    // Construtor
     public Prontuario() {
-        this.registros = new ArrayList<>();
+        this.dataCriacao = new Date();
     }
 
     // --- SEU CONSTRUTOR (Adicionei Paciente) ---

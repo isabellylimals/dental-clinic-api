@@ -1,8 +1,7 @@
 package com.example.apidentalclinic.models;
- 
 
 import jakarta.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "anamnese")
@@ -10,27 +9,25 @@ public class Anamnese {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_anamnese") // 2. Ajuste para o SQL (snake_case)
+    @Column(name = "id_anamnese")
     private int idAnamnese;
 
-    @Column(name = "data_preenchimento") // 2. Ajuste para o SQL
-    @Temporal(TemporalType.DATE)         // 3. Obrigatório quando se usa Date antigo
-    private Date dataPreenchimento;
+    @Column(name = "data_preenchimento")
 
-    @Column(columnDefinition = "TEXT") // Garante que suporte textos longos
+    private LocalDate dataPreenchimento;
+
+    @Column(columnDefinition = "TEXT")
     private String informacoes;
 
     @Column(columnDefinition = "TEXT")
     private String respostas;
 
-    // --- CONSTRUTOR VAZIO (OBRIGATÓRIO JPA) ---
     public Anamnese() {
-        // Opcional: Inicializa com data atual se estiver vazio
-        this.dataPreenchimento = new Date();
+
+        this.dataPreenchimento = LocalDate.now();
     }
 
-    // --- SEU CONSTRUTOR ORIGINAL (Mantido) ---
-    public Anamnese(int idAnamnese, Date dataPreenchimento, String informacoes, String respostas) {
+    public Anamnese(int idAnamnese, LocalDate dataPreenchimento, String informacoes, String respostas) {
         this.idAnamnese = idAnamnese;
         this.dataPreenchimento = dataPreenchimento;
         this.informacoes = informacoes;
@@ -41,8 +38,6 @@ public class Anamnese {
         }
     }
 
-    // --- GETTERS E SETTERS (Mantidos Iguais) ---
-
     public int getIdAnamnese() {
         return idAnamnese;
     }
@@ -51,11 +46,11 @@ public class Anamnese {
         this.idAnamnese = idAnamnese;
     }
 
-    public Date getDataPreenchimento() {
+    public LocalDate getDataPreenchimento() {
         return dataPreenchimento;
     }
 
-    public void setDataPreenchimento(Date dataPreenchimento) {
+    public void setDataPreenchimento(LocalDate dataPreenchimento) {
         this.dataPreenchimento = dataPreenchimento;
     }
 

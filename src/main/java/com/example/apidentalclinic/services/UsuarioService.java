@@ -16,6 +16,7 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    // + cadastrarUsuario(): Usuario
     public Usuario cadastrarUsuario(Usuario usuario) {
         if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
             throw new RuntimeException("Email já cadastrado!");
@@ -24,6 +25,7 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
+    // + autenticar(email: String, senha: String): boolean
     public Usuario autenticar(String email, String senha) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
         if (usuarioOpt.isPresent()) {
@@ -33,6 +35,7 @@ public class UsuarioService {
         return null;
     }
 
+    // + editarDados(): boolean
     public Usuario editarUsuario(Usuario usuario) {
         if (usuarioRepository.existsById(usuario.getIdUsuario())) {
             return usuarioRepository.save(usuario);
@@ -40,6 +43,7 @@ public class UsuarioService {
         throw new RuntimeException("Usuário não encontrado.");
     }
 
+    // + desativarConta(): void (Muda status para false)
     public void desativarConta(int id) {
         Optional<Usuario> u = usuarioRepository.findById(id);
         if (u.isPresent()) {
@@ -49,16 +53,17 @@ public class UsuarioService {
         }
     }
 
+    // + listarTodos(): List<Usuario> (novo)
     public List<Usuario> listarTodos() {
         return usuarioRepository.findAll();
     }
 
-    // REATIVAR CONTA (Muda status para true)
+    // + ativarConta(): void (Muda status para true) (novo)
     public void ativarConta(int id) {
         Optional<Usuario> u = usuarioRepository.findById(id);
         if (u.isPresent()) {
             Usuario user = u.get();
-            user.setStats(true); // Volta a ser ativo
+            user.setStats(true); 
             usuarioRepository.save(user);
         }
     }

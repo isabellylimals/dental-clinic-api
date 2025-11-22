@@ -1,145 +1,360 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Solicitar Consulta</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Completo - Clínica</title>
+    <style>
+        :root { --primary: #2563eb; --success: #16a34a; --danger: #dc2626; --warning: #ca8a04; --dark: #1e293b; --light: #f1f5f9; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light); color: var(--dark); padding: 20px; max-width: 1200px; margin: 0 auto; }
+        
+        h1 { text-align: center; color: var(--primary); margin-bottom: 30px; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px; }
+        .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+        
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 5px solid transparent; }
+        .card h2 { margin-top: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+        
+        .card-solicitar { border-left-color: var(--primary); }
+        .card-agendar { border-left-color: var(--success); }
+        .card-gerenciar { border-left-color: var(--danger); }
+        .card-buscar { border-left-color: var(--warning); }
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f5f5f5;
-        padding: 30px;
-    }
+        label { display: block; margin-top: 10px; font-weight: 600; font-size: 0.9em; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
+        
+        button { width: 100%; padding: 12px; margin-top: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
 
-    h1 {
-        color: #333;
-    }
+        .btn-solicitar { background-color: var(--primary); }
+        .btn-agendar { background-color: var(--success); }
+        .btn-cancelar { background-color: var(--danger); }
+        .btn-atualizar { background-color: #475569; }
+        .btn-buscar { background-color: var(--warning); color: #333; }
+        .btn-lista { background-color: #0ea5e9; font-size: 0.9em; padding: 8px; margin-top: 5px; }
 
-    .card {
-        background: white;
-        padding: 20px;
-        width: 420px;
-        border-radius: 8px;
-        box-shadow: 0px 0px 10px #ccc;
-    }
+        /* Tabela Genérica */
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.85em; }
+        .data-table th, .data-table td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
+        .data-table th { background-color: #f8fafc; color: #64748b; }
+        .row-clickable:hover { background-color: #f0f9ff; cursor: pointer; }
 
-    label {
-        display: block;
-        margin-top: 15px;
-        font-weight: bold;
-    }
-
-    select, input {
-        width: 100%;
-        padding: 10px;
-        margin-top: 5px;
-    }
-
-    button {
-        margin-top: 20px;
-        width: 100%;
-        padding: 12px;
-        background: #007bff;
-        color: white;
-        border: none;
-        font-size: 16px;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background: #0056b3;
-    }
-
-    #resultado {
-        margin-top: 20px;
-        padding: 15px;
-        background: #e9e9e9;
-        border-radius: 5px;
-        display: none;
-        white-space: pre-wrap;
-    }
-</style>
+        /* Console Output */
+        .console-container { grid-column: 1 / -1; margin-top: 20px; }
+        .console { background: #0f172a; color: #4ade80; padding: 20px; border-radius: 8px; font-family: 'Consolas', monospace; min-height: 150px; white-space: pre-wrap; overflow-x: auto; }
+        .status-badge { display: inline-block; padding: 5px 10px; background: #334155; color: white; border-radius: 4px; margin-bottom: 10px; font-size: 0.8rem; }
+    </style>
 </head>
-
 <body>
 
-<h1>Solicitar Consulta</h1>
+    <h1>🦷 Painel de Teste: API Consultas</h1>
 
-<div class="card">
+    <div class="grid-layout">
 
-    <label>ID do Paciente:</label>
-    <input id="paciente" type="number" placeholder="Ex: 1">
+        <div class="card card-solicitar">
+            <h2>1. Solicitar Consulta</h2>
+            <small>Tenta criar consulta (Valida disponibilidade imediata)</small>
+            
+            <label>CPF do Paciente (Exato):</label>
+            <input type="text" id="solCpf" placeholder="Ex: 12345678900">
+            
+            <label>Especialidade Médica:</label>
+            <input type="text" id="solEsp" placeholder="Ex: Ortodontia">
+            
+            <label>Nome do Serviço:</label>
+            <input type="text" id="solServ" placeholder="Ex: Limpeza">
+            
+            <label>Data e Hora:</label>
+            <input type="datetime-local" id="solData">
 
-    <label>Médico:</label>
-    <select id="medico"></select>
+            <button class="btn-solicitar" onclick="solicitar()">MÉTODO: solicitar()</button>
+        </div>
 
-    <label>Serviço:</label>
-    <select id="servico"></select>
+        <div class="card card-agendar">
+            <h2>2. Agendar (Confirmar)</h2>
+            <small>Confirma uma solicitação existente.</small>
 
-    <label>Data e Hora:</label>
-    <input id="dataHora" type="datetime-local">
+            <button class="btn-lista" onclick="carregarPendentes()">🔄 Atualizar Lista de Pendentes</button>
+            
+            <div style="max-height: 200px; overflow-y: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Paciente</th>
+                            <th>Data/Hora</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaPendentes">
+                        <tr><td colspan="4" style="text-align:center;">Clique em atualizar...</td></tr>
+                    </tbody>
+                </table>
+            </div>
 
-    <button onclick="solicitarConsulta()">Solicitar Consulta</button>
+            <hr style="margin: 15px 0; border-color: #eee;">
+            
+            <label>ID da Consulta Selecionada:</label>
+            <input type="number" id="agendaId" placeholder="Clique na lista acima ou digite">
 
-    <div id="resultado"></div>
+            <button class="btn-agendar" onclick="agendar()">MÉTODO: agendar()</button>
+        </div>
 
-</div>
+        <div class="card card-gerenciar">
+            <h2>3. Gerenciar Status</h2>
+            <label>ID da Consulta:</label>
+            <input type="number" id="gerenciaId">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button class="btn-cancelar" onclick="cancelar()">cancelar()</button>
+                <div>
+                    <select id="novoStatus" style="margin-top: 15px; height: 42px;">
+                        <option value="REALIZADA">REALIZADA</option>
+                        <option value="PENDENTE">PENDENTE</option>
+                        <option value="SOLICITADA">SOLICITADA</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-atualizar" onclick="atualizarStatus()">atualizarStatus()</button>
+        </div>
 
+        <div class="card card-buscar">
+            <h2>4. Métodos de Busca</h2>
+            
+            <label>Buscar por CPF:</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="buscaCpf" placeholder="CPF">
+                <button class="btn-buscar" style="margin-top: 5px; width: auto;" onclick="buscarPorCpf()">🔎</button>
+            </div>
+            
+            <hr style="margin: 15px 0; border-color: #eee;">
+            
+            <label>Agenda do Médico (Busca ID):</label>
+            <button class="btn-lista" style="background-color: #f59e0b; color: white;" onclick="listarMedicos()">📋 Ver Médicos Cadastrados</button>
+            
+            <div id="listaMedicosContainer" style="display:none; margin-top:10px; max-height: 150px; overflow-y: auto; border: 1px solid #ddd;">
+                <table class="data-table">
+                    <thead><tr><th>ID</th><th>Nome</th><th>Esp.</th><th>Ação</th></tr></thead>
+                    <tbody id="tabelaMedicos"></tbody>
+                </table>
+            </div>
 
-<script>
-async function carregarServicos() {
-    const resp = await fetch("http://localhost:8080/api/servicos");
-    const servicos = await resp.json();
+            <label style="margin-top: 10px;">Data da Agenda:</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="number" id="buscaIdMed" placeholder="ID Med" style="width: 30%;">
+                <input type="date" id="buscaData">
+                <button class="btn-buscar" style="margin-top: 5px; width: auto;" onclick="buscarAgenda()">📅 Ver Agenda</button>
+            </div>
+        </div>
 
-    let select = document.getElementById("servico");
-    select.innerHTML = "<option value=''>Selecione</option>";
+        <div class="console-container">
+            <span class="status-badge" id="statusBadge">Pronto</span>
+            <div class="console" id="output">Resultados aparecerão aqui...</div>
+        </div>
+    </div>
 
-    servicos.forEach(s => {
-        select.innerHTML += `<option value="${s.idServico}">${s.nomeServico}</option>`;
-    });
-}
+    <script>
+        const API_URL = "http://localhost:8080/api/consultas";
+        const USER_API_URL = "http://localhost:8080/api/usuarios";
 
-async function carregarMedicos() {
-    const resp = await fetch("http://localhost:8080/api/medicos");
-    const medicos = await resp.json();
+        // Função auxiliar para exibir logs e tratar erros de TEXTO vs JSON
+        async function handleResponse(res) {
+            const badge = document.getElementById('statusBadge');
+            const output = document.getElementById('output');
+            
+            // Verifica se o conteúdo é JSON
+            const contentType = res.headers.get("content-type");
+            const isJson = contentType && contentType.indexOf("application/json") !== -1;
 
-    let select = document.getElementById("medico");
-    select.innerHTML = "<option value=''>Selecione</option>";
+            if (res.ok) {
+                badge.style.background = "#16a34a";
+                badge.textContent = "Sucesso (HTTP 200)";
+                
+                const data = isJson ? await res.json() : await res.text();
+                
+                // Se for texto, exibe como objeto para ficar bonito
+                if(!isJson) output.textContent = JSON.stringify({ mensagem: data }, null, 4);
+                else output.textContent = JSON.stringify(data, null, 4);
 
-    medicos.forEach(m => {
-        select.innerHTML += `<option value="${m.idUsuario}">${m.nome}</option>`;
-    });
-}
+                return data;
+            } else {
+                badge.style.background = "#dc2626";
+                badge.textContent = "Erro na Requisição";
+                
+                // Pega a mensagem de erro (seja JSON ou Texto)
+                const errorData = isJson ? await res.json() : await res.text();
+                
+                // Se for texto, exibe direto. Se for JSON, formata.
+                if(!isJson) output.textContent = "ERRO DO SERVIDOR:\n" + errorData;
+                else output.textContent = JSON.stringify(errorData, null, 4);
+                
+                throw errorData;
+            }
+        }
 
-async function solicitarConsulta() {
-    const dataHora = document.getElementById("dataHora").value;
-    const pacienteId = document.getElementById("paciente").value;
-    const medicoId = document.getElementById("medico").value;
-    const servicoId = document.getElementById("servico").value;
+        function logError(err) {
+            // Caso o erro tenha sido capturado no fetch (ex: servidor desligado)
+            if(!document.getElementById('output').textContent.startsWith("ERRO")) {
+                document.getElementById('statusBadge').style.background = "#dc2626";
+                document.getElementById('output').textContent = "ERRO DE CONEXÃO:\n" + err;
+            }
+        }
 
-  const json = {
-    dataHora: dataHora,
-    idPaciente: parseInt(pacienteId),
-    idMedico: parseInt(medicoId),
-    idServico: parseInt(servicoId)
-};
+        // --- 1. SOLICITAR ---
+        async function solicitar() {
+            const payload = {
+                cpfPacienteInput: document.getElementById('solCpf').value,
+                especialidadeInput: document.getElementById('solEsp').value,
+                nomeServicoInput: document.getElementById('solServ').value,
+                dataHora: document.getElementById('solData').value
+            };
+            try {
+                const res = await fetch(`${API_URL}/solicitar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await handleResponse(res);
+                carregarPendentes(); // Atualiza lista
+            } catch (err) { logError(err); }
+        }
 
+        // --- CARREGAR PENDENTES ---
+        async function carregarPendentes() {
+            try {
+                // Endpoint que criamos: /pendentes
+                // SE VOCE NÃO CRIOU ESSE ENDPOINT NO CONTROLLER, VAI DAR 404
+                // Nesse caso, o catch vai pegar.
+                const res = await fetch(`${API_URL}/pendentes`);
+                if(res.status === 404) {
+                    alert("Atenção: Você precisa criar o método '/pendentes' no Controller e Service para essa lista funcionar!");
+                    return;
+                }
+                const lista = await res.json();
+                
+                const tbody = document.getElementById('tabelaPendentes');
+                tbody.innerHTML = ""; 
 
-    const resp = await fetch("http://localhost:8080/api/consultas/solicitar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(json)
-    });
+                if(lista.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='4' style='text-align:center'>Nenhuma pendência</td></tr>";
+                    return;
+                }
 
-    const resultadoDiv = document.getElementById("resultado");
-    resultadoDiv.style.display = "block";
-    resultadoDiv.textContent = await resp.text();
-}
+                lista.forEach(c => {
+                    const dataFormatada = new Date(c.dataHora).toLocaleString('pt-BR');
+                    const tr = document.createElement('tr');
+                    tr.className = "row-clickable";
+                    tr.onclick = () => copiarId(c.idConsulta);
+                    
+                    tr.innerHTML = `
+                        <td><b>${c.idConsulta}</b></td>
+                        <td>${c.paciente ? c.paciente.nome : 'N/A'}</td>
+                        <td>${dataFormatada}</td>
+                        <td><button style="padding:2px 5px; margin:0; font-size:0.7em" onclick="copiarId(${c.idConsulta})">Usar</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) { console.error(err); }
+        }
 
-carregarServicos();
-carregarMedicos();
-</script>
+        function copiarId(id) {
+            document.getElementById('agendaId').value = id;
+            document.getElementById('gerenciaId').value = id;
+        }
 
+        // --- 2. AGENDAR ---
+        async function agendar() {
+            const id = document.getElementById('agendaId').value;
+            try {
+                const res = await fetch(`${API_URL}/agendar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idConsulta: parseInt(id) })
+                });
+                await handleResponse(res);
+                carregarPendentes();
+            } catch (err) { logError(err); }
+        }
+
+        // --- 3. CANCELAR ---
+        async function cancelar() {
+            const id = document.getElementById('gerenciaId').value;
+            try {
+                const res = await fetch(`${API_URL}/cancelar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idConsulta: parseInt(id) })
+                });
+                await handleResponse(res);
+                carregarPendentes();
+            } catch (err) { logError(err); }
+        }
+
+        // --- 4. ATUALIZAR STATUS ---
+        async function atualizarStatus() {
+            const id = document.getElementById('gerenciaId').value;
+            const status = document.getElementById('novoStatus').value;
+            try {
+                const res = await fetch(`${API_URL}/atualizar-status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idConsulta: parseInt(id), novoStatus: status })
+                });
+                await handleResponse(res);
+                carregarPendentes();
+            } catch (err) { logError(err); }
+        }
+
+        // --- BUSCAS ---
+        async function buscarPorCpf() {
+            const cpf = document.getElementById('buscaCpf').value;
+            try {
+                const res = await fetch(`${API_URL}/buscar-por-cpf?cpf=${cpf}`);
+                await handleResponse(res);
+            } catch (err) { logError(err); }
+        }
+
+        // --- LISTAR MÉDICOS (NOVO) ---
+        async function listarMedicos() {
+            try {
+                const res = await fetch(USER_API_URL); // Chama /api/usuarios
+                const lista = await res.json();
+                
+                const tbody = document.getElementById('tabelaMedicos');
+                tbody.innerHTML = "";
+                
+                // Filtra apenas médicos
+                const medicos = lista.filter(u => u.tipoUsuario === 'MEDICO');
+
+                if(medicos.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='4'>Nenhum médico encontrado.</td></tr>";
+                }
+
+                medicos.forEach(m => {
+                    const tr = document.createElement('tr');
+                    tr.className = "row-clickable";
+                    tr.onclick = () => { document.getElementById('buscaIdMed').value = m.idUsuario; };
+                    
+                    tr.innerHTML = `
+                        <td><b>${m.idUsuario}</b></td>
+                        <td>${m.nome}</td>
+                        <td>${m.especialidade || '-'}</td>
+                        <td><button style="padding:2px 5px; margin:0; font-size:0.7em" onclick="document.getElementById('buscaIdMed').value = ${m.idUsuario}">Usar</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                document.getElementById('listaMedicosContainer').style.display = 'block';
+            } catch (err) { 
+                alert("Erro ao buscar usuários. Verifique se o UsuarioController está ativo.");
+            }
+        }
+
+        async function buscarAgenda() {
+            const idMed = document.getElementById('buscaIdMed').value;
+            const data = document.getElementById('buscaData').value;
+            try {
+                const res = await fetch(`${API_URL}/agenda-medico?idMedico=${idMed}&data=${data}`);
+                await handleResponse(res);
+            } catch (err) { logError(err); }
+        }
+    </script>
 </body>
 </html>
