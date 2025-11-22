@@ -23,5 +23,13 @@ public class ConsultaService {
     public Consulta solicitar(Consulta consulta) {
         return consultaRepository.save(consulta);
     }
+
+
     
 }
+
+
+
+///adm repositores -> inetrdace q ja vem da api 
+// services
+// controlers

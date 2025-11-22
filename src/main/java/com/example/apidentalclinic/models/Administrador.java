@@ -26,4 +26,6 @@ public class Administrador extends Usuario {
         return super.toString().replace("]", "") +
                 ']';
     }
+
+    //gerar relatorio agendamento
 }
