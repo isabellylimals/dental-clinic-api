@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/usuarios")
-@CrossOrigin("*") // LIBERA O FRONTEND
+@CrossOrigin("*") 
 public class UsuarioController {
 
     @Autowired

@@ -7,15 +7,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.util.Date;
 import java.util.List;
-
 import com.example.apidentalclinic.enums.TipoUsuario;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@DiscriminatorValue("PACIENTE") // Valor que vai para a coluna 'tipo_usuario_db' no SQL
+@DiscriminatorValue("PACIENTE") 
 @Getter @Setter
 public class Paciente extends Usuario {
 
@@ -30,12 +28,12 @@ public class Paciente extends Usuario {
 @JsonIgnore
 private List<Consulta> consultas;
 
-    // Construtor padrão define o tipo
+    
     public Paciente() {
         this.setTipoUsuario(TipoUsuario.PACIENTE);
     }
 
-    // --- SEU CONSTRUTOR ORIGINAL ---
+    
     public Paciente(String nome, String email, String senha,
             String telefone, boolean stats, String cpf,
             Date dataNascimento, String endereco) {
@@ -46,7 +44,7 @@ private List<Consulta> consultas;
         this.endereco = endereco;
     }
 
-    // --- GETTERS E SETTERS ---
+    
     
     public String getCpf() {
         return cpf;
@@ -72,7 +70,7 @@ private List<Consulta> consultas;
         this.endereco = endereco;
     }
 
-    // --- TO STRING ---
+    
     @Override
     public String toString() {
         return super.toString().replace("]", "") +
@@ -83,7 +81,7 @@ private List<Consulta> consultas;
     }
 
     public boolean isAnamneseValidada() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return false; 
     }
 
  

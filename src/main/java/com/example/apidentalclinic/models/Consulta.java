@@ -1,67 +1,81 @@
 package com.example.apidentalclinic.models;
 
 import jakarta.persistence.*;
-
-import java.util.Date;
-
+import java.time.LocalDateTime;
 import com.example.apidentalclinic.enums.StatusConsulta;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 
 @Entity
 @Table(name = "consulta")
 public class Consulta {
+
+   
     @Transient
-    private Integer idPaciente;
+    private String cpfPacienteInput;
 
     @Transient
-    private Integer idMedico;
+    private String especialidadeInput; 
 
     @Transient
-    private Integer idServico;
+    private String nomeServicoInput;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idConsulta;
 
     @Column(name = "dataHora", nullable = false)
-    private Date dataHora;
+    private LocalDateTime dataHora;
 
-    // RELACIONAMENTOS (Chaves Estrangeiras)
-    
-   @ManyToOne
-@JsonIgnoreProperties({"consultas"})
-@JoinColumn(name = "idMedico", nullable = false)
-private Medico medico;
+    @ManyToOne
+    @JsonIgnoreProperties({ "consultas" })
+    @JoinColumn(name = "idMedico", nullable = false)
+    private Medico medico;
 
-@ManyToOne
-@JsonIgnoreProperties({"consultas"})
-@JoinColumn(name = "idPaciente", nullable = false)
-private Paciente paciente;
+    @ManyToOne
+    @JsonIgnoreProperties({ "consultas" })
+    @JoinColumn(name = "idPaciente", nullable = false)
+    private Paciente paciente;
 
-@ManyToOne
-@JsonIgnoreProperties({"consultas"})
-@JoinColumn(name = "idServico", nullable = false)
-private Servico servico;
+    @ManyToOne
+    @JsonIgnoreProperties({ "consultas" })
+    @JoinColumn(name = "idServico", nullable = false)
+    private Servico servico;
 
-    // ENUM mapeado para a coluna 'stats' do banco
     @Enumerated(EnumType.STRING)
-    @Column(name = "stats") 
+    @Column(name = "stats")
     private StatusConsulta status;
 
-    // --- CONSTRUTOR VAZIO ---
+   
     public Consulta() {
     }
-        public Integer getIdPaciente() { return idPaciente; }
-        public void setIdPaciente(Integer idPaciente) { this.idPaciente = idPaciente; }
 
-        public Integer getIdMedico() { return idMedico; }
-        public void setIdMedico(Integer idMedico) { this.idMedico = idMedico; }
+ 
+    public String getCpfPacienteInput() {
+        return cpfPacienteInput;
+    }
 
-        public Integer getIdServico() { return idServico; }
-        public void setIdServico(Integer idServico) { this.idServico = idServico; }
+    public void setCpfPacienteInput(String cpfPacienteInput) {
+        this.cpfPacienteInput = cpfPacienteInput;
+    }
+
+    public String getEspecialidadeInput() {
+        return especialidadeInput;
+    }
+
+    public void setEspecialidadeInput(String especialidadeInput) {
+        this.especialidadeInput = especialidadeInput;
+    }
+
+    public String getNomeServicoInput() {
+        return nomeServicoInput;
+    }
+
+    public void setNomeServicoInput(String nomeServicoInput) {
+        this.nomeServicoInput = nomeServicoInput;
+    }
 
 
-    public Consulta(int idConsulta, Date dataHora, Medico medico,
+    public Consulta(int idConsulta, LocalDateTime dataHora, Medico medico,
             Paciente paciente, Servico servico, StatusConsulta status) {
         this.idConsulta = idConsulta;
         this.dataHora = dataHora;
@@ -71,7 +85,7 @@ private Servico servico;
         this.status = status;
     }
 
-    // --- GETTERS E SETTERS ---
+
 
     public int getIdConsulta() {
         return idConsulta;
@@ -81,11 +95,11 @@ private Servico servico;
         this.idConsulta = idConsulta;
     }
 
-    public Date getDataHora() {
+    public LocalDateTime getDataHora() {
         return dataHora;
     }
 
-    public void setDataHora(Date dataHora) {
+    public void setDataHora(LocalDateTime dataHora) {
         this.dataHora = dataHora;
     }
 
@@ -121,16 +135,15 @@ private Servico servico;
         this.status = status;
     }
 
-  @Override
-public String toString() {
-    return "Consulta{" +
-            "idConsulta=" + idConsulta +
-            ", dataHora=" + dataHora +
-            ", idPaciente=" + idPaciente +
-            ", idMedico=" + idMedico +
-            ", idServico=" + idServico +
-            ", status=" + status +
-            '}';
-}
-
+    @Override
+    public String toString() {
+        return "Consulta{" +
+                "idConsulta=" + idConsulta +
+                ", dataHora=" + dataHora +
+                ", cpfPacienteInput='" + cpfPacienteInput + '\'' +
+                ", especialidadeInput='" + especialidadeInput + '\'' +
+                ", nomeServicoInput='" + nomeServicoInput + '\'' +
+                ", status=" + status +
+                '}';
+    }
 }

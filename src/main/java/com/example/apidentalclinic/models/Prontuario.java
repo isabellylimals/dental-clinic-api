@@ -1,9 +1,10 @@
 package com.example.apidentalclinic.models;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDate; 
 import java.util.List;
+import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "prontuario")
@@ -11,33 +12,29 @@ public class Prontuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_prontuario")
     private int idProntuario;
 
-    @Column(name = "dataCriacao")
-    private Date dataCriacao;
+    @Column(name = "data_criacao")
+    private LocalDate dataCriacao;
 
-    // RELACIONAMENTO 1:1 com Anamnese
-    @OneToOne(cascade = CascadeType.ALL) // Se salvar prontuário, salva anamnese junto
-    @JoinColumn(name = "idAnamnese")
-    private Anamnese anamnese;
-
-    // RELACIONAMENTO 1:1 com Paciente (Adicionado conforme seu SQL)
     @OneToOne
-    @JoinColumn(name = "idPaciente", nullable = false, unique = true)
+    @JoinColumn(name = "id_paciente", unique = true, nullable = false)
     private Paciente paciente;
 
-    // RELACIONAMENTO 1:N com Registros
-    // 'mappedBy' indica que quem manda na relação é o atributo 'prontuario' na classe RegistroAtendimento
-    @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL)
-    private List<RegistroAtendimento> registros;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_anamnese", unique = true)
+    private Anamnese anamnese;
 
-    // --- CONSTRUTOR VAZIO ---
+    @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<RegistroAtendimento> registros = new ArrayList<>();
+
     public Prontuario() {
-        this.registros = new ArrayList<>();
+        this.dataCriacao = LocalDate.now(); 
     }
 
-    // --- SEU CONSTRUTOR (Adicionei Paciente) ---
-    public Prontuario(int idProntuario, Date dataCriacao, Anamnese anamnese, Paciente paciente) {
+    public Prontuario(int idProntuario, LocalDate dataCriacao, Anamnese anamnese, Paciente paciente) {
         this.idProntuario = idProntuario;
         this.dataCriacao = dataCriacao;
         this.anamnese = anamnese;
@@ -45,7 +42,6 @@ public class Prontuario {
         this.registros = new ArrayList<>();
     }
 
-    // --- GETTERS E SETTERS ---
 
     public int getIdProntuario() {
         return idProntuario;
@@ -55,11 +51,11 @@ public class Prontuario {
         this.idProntuario = idProntuario;
     }
 
-    public Date getDataCriacao() {
+    public LocalDate getDataCriacao() {
         return dataCriacao;
     }
 
-    public void setDataCriacao(Date dataCriacao) {
+    public void setDataCriacao(LocalDate dataCriacao) {
         this.dataCriacao = dataCriacao;
     }
 

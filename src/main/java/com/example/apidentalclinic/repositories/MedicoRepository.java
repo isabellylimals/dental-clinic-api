@@ -7,10 +7,8 @@ import java.util.List;
 import com.example.apidentalclinic.models.Medico;
 
 @Repository
-
 public interface MedicoRepository extends JpaRepository<Medico, Integer> {
 
-List<Medico> findByEspecialidadeContainingIgnoreCase(String especialidade);
+    List<Medico> findByEspecialidadeContainingIgnoreCase(String especialidade);
 
-    
 }

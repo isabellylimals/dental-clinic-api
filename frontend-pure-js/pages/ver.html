@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizar Anamnese</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        
+        .container { max-width: 800px; margin: 0 auto; }
+
+        /* CABEÇALHO DE BUSCA */
+        .search-box {
+            background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex; gap: 10px; align-items: center; margin-bottom: 20px;
+        }
+        input[type="number"] { padding: 10px; border: 1px solid #ccc; border-radius: 4px; width: 150px; }
+        button.btn-buscar {
+            padding: 10px 20px; background-color: #007bff; color: white; border: none; 
+            border-radius: 4px; cursor: pointer; font-weight: bold;
+        }
+        button.btn-buscar:hover { background-color: #0056b3; }
+
+        /* ÁREA DO RELATÓRIO */
+        .ficha {
+            background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: none; /* Escondido até buscar */
+        }
+
+        h1 { text-align: center; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 15px; margin-top: 0; }
+        .meta-info { text-align: center; color: #666; font-size: 14px; margin-bottom: 30px; }
+
+        /* O SEGREDO PARA O TEXTO FICAR FORMATADO */
+        .relatorio-content {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-left: 5px solid #007bff;
+            border-radius: 4px;
+            white-space: pre-wrap; /* Respeita as quebras de linha do Java */
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* ÁREA DO MÉDICO */
+        .area-medico {
+            margin-top: 40px; padding-top: 20px; border-top: 1px dashed #ccc;
+        }
+        .area-medico h3 { color: #dc3545; }
+        textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; height: 80px; box-sizing: border-box; }
+        
+        .btn-obs {
+            background-color: #dc3545; color: white; border: none; padding: 10px 20px; 
+            border-radius: 4px; margin-top: 10px; cursor: pointer; font-weight: bold;
+        }
+        .btn-obs:hover { background-color: #c82333; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="search-box">
+            <label><b>Buscar Anamnese por ID:</b></label>
+            <input type="number" id="idBusca" placeholder="Ex: 1">
+            <button class="btn-buscar" onclick="buscarAnamnese()">🔍 Buscar</button>
+        </div>
+
+        <div id="fichaArea" class="ficha">
+            <h1>📑 Prontuário de Anamnese</h1>
+            <p class="meta-info">
+                ID: <span id="viewId"></span> | 
+                Data: <span id="viewData"></span>
+            </p>
+
+            <h3>Respostas do Paciente:</h3>
+            <div id="viewRespostas" class="relatorio-content"></div>
+
+            <div id="boxObservacoes" style="display: none;">
+                <h3>📝 Anotações Clínicas (Histórico):</h3>
+                <div id="viewInformacoes" class="relatorio-content" style="border-left-color: #dc3545; background: #fff5f5;"></div>
+            </div>
+
+            <div class="area-medico">
+                <h3>👨‍⚕️ Adicionar Nova Observação</h3>
+                <textarea id="novaObs" placeholder="Escreva sua evolução clínica ou observação aqui..."></textarea>
+                <button class="btn-obs" onclick="salvarObservacao()">💾 Salvar Observação</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:8080/api/anamneses";
+        let idAtual = null;
+
+        // FUNÇÃO 1: BUSCAR
+        async function buscarAnamnese() {
+            const id = document.getElementById("idBusca").value;
+            if(!id) return alert("Digite um ID!");
+
+            try {
+                const res = await fetch(`${API_URL}/${id}`);
+                
+                if(res.status === 404) {
+                    alert("Anamnese não encontrada!");
+                    document.getElementById("fichaArea").style.display = "none";
+                    return;
+                }
+
+                const data = await res.json();
+                idAtual = data.idAnamnese;
+
+                // Preencher os dados na tela
+                document.getElementById("viewId").innerText = data.idAnamnese;
+                document.getElementById("viewData").innerText = new Date(data.dataPreenchimento).toLocaleDateString('pt-BR');
+                
+                // Exibe as respostas
+                document.getElementById("viewRespostas").innerText = data.respostas || "Sem respostas registradas.";
+
+                // Exibe observações médicas se existirem
+                const divObs = document.getElementById("boxObservacoes");
+                const txtObs = document.getElementById("viewInformacoes");
+                
+                if(data.informacoes) {
+                    divObs.style.display = "block";
+                    txtObs.innerText = data.informacoes;
+                } else {
+                    divObs.style.display = "none";
+                    txtObs.innerText = "";
+                }
+
+                // Mostra a ficha
+                document.getElementById("fichaArea").style.display = "block";
+
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao buscar dados.");
+            }
+        }
+
+        // FUNÇÃO 2: SALVAR OBSERVAÇÃO MÉDICA
+        async function salvarObservacao() {
+            const obs = document.getElementById("novaObs").value;
+            if(!obs) return alert("Escreva algo para salvar!");
+
+            try {
+                const res = await fetch(`${API_URL}/observacao`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        idAnamnese: idAtual,
+                        observacao: obs
+                    })
+                });
+
+                if(res.ok) {
+                    alert("Observação registrada com sucesso!");
+                    document.getElementById("novaObs").value = ""; // Limpa campo
+                    buscarAnamnese(); // Recarrega para mostrar a nova obs na tela
+                } else {
+                    alert("Erro ao salvar observação.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Erro de conexão.");
+            }
+        }
+    </script>
+
+</body>
+</html>
