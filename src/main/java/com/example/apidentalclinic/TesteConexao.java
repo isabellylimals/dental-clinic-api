@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import com.example.apidentalclinic.util.DatabaseConnection;
 
 
-@Component // Isso faz o Spring rodar essa classe automaticamente ao iniciar
+@Component 
 public class TesteConexao implements CommandLineRunner {
 
     @Override

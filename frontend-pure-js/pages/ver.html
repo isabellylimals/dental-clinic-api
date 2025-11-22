@@ -3,172 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizar Anamnese</title>
+    <title>Gerenciador de Pacientes</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        :root { --primary: #2c3e50; --sec: #3498db; --bg: #ecf0f1; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); display: flex; justify-content: center; padding: 20px; }
         
-        .container { max-width: 800px; margin: 0 auto; }
-
-        /* CABEÇALHO DE BUSCA */
-        .search-box {
-            background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: flex; gap: 10px; align-items: center; margin-bottom: 20px;
-        }
-        input[type="number"] { padding: 10px; border: 1px solid #ccc; border-radius: 4px; width: 150px; }
-        button.btn-buscar {
-            padding: 10px 20px; background-color: #007bff; color: white; border: none; 
-            border-radius: 4px; cursor: pointer; font-weight: bold;
-        }
-        button.btn-buscar:hover { background-color: #0056b3; }
-
-        /* ÁREA DO RELATÓRIO */
-        .ficha {
-            background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            display: none; /* Escondido até buscar */
-        }
-
-        h1 { text-align: center; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 15px; margin-top: 0; }
-        .meta-info { text-align: center; color: #666; font-size: 14px; margin-bottom: 30px; }
-
-        /* O SEGREDO PARA O TEXTO FICAR FORMATADO */
-        .relatorio-content {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-left: 5px solid #007bff;
-            border-radius: 4px;
-            white-space: pre-wrap; /* Respeita as quebras de linha do Java */
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 15px;
-            line-height: 1.6;
-            color: #333;
-        }
-
-        /* ÁREA DO MÉDICO */
-        .area-medico {
-            margin-top: 40px; padding-top: 20px; border-top: 1px dashed #ccc;
-        }
-        .area-medico h3 { color: #dc3545; }
-        textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; height: 80px; box-sizing: border-box; }
+        .container { width: 100%; max-width: 800px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
-        .btn-obs {
-            background-color: #dc3545; color: white; border: none; padding: 10px 20px; 
-            border-radius: 4px; margin-top: 10px; cursor: pointer; font-weight: bold;
-        }
-        .btn-obs:hover { background-color: #c82333; }
+        h2 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--sec); padding-bottom: 10px; }
 
+        /* ÁREA DE BUSCA */
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 5px; }
+        input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
+        .btn-buscar { background-color: var(--sec); }
+        .btn-buscar:hover { background-color: #2980b9; }
+        
+        .btn-todos { background-color: #7f8c8d; }
+        .btn-todos:hover { background-color: #616a6b; }
+
+        /* TABELA */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: var(--primary); color: white; }
+        tr:hover { background-color: #f1f1f1; }
+
+        /* BOTÃO FICHA */
+        .btn-ficha { background-color: #27ae60; padding: 5px 10px; font-size: 12px; }
+        .btn-ficha:hover { background-color: #219150; }
+
+        /* MODAL (FICHA) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 400px; position: relative; }
+        .close { position: absolute; top: 10px; right: 15px; font-size: 20px; cursor: pointer; color: red; }
+        .info-group { margin-bottom: 10px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; }
+        .info-label { font-weight: bold; color: var(--primary); }
     </style>
 </head>
 <body>
 
     <div class="container">
-        
+        <h2>🏥 Central de Pacientes</h2>
+
         <div class="search-box">
-            <label><b>Buscar Anamnese por ID:</b></label>
-            <input type="number" id="idBusca" placeholder="Ex: 1">
-            <button class="btn-buscar" onclick="buscarAnamnese()">🔍 Buscar</button>
+            <input type="text" id="inputCpf" placeholder="Digite o CPF para buscar...">
+            <button class="btn-buscar" onclick="buscarCPF()">🔍 Buscar CPF</button>
+            <button class="btn-todos" onclick="carregarTodos()">🔄 Listar Todos</button>
         </div>
 
-        <div id="fichaArea" class="ficha">
-            <h1>📑 Prontuário de Anamnese</h1>
-            <p class="meta-info">
-                ID: <span id="viewId"></span> | 
-                Data: <span id="viewData"></span>
-            </p>
+        <p id="status" style="text-align: center; color: #666;"></p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th width="10%">ID</th>
+                    <th width="40%">Nome</th>
+                    <th width="30%">CPF</th>
+                    <th width="20%">Ação</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaCorpo">
+                </tbody>
+        </table>
+    </div>
 
-            <h3>Respostas do Paciente:</h3>
-            <div id="viewRespostas" class="relatorio-content"></div>
-
-            <div id="boxObservacoes" style="display: none;">
-                <h3>📝 Anotações Clínicas (Histórico):</h3>
-                <div id="viewInformacoes" class="relatorio-content" style="border-left-color: #dc3545; background: #fff5f5;"></div>
-            </div>
-
-            <div class="area-medico">
-                <h3>👨‍⚕️ Adicionar Nova Observação</h3>
-                <textarea id="novaObs" placeholder="Escreva sua evolução clínica ou observação aqui..."></textarea>
-                <button class="btn-obs" onclick="salvarObservacao()">💾 Salvar Observação</button>
-            </div>
+    <div id="modalFicha" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal()">&times;</span>
+            <h3>📄 Ficha Completa</h3>
+            <div id="dadosFicha"></div>
         </div>
-
     </div>
 
     <script>
-        const API_URL = "http://localhost:8080/api/anamneses";
-        let idAtual = null;
+        const API_URL = "http://localhost:8080/api/gerenciador-pacientes";
 
-        // FUNÇÃO 1: BUSCAR
-        async function buscarAnamnese() {
-            const id = document.getElementById("idBusca").value;
-            if(!id) return alert("Digite um ID!");
+        // 1. LISTAR TODOS
+        async function carregarTodos() {
+            atualizarStatus("Carregando...");
+            try {
+                const res = await fetch(API_URL);
+                const lista = await res.json();
+                preencherTabela(lista);
+                atualizarStatus(lista.length + " pacientes encontrados.");
+            } catch (e) {
+                console.error(e);
+                atualizarStatus("Erro ao conectar com a API.");
+            }
+        }
 
+        // 2. BUSCAR POR CPF
+        async function buscarCPF() {
+            const cpf = document.getElementById("inputCpf").value;
+            if(!cpf) { alert("Digite um CPF!"); return; }
+
+            atualizarStatus("Buscando...");
+            try {
+                const res = await fetch(`${API_URL}/buscar-cpf?cpf=${cpf}`);
+                const lista = await res.json();
+                preencherTabela(lista);
+                atualizarStatus(lista.length + " resultados para o CPF: " + cpf);
+            } catch (e) {
+                console.error(e);
+                atualizarStatus("Erro na busca.");
+            }
+        }
+
+        // 3. VER FICHA (Busca por ID)
+        async function verFicha(id) {
             try {
                 const res = await fetch(`${API_URL}/${id}`);
                 
-                if(res.status === 404) {
-                    alert("Anamnese não encontrada!");
-                    document.getElementById("fichaArea").style.display = "none";
-                    return;
-                }
-
-                const data = await res.json();
-                idAtual = data.idAnamnese;
-
-                // Preencher os dados na tela
-                document.getElementById("viewId").innerText = data.idAnamnese;
-                document.getElementById("viewData").innerText = new Date(data.dataPreenchimento).toLocaleDateString('pt-BR');
-                
-                // Exibe as respostas
-                document.getElementById("viewRespostas").innerText = data.respostas || "Sem respostas registradas.";
-
-                // Exibe observações médicas se existirem
-                const divObs = document.getElementById("boxObservacoes");
-                const txtObs = document.getElementById("viewInformacoes");
-                
-                if(data.informacoes) {
-                    divObs.style.display = "block";
-                    txtObs.innerText = data.informacoes;
+                if(res.status === 200) {
+                    const p = await res.json();
+                    abrirModal(p);
                 } else {
-                    divObs.style.display = "none";
-                    txtObs.innerText = "";
+                    alert("Erro ao abrir ficha.");
                 }
+            } catch (e) { console.error(e); }
+        }
 
-                // Mostra a ficha
-                document.getElementById("fichaArea").style.display = "block";
+        // --- FUNÇÕES AUXILIARES ---
 
-            } catch (error) {
-                console.error(error);
-                alert("Erro ao buscar dados.");
+        function preencherTabela(lista) {
+            const tbody = document.getElementById("tabelaCorpo");
+            tbody.innerHTML = "";
+
+            if (lista.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='4' style='text-align:center'>Nenhum paciente encontrado.</td></tr>";
+                return;
+            }
+
+            lista.forEach(p => {
+                const linha = `
+                    <tr>
+                        <td>${p.idUsuario}</td>
+                        <td><strong>${p.nome}</strong></td>
+                        <td>${p.cpf || "---"}</td>
+                        <td>
+                            <button class="btn-ficha" onclick="verFicha(${p.idUsuario})">📄 Ver Ficha</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += linha;
+            });
+        }
+
+        function abrirModal(p) {
+            const div = document.getElementById("dadosFicha");
+            div.innerHTML = `
+                <div class="info-group"><span class="info-label">Nome:</span> ${p.nome}</div>
+                <div class="info-group"><span class="info-label">Email:</span> ${p.email}</div>
+                <div class="info-group"><span class="info-label">Telefone:</span> ${p.telefone}</div>
+                <div class="info-group"><span class="info-label">CPF:</span> ${p.cpf}</div>
+                <div class="info-group"><span class="info-label">Data Nasc:</span> ${p.dataNascimento || "Não inf."}</div>
+                <div class="info-group"><span class="info-label">Endereço:</span> ${p.endereco || "Não inf."}</div>
+                <div class="info-group"><span class="info-label">Status:</span> ${p.status ? "Ativo ✅" : "Inativo ❌"}</div>
+            `;
+            document.getElementById("modalFicha").style.display = "flex";
+        }
+
+        function fecharModal() {
+            document.getElementById("modalFicha").style.display = "none";
+        }
+
+        function atualizarStatus(msg) {
+            document.getElementById("status").innerText = msg;
+        }
+
+        // Fecha modal se clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById("modalFicha");
+            if (event.target == modal) {
+                fecharModal();
             }
         }
 
-        // FUNÇÃO 2: SALVAR OBSERVAÇÃO MÉDICA
-        async function salvarObservacao() {
-            const obs = document.getElementById("novaObs").value;
-            if(!obs) return alert("Escreva algo para salvar!");
+        // Carrega ao iniciar
+        carregarTodos();
 
-            try {
-                const res = await fetch(`${API_URL}/observacao`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        idAnamnese: idAtual,
-                        observacao: obs
-                    })
-                });
-
-                if(res.ok) {
-                    alert("Observação registrada com sucesso!");
-                    document.getElementById("novaObs").value = ""; // Limpa campo
-                    buscarAnamnese(); // Recarrega para mostrar a nova obs na tela
-                } else {
-                    alert("Erro ao salvar observação.");
-                }
-            } catch (error) {
-                console.error(error);
-                alert("Erro de conexão.");
-            }
-        }
     </script>
-
 </body>
 </html>
