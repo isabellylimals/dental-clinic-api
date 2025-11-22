@@ -74,6 +74,9 @@ public class Anamnese {
     public void setRespostas(String respostas) {
         this.respostas = respostas;
     }
+    public void setPaciente(Paciente paciente) {
+        // Implementação do relacionamento com Paciente, se necessário
+    }
 
     @Override
     public String toString() {

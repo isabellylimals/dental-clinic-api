@@ -1,6 +1,7 @@
 package com.example.apidentalclinic.controllers;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import com.example.apidentalclinic.enums.TipoUsuario;
 import com.example.apidentalclinic.models.Medico;
 import com.example.apidentalclinic.models.Paciente;
 import com.example.apidentalclinic.repositories.MedicoRepository;
+import com.example.apidentalclinic.services.ConsultaService;
 import com.example.apidentalclinic.services.MedicoService;
 
 @RestController
@@ -50,4 +52,12 @@ public class MedicoController {
     public List<Medico> listarMedicos() {
         return medicoRepository.findAll();
     }
+    @Autowired
+    private ConsultaService consultaService;
+    @PostMapping("/atualizar-status-consulta")
+public ResponseEntity<?> gerenciarStatusConsulta(@RequestBody Map<String, String> body) {
+    return consultaService.atualizarStatus(body);
+}
+
+
 }

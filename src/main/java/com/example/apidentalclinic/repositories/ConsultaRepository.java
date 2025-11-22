@@ -1,5 +1,6 @@
 package com.example.apidentalclinic.repositories;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +15,7 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Integer> {
 
     public boolean existsByDataHora(Date dataHora);
 
-    boolean existsByMedicoIdUsuarioAndDataHora(int idUsuario, Date dataHora);
+    boolean existsByMedicoIdUsuarioAndDataHora(int idUsuario, LocalDateTime dataHora);
 
     Object findByPacienteCpfOrderByDataHoraDesc(String cpf);
 }
