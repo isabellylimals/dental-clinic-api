@@ -1,7 +1,15 @@
 package com.example.apidentalclinic.models;
 
-import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "registro_atendimento")
@@ -11,37 +19,44 @@ public class RegistroAtendimento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idRegistroAtendimento;
 
-    @Column(name = "dataHora")
-    private LocalDate dataHora; 
+    @Column(name = "data_hora")
+    private LocalDateTime dataHora;
 
     @Column(columnDefinition = "TEXT")
     private String observacoes;
 
+    @Column(columnDefinition = "TEXT")
+    private String diagnostico; // ADICIONADO – EXISTE NO UML
+
     @ManyToOne
-    @JoinColumn(name = "idProntuario", nullable = false) 
+    @JoinColumn(name = "id_prontuario", nullable = false)
     private Prontuario prontuario;
 
     @ManyToOne
-    @JoinColumn(name = "idMedico") 
+    @JoinColumn(name = "id_medico", nullable = false)
     private Medico medico;
 
     @ManyToOne
-    @JoinColumn(name = "idConsulta") 
+    @JoinColumn(name = "id_consulta", nullable = false)
     private Consulta consulta;
 
-    public RegistroAtendimento() {
-    }
+    public RegistroAtendimento() {}
 
-    public RegistroAtendimento(int idRegistroAtendimento, LocalDate dataHora, String observacoes,
-                               Prontuario prontuario, Medico medico, Consulta consulta) {
+    public RegistroAtendimento(
+            int idRegistroAtendimento,
+            LocalDateTime dataHora,
+            String observacoes,
+            Prontuario prontuario,
+            Medico medico,
+            Consulta consulta
+    ) {
         this.idRegistroAtendimento = idRegistroAtendimento;
         this.dataHora = dataHora;
-        this.observacoes = observacoes;
+            this.observacoes = observacoes;
         this.prontuario = prontuario;
         this.medico = medico;
         this.consulta = consulta;
     }
-
 
     public int getIdRegistroAtendimento() {
         return idRegistroAtendimento;
@@ -51,12 +66,11 @@ public class RegistroAtendimento {
         this.idRegistroAtendimento = idRegistroAtendimento;
     }
 
-    public LocalDate getDataHora() {
+    public LocalDateTime getDataHora() {     // CORRIGIDO
         return dataHora;
     }
 
-    
-    public void setDataHora(LocalDate dataHora) {
+    public void setDataHora(LocalDateTime dataHora) {
         this.dataHora = dataHora;
     }
 
@@ -67,6 +81,10 @@ public class RegistroAtendimento {
     public void setObservacoes(String observacoes) {
         this.observacoes = observacoes;
     }
+
+ 
+
+
 
     public Prontuario getProntuario() {
         return prontuario;
@@ -97,7 +115,7 @@ public class RegistroAtendimento {
         return "RegistroAtendimento [" +
                 "Id: " + this.idRegistroAtendimento +
                 ", Data: " + this.dataHora +
-                ", Obs: '" + this.observacoes + '\'' +
+                ", Observações: '" + this.observacoes + '\'' +
                 ']';
     }
 }
