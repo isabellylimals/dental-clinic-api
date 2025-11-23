@@ -25,8 +25,8 @@ public class AnamneseService {
         if (textoAtual == null) {
             textoAtual = "";
         }
-
-        String novaInfo = textoAtual + "\n[OBS MÉDICO]: " + observacao;
+         String novaInfo = textoAtual + "\n[OBS MÉDICO]: " + observacao;
+        anamnese.setInformacoes(novaInfo);
     
         
         return anamneseRepository.save(anamnese);
