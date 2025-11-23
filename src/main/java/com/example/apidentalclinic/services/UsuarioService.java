@@ -82,4 +82,8 @@ public class UsuarioService {
             usuarioRepository.save(user);
         }
     }
+
+    public List<Usuario> listarPorTipo(com.example.apidentalclinic.enums.TipoUsuario tipo) {
+        return usuarioRepository.findByTipoUsuario(tipo);
+    }
 }
