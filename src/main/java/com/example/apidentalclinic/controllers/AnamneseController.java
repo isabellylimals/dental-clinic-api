@@ -51,10 +51,9 @@ public class AnamneseController {
 public ResponseEntity<?> preencher(@RequestBody Map<String, Object> body) {
     try {
         String cpf = (String) body.get("cpf");
-        String informacoes = (String) body.get("informacoes");
         String respostas = (String) body.get("respostas");
 
-        Anamnese anamnese = anamneseService.preencher(cpf, informacoes, respostas);
+        Anamnese anamnese = anamneseService.preencher(cpf, respostas);
         return ResponseEntity.ok(anamnese);
 
     } catch (Exception e) {

@@ -27,7 +27,7 @@ public class AnamneseService {
         }
 
         String novaInfo = textoAtual + "\n[OBS MÉDICO]: " + observacao;
-        anamnese.setInformacoes(novaInfo);
+    
         
         return anamneseRepository.save(anamnese);
     }
@@ -38,14 +38,13 @@ public class AnamneseService {
                 .orElseThrow(() -> new RuntimeException("Anamnese não encontrada"));
     }
 
- public Anamnese preencher(String cpf, String informacoes, String respostas) {
+ public Anamnese preencher(String cpf, String respostas) {
 
     Paciente paciente = pacienteRepository.findByCpf(cpf)
             .orElseThrow(() -> new RuntimeException("Paciente não encontrado com CPF: " + cpf));
 
     Anamnese anamnese = new Anamnese();
     anamnese.setPaciente(paciente);
-    anamnese.setInformacoes(informacoes);
     anamnese.setRespostas(respostas);
 
     return anamneseRepository.save(anamnese);
