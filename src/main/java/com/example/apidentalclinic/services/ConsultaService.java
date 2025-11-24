@@ -3,8 +3,12 @@ package com.example.apidentalclinic.services;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.apidentalclinic.dtos.ConsultaDTO;
 import com.example.apidentalclinic.enums.StatusConsulta;
 import com.example.apidentalclinic.models.*;
 import com.example.apidentalclinic.repositories.*;
@@ -121,5 +125,20 @@ public class ConsultaService {
         LocalDateTime fimDia = data.atTime(23, 59, 59);
         return consultaRepository.findByMedicoIdUsuarioAndDataHoraBetween(idMedico, inicioDia, fimDia);
     }
+
+    public List<ConsultaDTO> listarConsultasPorMedico(Integer idMedico) {
+
+    List<Consulta> consultas = consultaRepository.findByMedicoIdUsuario(idMedico);
+
+    return consultas.stream().map(c ->
+            new ConsultaDTO(
+                c.getIdConsulta(),
+                c.getPaciente() != null ? c.getPaciente().getNome() : "Paciente não informado",
+                c.getDataHora(),
+                c.getStatus() != null ? c.getStatus().name() : "DESCONHECIDO"
+            )
+    ).toList();
+}
+
     
 }

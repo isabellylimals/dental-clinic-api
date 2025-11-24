@@ -40,4 +40,6 @@ public class GerenciadorDePacientesService {
         }
         throw new RuntimeException("Paciente não encontrado com ID: " + idPaciente);
     }
+
+  
 }

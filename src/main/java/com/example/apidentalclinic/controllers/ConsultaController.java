@@ -92,4 +92,9 @@ public class ConsultaController {
     public ResponseEntity<?> listarPendentes() {
         return ResponseEntity.ok(consultaService.buscarPendentes());
     }
+//metodo adicional extra
+    @GetMapping("/{idMedico}/consultas")
+    public ResponseEntity<?> listarConsultas(@PathVariable Integer idMedico) {
+        return ResponseEntity.ok(consultaService.listarConsultasPorMedico(idMedico));
+    }
 }

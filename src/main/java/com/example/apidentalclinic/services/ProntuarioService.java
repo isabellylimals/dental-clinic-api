@@ -54,38 +54,29 @@ public class ProntuarioService {
         prontuarioRepository.save(prontuario);
     }
 
-   public void adicionarEvolucao(Integer idPaciente, RegistroAtendimento entradaJson) {
+   public void adicionarEvolucao(Integer idPaciente, RegistroAtendimento evolucao) {
 
     Prontuario prontuario = visualizarProntuario(idPaciente);
 
-System.out.println("Prontuário encontrado: testando  " + prontuario);
 
-    Medico medico = medicoRepository.findById(entradaJson.getMedico().getIdUsuario())
+    Medico medico = medicoRepository.findById(evolucao.getMedico().getIdUsuario())
             .orElseThrow(() -> new RuntimeException("Médico não encontrado."));
 
 
    
-    Consulta consulta = consultaRepository.findById(entradaJson.getConsulta().getIdConsulta())
+    Consulta consulta = consultaRepository.findById(evolucao.getConsulta().getIdConsulta())
             .orElseThrow(() -> new RuntimeException("Consulta não encontrada."));
 
-System.out.println("Prontuário encontrado: testando  " + prontuario);
 
- 
+
     RegistroAtendimento registro = new RegistroAtendimento();
-    registro.setDataHora(entradaJson.getDataHora());
-    registro.setObservacoes(entradaJson.getObservacoes());
+    registro.setDataHora(evolucao.getDataHora());
+    registro.setObservacoes(evolucao.getObservacoes());
     registro.setMedico(medico);
     registro.setConsulta(consulta);
     registro.setProntuario(prontuario);
-System.out.println("Prontuário encontrado: testando  " + prontuario);
-
-   
     prontuario.getRegistros().add(registro);
-System.out.println("Prontuário encontrado: testando  " + prontuario);
-
-  
     prontuarioRepository.save(prontuario);
-    System.out.println("Prontuário encontrado: testando  " + prontuario);
 }
 
 

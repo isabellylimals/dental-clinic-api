@@ -41,5 +41,8 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Integer> {
             @Param("status") StatusConsulta status 
     );
 
+   List<Consulta> findByMedicoIdUsuario(Integer idMedico);
+
+
 
 }

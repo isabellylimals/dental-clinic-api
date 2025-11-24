@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Evolução | Clínica</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f6f8;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #303f9f;
+        }
+
+        h2 {
+            margin-top: 40px;
+            color: #333;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        input, textarea, select {
+            margin-top: 6px;
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            transition: .2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: #3f51b5;
+            box-shadow: 0 0 4px rgba(63,81,181,0.4);
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 6px;
+            background: #3f51b5;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        button:hover {
+            background: #303f9f;
+        }
+
+        .consultas-lista {
+            margin-top: 20px;
+        }
+
+        .consulta-card {
+            background: #fafafa;
+            border: 1px solid #ddd;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            transition: .2s;
+        }
+
+        .consulta-card:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .success {
+            margin-top: 15px;
+            color: #0a8f3a;
+            font-weight: bold;
+        }
+
+        .error {
+            margin-top: 15px;
+            color: #c62828;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Registrar Evolução</h1>
+
+    <!-- BUSCAR CONSULTAS -->
+    <h2>1. Escolher Médico</h2>
+    <label>ID do Médico:</label>
+    <input type="number" id="idMedico" placeholder="Digite o ID do médico">
+
+    <button onclick="carregarConsultas()">Carregar Consultas</button>
+
+    <div id="consultas" class="consultas-lista"></div>
+
+    <!-- REGISTRAR EVOLUÇÃO -->
+    <h2>2. Registrar Evolução</h2>
+
+    <label>Selecione a Consulta:</label>
+    <select id="idConsulta">
+        <option value="">-- Selecione --</option>
+    </select>
+
+    <label>Observações:</label>
+    <textarea id="observacoes" rows="4" placeholder="Digite aqui as observações"></textarea>
+
+    <button onclick="registrarEvolucao()">Registrar Evolução</button>
+
+    <div id="mensagem"></div>
+
+</div>
+
+<script>
+    async function carregarConsultas() {
+        const idMedico = document.getElementById("idMedico").value;
+        const consultasDiv = document.getElementById("consultas");
+        const selectConsulta = document.getElementById("idConsulta");
+
+        consultasDiv.innerHTML = "";
+        selectConsulta.innerHTML = `<option value="">-- Selecione --</option>`;
+
+        if (!idMedico) {
+            consultasDiv.innerHTML = "<p class='error'>Digite um ID de médico válido.</p>";
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/medicos/${idMedico}/consultas`);
+            const consultas = await response.json();
+
+            if (!Array.isArray(consultas) || consultas.length === 0) {
+                consultasDiv.innerHTML = "<p class='error'>Nenhuma consulta encontrada.</p>";
+                return;
+            }
+
+            consultas.forEach(c => {
+                consultasDiv.innerHTML += `
+                    <div class="consulta-card">
+                        <strong>Consulta #${c.idConsulta}</strong><br>
+                        Paciente: <b>${c.nomePaciente}</b><br>
+                        Data/Hora: ${c.dataHora}<br>
+                        Status: ${c.status}
+                    </div>
+                `;
+
+                selectConsulta.innerHTML += `
+                    <option value="${c.idConsulta}">
+                        ${c.idConsulta} - ${c.nomePaciente} (${c.dataHora})
+                    </option>
+                `;
+            });
+
+        } catch (err) {
+            consultasDiv.innerHTML = `<p class="error">${err.message}</p>`;
+        }
+    }
+
+    async function registrarEvolucao() {
+        const idConsulta = document.getElementById("idConsulta").value;
+        const observacoes = document.getElementById("observacoes").value;
+        const msg = document.getElementById("mensagem");
+
+        msg.innerHTML = "";
+
+        if (!idConsulta) {
+            msg.innerHTML = "<p class='error'>Selecione uma consulta.</p>";
+            return;
+        }
+
+        try {
+            const resp = await fetch("http://localhost:8080/api/medicos/registrar-evolucao", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    idConsulta: Number(idConsulta),
+                    observacoes
+                })
+            });
+
+            const resultado = await resp.text();
+
+            msg.innerHTML = resp.ok
+                ? `<p class="success">${resultado}</p>`
+                : `<p class="error">${resultado}</p>`;
+
+        } catch (err) {
+            msg.innerHTML = `<p class="error">${err.message}</p>`;
+        }
+    }
+</script>
+
+</body>
+</html>
