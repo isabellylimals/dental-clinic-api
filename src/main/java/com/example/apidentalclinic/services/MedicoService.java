@@ -7,17 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.apidentalclinic.models.Anamnese;
+import com.example.apidentalclinic.models.Paciente;
+import com.example.apidentalclinic.models.Prontuario;
 import com.example.apidentalclinic.models.RegistroAtendimento;
+import com.example.apidentalclinic.repositories.AnamneseRepository;
 import com.example.apidentalclinic.repositories.ConsultaRepository;
-import com.example.apidentalclinic.repositories.MedicoRepository;
 import com.example.apidentalclinic.repositories.PacienteRepository;
-import com.example.apidentalclinic.repositories.ProntuarioRepository;
 @Service
 public class MedicoService {
     
-
-    @Autowired
-    private MedicoRepository medicoRepository;
 
     @Autowired
     private ProntuarioService prontuarioService;
@@ -27,14 +25,12 @@ public class MedicoService {
     
 
     @Autowired
-    private ProntuarioRepository prontuarioRepository;
-
-    @Autowired
     private PacienteRepository pacienteRepository;
     
-
     @Autowired
-    private AnamneseService anamneseService;
+    private AnamneseRepository anamneseRepository;
+
+
 
    public void registrarEvolucao(int idConsulta, String observacoes) {
 
@@ -59,20 +55,46 @@ public class MedicoService {
     }
 public boolean registrarAnamnese(int idPaciente, String respostas) {
     try {
+        Paciente paciente = pacienteRepository.findById(idPaciente)
+            .orElseThrow(() -> new RuntimeException("Paciente não encontrado com ID: " + idPaciente));
 
-        var paciente = pacienteRepository.findById(idPaciente)
-                .orElseThrow(() -> new RuntimeException("Paciente não encontrado com ID: " + idPaciente));
 
-        
-        anamneseService.preencher(paciente.getCpf(), respostas);
+     
+        Prontuario prontuario = prontuarioService.visualizarProntuario(paciente.getIdUsuario());
+
+
+       
+        if (prontuario.getAnamnese() != null) {
+            Anamnese existente = prontuario.getAnamnese();
+            existente.setRespostas(respostas);
+            existente.setDataPreenchimento(LocalDate.now());
+            anamneseRepository.save(existente);
+            return true;
+        }
+
+
+   
+        Anamnese nova = new Anamnese();
+        nova.setPaciente(paciente);
+        nova.setRespostas(respostas);
+
+
+        Anamnese salva = anamneseRepository.save(nova);
+
+
+        prontuario.setAnamnese(salva);
+        prontuarioService.salvarAnamnese(idPaciente, salva);
+
 
         return true;
+
 
     } catch (Exception e) {
         e.printStackTrace();
         return false;
     }
 }
+
 
 
 }
