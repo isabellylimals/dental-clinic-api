@@ -2,10 +2,8 @@ package com.example.apidentalclinic.services;
 
 import com.example.apidentalclinic.models.Paciente;
 import com.example.apidentalclinic.repositories.PacienteRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +38,4 @@ public class GerenciadorDePacientesService {
         }
         throw new RuntimeException("Paciente não encontrado com ID: " + idPaciente);
     }
-
-  
 }

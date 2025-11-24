@@ -7,4 +7,6 @@ import com.example.apidentalclinic.models.Prontuario;
 public interface ProntuarioRepository extends JpaRepository<Prontuario, Integer> {
 
     Optional<Prontuario> findByPacienteIdUsuario(int idUsuario);
+
+    Optional<Prontuario> findByPacienteCpf(String cpf);
 }
