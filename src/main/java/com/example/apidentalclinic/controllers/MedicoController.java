@@ -46,9 +46,34 @@ public class MedicoController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
+//metodo extra
      @GetMapping("/{idMedico}/consultas")
 public ResponseEntity<?> listarConsultas(@PathVariable Integer idMedico) {
     return ResponseEntity.ok(consultaService.listarConsultasPorMedico(idMedico));
 }
+
+
+    @PostMapping("/registrar-anamnese")
+    public ResponseEntity<?> registrarAnamnese(@RequestBody Map<String, Object> body) {
+        try {
+            Integer idPaciente = (Integer) body.get("idPaciente");
+            String respostas = (String) body.get("respostas");
+
+            if (idPaciente == null || respostas == null || respostas.isEmpty()) {
+                return ResponseEntity.badRequest().body("idPaciente e respostas são obrigatórios.");
+            }
+
+            boolean sucesso = medicoService.registrarAnamnese(idPaciente, respostas);
+
+            if (!sucesso) {
+                return ResponseEntity.status(500).body("Erro ao registrar anamnese.");
+            }
+
+            return ResponseEntity.ok("Anamnese registrada com sucesso!");
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
+
