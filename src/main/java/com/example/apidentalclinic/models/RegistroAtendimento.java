@@ -2,6 +2,8 @@ package com.example.apidentalclinic.models;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,11 +31,12 @@ public class RegistroAtendimento {
     private String diagnostico; // ADICIONADO – EXISTE NO UML
 
     @ManyToOne
-    @JoinColumn(name = "id_prontuario", nullable = false)
+     @JoinColumn(name = "id_prontuario", nullable = false)
+     @JsonBackReference //mudadado
     private Prontuario prontuario;
 
     @ManyToOne
-    @JoinColumn(name = "id_medico", nullable = false)
+  
     private Medico medico;
 
     @ManyToOne

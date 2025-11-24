@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.apidentalclinic.models.Anamnese;
 import com.example.apidentalclinic.models.Paciente;
 import com.example.apidentalclinic.models.Prontuario;
+import com.example.apidentalclinic.models.RegistroAtendimento;
 import com.example.apidentalclinic.repositories.AnamneseRepository;
 import com.example.apidentalclinic.repositories.PacienteRepository;
 import com.example.apidentalclinic.services.ProntuarioService;
@@ -78,6 +79,20 @@ public ResponseEntity<?> criarProntuario(@PathVariable Integer idPaciente) {
         Prontuario prontuario = prontuarioService.criarProntuario(paciente);
 
         return ResponseEntity.ok(prontuario);
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+}
+
+ @PostMapping("/{idPaciente}/evolucao")
+public ResponseEntity<?> adicionarEvolucao(
+        @PathVariable Integer idPaciente,
+        @RequestBody RegistroAtendimento evolucao) {
+
+
+    try {
+        prontuarioService.adicionarEvolucao(idPaciente, evolucao);
+        return ResponseEntity.status(201).body("Evolução registrada com sucesso!");
     } catch (Exception e) {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
