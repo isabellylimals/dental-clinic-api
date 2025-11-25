@@ -1,16 +1,16 @@
 package com.example.apidentalclinic.services;
 
-
+import com.example.apidentalclinic.enums.TipoUsuario;
+import com.example.apidentalclinic.models.Medico;
+import com.example.apidentalclinic.models.Paciente;
+import com.example.apidentalclinic.models.Usuario;
+import com.example.apidentalclinic.repositories.UsuarioRepository;
+import com.example.apidentalclinic.util.TratativasBackend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-
-import com.example.apidentalclinic.enums.TipoUsuario;
-import com.example.apidentalclinic.models.Paciente;
-import com.example.apidentalclinic.models.Usuario;
-import com.example.apidentalclinic.repositories.UsuarioRepository;
 
 @Service
 public class UsuarioService {
@@ -21,26 +21,82 @@ public class UsuarioService {
     @Autowired
     private ProntuarioService prontuarioService;
 
-    // + cadastrarUsuario(): Usuario
+    // -----------------------------------------
+    // Cadastrar Usuário (Paciente, Médico, Admin)
+    // -----------------------------------------
     public Usuario cadastrarUsuario(Usuario usuario) {
+
+        // -----------------------
+        // 1) EMAIL
+        // -----------------------
+        if (!TratativasBackend.emailValido(usuario.getEmail())) {
+            throw new RuntimeException("Email inválido.");
+        }
         if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
             throw new RuntimeException("Email já cadastrado!");
         }
 
-        usuario.setStats(true);
+        // -----------------------
+        // 2) SENHA
+        // -----------------------
+        if (!TratativasBackend.senhaValida(usuario.getSenha())) {
+            throw new RuntimeException("Senha inválida (mínimo 8 caracteres e sem espaços).");
+        }
 
+        // -----------------------
+        // 3) TELEFONE (opcional)
+        // -----------------------
+        if (usuario.getTelefone() != null &&
+                !usuario.getTelefone().isBlank() &&
+                !TratativasBackend.telefoneValido(usuario.getTelefone())) {
+
+            throw new RuntimeException("Telefone inválido. Use 10 ou 11 dígitos.");
+        }
+
+        // -----------------------
+        // 4) TIPO DE USUÁRIO
+        // -----------------------
+        if (usuario.getTipoUsuario() == null) {
+            throw new RuntimeException("Tipo de usuário obrigatório.");
+        }
+
+        // -----------------------
+        // 5) VALIDAÇÕES ESPECÍFICAS POR TIPO
+        // -----------------------
+        if (usuario instanceof Paciente paciente) {
+
+            if (!TratativasBackend.cpfValido(paciente.getCpf())) {
+                throw new RuntimeException("CPF inválido.");
+            }
+
+        } else if (usuario instanceof Medico medico) {
+
+            if (!TratativasBackend.crmValido(medico.getCrm())) {
+                throw new RuntimeException("CRM inválido.");
+            }
+
+            if (!TratativasBackend.stringValida(medico.getEspecialidade())) {
+                throw new RuntimeException("Especialidade inválida.");
+            }
+        }
+
+        // -----------------------
+        // 6) Salvar Usuário
+        // -----------------------
+        usuario.setStats(true);
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
 
-        if (usuarioSalvo.getTipoUsuario() == TipoUsuario.PACIENTE) {
-            if (usuarioSalvo instanceof Paciente) {
-                prontuarioService.criarProntuario((Paciente) usuarioSalvo);
-            }
+        // -----------------------
+        // 7) Criar prontuário apenas para PACIENTE
+        // -----------------------
+        if (usuarioSalvo instanceof Paciente pacienteSalvo) {
+            prontuarioService.criarProntuario(pacienteSalvo);
         }
 
         return usuarioSalvo;
     }
 
-    // + autenticar(email: String, senha: String): boolean
+    // Autenticar
     public Usuario autenticar(String email, String senha) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
         if (usuarioOpt.isPresent()) {
@@ -50,40 +106,87 @@ public class UsuarioService {
         return null;
     }
 
-    // + editarDados(): boolean
-    public Usuario editarUsuario(Usuario usuario) {
-        if (usuarioRepository.existsById(usuario.getIdUsuario())) {
-            return usuarioRepository.save(usuario);
-        }
-        throw new RuntimeException("Usuário não encontrado.");
+    // Editar
+   public Usuario editarUsuario(Usuario usuario) {
+
+    // Verificar se existe no banco
+    Usuario existente = usuarioRepository.findById(usuario.getIdUsuario())
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+
+    // -----------------------------------------
+    // 1) Validar EMAIL (não verifica duplicidade porque pode ser o mesmo)
+    // -----------------------------------------
+    if (!TratativasBackend.emailValido(usuario.getEmail())) {
+        throw new RuntimeException("Email inválido.");
     }
 
-    // + desativarConta(): void (Muda status para false)
+    // -----------------------------------------
+    // 2) Validar SENHA
+    // -----------------------------------------
+    if (!TratativasBackend.senhaValida(usuario.getSenha())) {
+        throw new RuntimeException("Senha inválida (mínimo 8 caracteres e sem espaços).");
+    }
+
+    // -----------------------------------------
+    // 3) Validar TELEFONE (opcional)
+    // -----------------------------------------
+    if (usuario.getTelefone() != null &&
+        !usuario.getTelefone().isBlank() &&
+        !TratativasBackend.telefoneValido(usuario.getTelefone())) {
+
+        throw new RuntimeException("Telefone inválido. Deve ter 10 ou 11 dígitos.");
+    }
+
+    // -----------------------------------------
+    // 4) Validar tipo de usuário
+    // -----------------------------------------
+    if (usuario.getTipoUsuario() == null) {
+        throw new RuntimeException("Tipo de usuário é obrigatório.");
+    }
+
+    // -----------------------------------------
+    // 5) Validações específicas para MÉDICO
+    // (NÃO mexe em CPF de paciente)
+    // -----------------------------------------
+    if (usuario instanceof Medico medico) {
+
+        if (!TratativasBackend.crmValido(medico.getCrm())) {
+            throw new RuntimeException("CRM inválido.");
+        }
+
+        if (!TratativasBackend.stringValida(medico.getEspecialidade())) {
+            throw new RuntimeException("Especialidade inválida.");
+        }
+    }
+
+    // -----------------------------------------
+    // 6) Salvar alterações
+    // -----------------------------------------
+    return usuarioRepository.save(usuario);
+}
+
+    // Desativar
     public void desativarConta(int id) {
-        Optional<Usuario> u = usuarioRepository.findById(id);
-        if (u.isPresent()) {
-            Usuario user = u.get();
-            user.setStats(false);
-            usuarioRepository.save(user);
-        }
+        usuarioRepository.findById(id).ifPresent(u -> {
+            u.setStats(false);
+            usuarioRepository.save(u);
+        });
     }
 
-    // + listarTodos(): List<Usuario> (novo)
+    // Ativar
+    public void ativarConta(int id) {
+        usuarioRepository.findById(id).ifPresent(u -> {
+            u.setStats(true);
+            usuarioRepository.save(u);
+        });
+    }
+
+    // Listar
     public List<Usuario> listarTodos() {
         return usuarioRepository.findAll();
     }
 
-    // + ativarConta(): void (Muda status para true) (novo)
-    public void ativarConta(int id) {
-        Optional<Usuario> u = usuarioRepository.findById(id);
-        if (u.isPresent()) {
-            Usuario user = u.get();
-            user.setStats(true); 
-            usuarioRepository.save(user);
-        }
-    }
-
-    public List<Usuario> listarPorTipo(com.example.apidentalclinic.enums.TipoUsuario tipo) {
+    public List<Usuario> listarPorTipo(TipoUsuario tipo) {
         return usuarioRepository.findByTipoUsuario(tipo);
     }
 }
