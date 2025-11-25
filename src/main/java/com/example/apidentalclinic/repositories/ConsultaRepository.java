@@ -43,6 +43,7 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Integer> {
 
    List<Consulta> findByMedicoIdUsuario(Integer idMedico);
 
-
+   @Query("SELECT c FROM Consulta c WHERE c.paciente.idUsuario = :id ORDER BY c.dataHora DESC")
+    List<Consulta> findByPacienteIdOrderByDataHoraDesc(@Param("id") int id);
 
 }
