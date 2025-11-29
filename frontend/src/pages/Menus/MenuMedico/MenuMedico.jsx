@@ -304,7 +304,7 @@ const MenuMedico = () => {
   ];
 
   return (
-    <div style={{ display: "flex", width: "100%", minHeight: "100vh", backgroundColor: "#f0f2f5" }}>
+    <div style={{ display: "flex", width: "100%", minHeight: "100vh", backgroundColor: ""}}>
       
       {/* SIDEBAR */}
       <aside className="sidebar">
@@ -343,8 +343,8 @@ const MenuMedico = () => {
         
         {viewAtual === "dashboard" && (
           <div className="card-welcome">
-            <h1>👨‍⚕️ Painel Médico</h1>
-            <p>Selecione uma opção no menu lateral para começar.</p>
+            <h1>Painel Médico</h1>
+            <p></p>
           </div>
         )}
 

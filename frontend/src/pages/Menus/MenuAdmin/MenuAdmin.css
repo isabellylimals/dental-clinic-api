@@ -184,3 +184,33 @@
     font-size: 13px;
   }
 }
+
+/* ===== DASHBOARD HEADER NO TOPO ===== */
+.dashboard-container {
+  margin-left: 270px; /* espaço para a sidebar fixa */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  
+}
+
+.dashboard-header {
+  position: sticky; /* fixa no topo */
+  top: 0;
+  
+  padding: 20px 30px;
+  
+  z-index: 10; /* para ficar acima do conteúdo */
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #003153;
+  margin: 0;
+}
+
+.dashboard-content {
+  padding: 30px;
+  flex: 1;
+}

@@ -5,12 +5,20 @@ import { faUserDoctor } from "@fortawesome/free-solid-svg-icons";
 
 const MenuAdmin = () => {
   const [activeSubmenu, setActiveSubmenu] = useState(null);
+  const [telaAtiva, setTelaAtiva] = useState("dashboard"); // inicia no dashboard
 
   const toggleSubmenu = (menuName) => {
     setActiveSubmenu(activeSubmenu === menuName ? null : menuName);
+    setTelaAtiva(menuName);
   };
 
   const menuItems = [
+    {
+      name: "dashboard",
+      icon: "ai-dashboard",
+      label: "Dashboard",
+      submenu: [{ label: "Visão Geral" }],
+    },
     {
       name: "usuarios",
       icon: "ai-people-group",
@@ -20,7 +28,7 @@ const MenuAdmin = () => {
         { label: "Editar Usuário" },
         { label: "Desativar Usuário" },
         { label: "Listar Médicos Cadastrados" },
-        { label: "Listar Pacientes Cadastrados" }
+        { label: "Listar Pacientes Cadastrados" },
       ],
     },
     {
@@ -30,7 +38,6 @@ const MenuAdmin = () => {
       submenu: [
         { label: "Cadastrar Serviço" },
         { label: "Listar Serviços" }
-        // Removido: { label: "Remover Serviço" }
       ],
     },
     {
@@ -53,58 +60,66 @@ const MenuAdmin = () => {
       icon: "ai-gear",
       label: "Configurações",
       submenu: [{ label: "Informações da Clínica" }],
-    }
+    },
   ];
 
   return (
-    <aside className="sidebar">
-      <header>
-        <button type="button" className="sidebar-burger">
-          <i className="ai-three-line-horizontal"></i>
-        </button>
-        <img src="logo.svg" alt="Logo" />
-      </header>
+    <div className="menu-admin-container">
+      <aside className="sidebar">
+        <header>
+          <button type="button" className="sidebar-burger">
+            <i className="ai-three-line-horizontal"></i>
+          </button>
+          <img src="logo.svg" alt="Logo" />
+        </header>
 
-      <div className="sidebar-content">
-        <ul>
-          {menuItems.map((item) => (
-            <li key={item.name}>
-              <button
-                type="button"
-                className={activeSubmenu === item.name ? "active" : ""}
-                onClick={() => toggleSubmenu(item.name)}
-              >
-                {item.icon === "fa-user-doctor" ? (
-                  <FontAwesomeIcon
-                    icon={faUserDoctor}
-                    className="fa-icon"
-                  />
-                ) : (
-                  <i className={item.icon}></i>
-                )}
+        <div className="sidebar-content">
+          <ul>
+            {menuItems.map((item) => (
+              <li key={item.name}>
+                <button
+                  type="button"
+                  className={activeSubmenu === item.name ? "active" : ""}
+                  onClick={() => toggleSubmenu(item.name)}
+                >
+                  {item.icon === "fa-user-doctor" ? (
+                    <FontAwesomeIcon icon={faUserDoctor} className="fa-icon" />
+                  ) : (
+                    <i className={item.icon}></i>
+                  )}
 
-                <p>{item.label}</p>
-                <i className="ai-chevron-down-small"></i>
-              </button>
+                  <p>{item.label}</p>
+                  <i className="ai-chevron-down-small"></i>
+                </button>
 
-              <div
-                className={`sub-menu ${activeSubmenu === item.name ? "open" : ""}`}
-              >
-                <ul>
-                  {item.submenu.map((subItem, index) => (
-                    <li key={index}>
-                      <button className="sub-menu-item">
-                        {subItem.label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </li>
-          ))}
-        </ul>
+                <div className={`sub-menu ${activeSubmenu === item.name ? "open" : ""}`}>
+                  <ul>
+                    {item.submenu.map((subItem, index) => (
+                      <li key={index}>
+                        <button className="sub-menu-item">{subItem.label}</button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+
+      <div className="dashboard-container">
+        <header className="dashboard-header">
+          <h1>Painel Administrador</h1>
+        </header>
+
+        <div className="dashboard-content">
+          {/* Aqui vai o conteúdo da tela */}
+          {telaAtiva === "dashboard" && (
+            <p></p>
+          )}
+        </div>
       </div>
-    </aside>
+    </div>
   );
 };
 
