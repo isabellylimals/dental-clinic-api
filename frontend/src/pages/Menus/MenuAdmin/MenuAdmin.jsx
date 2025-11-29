@@ -16,45 +16,19 @@ const MenuAdmin = () => {
       icon: "ai-dashboard",
       label: "Dashboard",
       submenu: [
-        { label: "Estatísticas do Dia" },
-        { label: "Alertas Pendentes" },
+        { label: "Visão Geral" }
       ],
     },
     {
-      name: "pacientes",
+      name: "usuarios",
       icon: "ai-people-group",
-      label: "Pacientes",
+      label: "Usuários",
       submenu: [
-        { label: "Buscar Paciente" },
-        { label: "Lista de Pacientes" },
-        { label: "Ficha Completa do Paciente" },
-        { label: "Consultar Prontuário" },
-        { label: "Consultar Anamnese" },
-        { label: "Consultas por Paciente" },
-        { label: "Cadastrar Novo Paciente" }
-      ],
-    },
-    {
-      name: "consultas",
-      icon: "ai-calendar",
-      label: "Consultas",
-      submenu: [
-        { label: "Agendar Consulta" },
-        { label: "Confirmar Solicitações" },
-        { label: "Visualizar Agenda de Médicos" },
-        { label: "Listar Todas as Consultas" },
-        { label: "Gerenciar Status de Consultas" }
-      ],
-    },
-    {
-      name: "profissionais",
-      icon: "fa-user-doctor", 
-      label: "Profissionais",
-      submenu: [
-        { label: "Cadastrar Médico" },
-        { label: "Listar Profissionais" },
-        { label: "Editar Dados" },
-        { label: "Desativar Conta" },
+        { label: "Cadastrar Usuário" },
+        { label: "Editar Usuário" },
+        { label: "Desativar Usuário" },
+        { label: "Listar Médicos Cadastrados" },
+        { label: "Listar Pacientes Cadastrados" }
       ],
     },
     {
@@ -64,7 +38,6 @@ const MenuAdmin = () => {
       submenu: [
         { label: "Cadastrar Serviço" },
         { label: "Listar Serviços" },
-        { label: "Editar Serviços" },
         { label: "Remover Serviço" },
       ],
     },
@@ -73,16 +46,6 @@ const MenuAdmin = () => {
       icon: "ai-folder",
       label: "Relatório",
       submenu: [{ label: "Gerar Relatório" }],
-    },
-    {
-      name: "gerenciamento",
-      icon: "ai-briefcase",
-      label: "Gerenciamento",
-      submenu: [
-        { label: "Orçamento" },
-        { label: "Estoque" },
-        { label: "Contratos" },
-      ],
     },
     {
       name: "perfil",

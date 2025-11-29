@@ -56,14 +56,12 @@ public class ConsultaController {
         }
     }
 
-    @PostMapping("/atualizar-status")
-    public ResponseEntity<?> atualizarStatus(@RequestBody Map<String, Object> body) {
+    @PutMapping("/status/{id}")
+    public ResponseEntity<?> atualizarStatus(@PathVariable("id") int idConsulta, @RequestBody Map<String, String> body) {
         try {
-            Integer idConsulta = (Integer) body.get("idConsulta");
-            String statusStr = (String) body.get("novoStatus");
-
-            if (idConsulta == null || statusStr == null)
-                return ResponseEntity.badRequest().body("Dados incompletos");
+            String statusStr = body.get("novoStatus");
+            if (statusStr == null)
+                return ResponseEntity.badRequest().body("Dados incompletos: 'novoStatus' é obrigatório.");
 
             StatusConsulta novoStatus = StatusConsulta.valueOf(statusStr);
             consultaService.atualizarStatus(idConsulta, novoStatus);
@@ -72,7 +70,7 @@ public class ConsultaController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Status inválido.");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
         }
     }
 

@@ -15,7 +15,14 @@ import {
   faSearch,     
   faIdCard,     
   faMapMarkerAlt, 
-  faPhone       
+  faPhone,
+  faSave,
+  faPen,
+  faCalendarCheck,
+  faClock,
+  faEdit,
+  faTooth,      // Novo ícone para Serviços
+  faInfoCircle  // Novo ícone para Informações
 } from "@fortawesome/free-solid-svg-icons";
 
 const MenuMedico = () => {
@@ -23,26 +30,50 @@ const MenuMedico = () => {
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const [viewAtual, setViewAtual] = useState("dashboard");
   
-  // Dados API
+  // Dados API Gerais
   const [cpfBusca, setCpfBusca] = useState("");
   const [dados, setDados] = useState(null);
   const [listaPacientes, setListaPacientes] = useState([]);
   const [pacienteSelecionado, setPacienteSelecionado] = useState(null);
 
+  // Estados para Consultas
+  const [listaConsultas, setListaConsultas] = useState([]);
+  const [formConsulta, setFormConsulta] = useState({
+    cpfPacienteInput: "",
+    nomeServicoInput: "",
+    data: "",
+    hora: "",
+    especialidadeInput: ""
+  });
+
+  // Estados para Serviços (NOVO)
+  const [listaServicos, setListaServicos] = useState([]);
+
+  // Estados de Formulário
+  const [textoForm, setTextoForm] = useState(""); 
+  const [msgSucesso, setMsgSucesso] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // URLs da API
   const API_PRONTUARIOS = "http://localhost:8080/api/prontuarios";
   const API_PACIENTES = "http://localhost:8080/api/gerenciador-pacientes";
+  const API_ANAMNESES = "http://localhost:8080/api/anamneses"; 
+  const API_CONSULTAS = "http://localhost:8080/api/consultas";
+  const API_SERVICOS = "http://localhost:8080/api/servicos"; // Nova URL adicionada
 
-  // --- EFEITO: CARREGAR LISTA AUTOMATICAMENTE ---
+  // --- EFEITO: CARREGAR LISTAS AUTOMATICAMENTE ---
   useEffect(() => {
     if (viewAtual === "listar-pacientes") {
         listarTodosPacientes();
     }
+    // Novo: Carrega serviços ao entrar na tela
+    if (viewAtual === "listar-servicos") {
+        listarTodosServicos();
+    }
   }, [viewAtual]);
 
-  // --- 2. LÓGICA ---
+  // --- 2. LÓGICA DE NAVEGAÇÃO ---
   const toggleSubmenu = (menuName) => {
     setActiveSubmenu(activeSubmenu === menuName ? null : menuName);
   };
@@ -50,61 +81,77 @@ const MenuMedico = () => {
   const trocarTela = (viewName) => {
     if (!viewName) return;
     setViewAtual(viewName);
+    // Limpeza Geral
     setDados(null);
     setErro("");
+    setMsgSucesso("");
+    setTextoForm("");
     setCpfBusca("");
     setListaPacientes([]);
+    setListaConsultas([]);
+    setListaServicos([]); // Limpa serviços
     setPacienteSelecionado(null);
+    setFormConsulta({ cpfPacienteInput: "", nomeServicoInput: "", data: "", hora: "", especialidadeInput: "" });
   };
 
-  // --- 3. BUSCAS (PRONTUÁRIO / ANAMNESE) ---
+  // --- 3. FUNCIONALIDADES ANTERIORES ---
   const buscarProntuario = async () => {
-    if (!cpfBusca) return setErro("Digite o CPF do paciente.");
+    if (!cpfBusca) return setErro("Digite o CPF.");
     setLoading(true); setErro(""); setDados(null);
     try {
       const res = await axios.get(`${API_PRONTUARIOS}/consulta/${cpfBusca}`);
       setDados(res.data);
-    } catch (error) {
-      setErro("Prontuário não encontrado.");
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { setErro("Prontuário não encontrado."); } finally { setLoading(false); }
   };
 
   const buscarAnamnese = async () => {
-    if (!cpfBusca) return setErro("Digite o CPF do paciente.");
-    setLoading(true); setErro(""); setDados(null);
+    if (!cpfBusca) return setErro("Digite o CPF.");
+    setLoading(true); setErro(""); setDados(null); setMsgSucesso("");
     try {
       const res = await axios.get(`${API_PRONTUARIOS}/anamnese/${cpfBusca}`);
       setDados(res.data);
-    } catch (error) {
-      setErro("Anamnese não encontrada.");
-    } finally {
-      setLoading(false);
-    }
+      return res.data;
+    } catch (error) { setErro("Anamnese não encontrada."); return null; } finally { setLoading(false); }
   };
 
-  // --- 4. GESTÃO DE PACIENTES ---
   const listarTodosPacientes = async () => {
     setLoading(true); setErro("");
     try {
       const res = await axios.get(API_PACIENTES);
       setListaPacientes(res.data);
-    } catch (error) {
-      setErro("Erro ao buscar lista de pacientes.");
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { setErro("Erro ao listar pacientes."); } finally { setLoading(false); }
   };
 
+
+  
   const filtrarPacientes = async () => {
-    if (!cpfBusca) return setErro("Digite um CPF para filtrar.");
-    setLoading(true); setErro(""); setListaPacientes([]);
+    // Limpa qualquer erro anterior
+    setErro(""); 
+    setListaPacientes([]);
+
+    // 1. Remove pontos e traços, deixa só números
+    const cpfLimpo = cpfBusca.replace(/\D/g, "");
+
+    // 2. Validações Locais (Antes de ir no Java)
+    if (!cpfLimpo) {
+        return setErro("O campo CPF não pode ficar vazio.");
+    }
+    if (cpfLimpo.length !== 11) {
+        return setErro("CPF inválido! O CPF deve conter exatamente 11 números.");
+    }
+
+    setLoading(true);
+    
     try {
-      const res = await axios.get(`${API_PACIENTES}/buscar-cpf?cpf=${cpfBusca}`);
-      setListaPacientes(res.data);
+      const res = await axios.get(`${API_PACIENTES}/buscar-cpf?cpf=${cpfLimpo}`);
+      
+      if (res.data.length === 0) {
+          setErro("Nenhum paciente encontrado com este CPF.");
+      } else {
+          setListaPacientes(res.data);
+      }
     } catch (error) {
-      setErro("Nenhum paciente encontrado.");
+      setErro("Erro ao conectar com o servidor.");
     } finally {
       setLoading(false);
     }
@@ -116,10 +163,77 @@ const MenuMedico = () => {
       const res = await axios.get(`${API_PACIENTES}/${id}`);
       setPacienteSelecionado(res.data);
       setViewAtual("ficha-detalhe");
+    } catch (error) { setErro("Erro ao carregar ficha."); } finally { setLoading(false); }
+  };
+
+  const carregarParaEdicao = async () => {
+    const res = await buscarAnamnese();
+    if(res) { setTextoForm(res.respostas || ""); setMsgSucesso("Ficha carregada. Pode editar."); }
+    else { setMsgSucesso("Criando nova anamnese."); }
+  };
+
+  const salvarNovaAnamnese = async () => {
+    if (!cpfBusca || !textoForm) return setErro("Preencha CPF e respostas.");
+    setLoading(true); setErro(""); setMsgSucesso("");
+    try {
+      await axios.post(`${API_ANAMNESES}/preencher`, { cpf: cpfBusca, respostas: textoForm });
+      setMsgSucesso("Salvo com sucesso!");
+    } catch (error) { setErro("Erro ao salvar."); } finally { setLoading(false); }
+  };
+
+  const salvarObservacao = async () => {
+    if (!dados || !dados.idAnamnese) return setErro("Busque a anamnese.");
+    setLoading(true); setErro(""); setMsgSucesso("");
+    try {
+      await axios.post(`${API_ANAMNESES}/observacao`, { idAnamnese: dados.idAnamnese, observacao: textoForm });
+      setMsgSucesso("Observação adicionada!");
+      setTextoForm(""); buscarAnamnese();
+    } catch (error) { setErro("Erro ao salvar."); } finally { setLoading(false); }
+  };
+
+  const agendarConsulta = async () => {
+    const { cpfPacienteInput, nomeServicoInput, data, hora, especialidadeInput } = formConsulta;
+    if (!cpfPacienteInput || !nomeServicoInput || !data || !hora) return setErro("Preencha campos obrigatórios.");
+    setLoading(true); setErro(""); setMsgSucesso("");
+    try {
+        const dataHoraFormatada = `${data}T${hora}:00`;
+        await axios.post(`${API_CONSULTAS}/solicitar`, { cpfPacienteInput, nomeServicoInput, especialidadeInput, dataHora: dataHoraFormatada });
+        setMsgSucesso("Consulta agendada!");
+        setFormConsulta({ ...formConsulta, cpfPacienteInput: "", data: "", hora: "" });
+    } catch (error) { setErro("Erro ao agendar."); } finally { setLoading(false); }
+  };
+
+  const buscarConsultas = async () => {
+    if (!cpfBusca) return setErro("Digite o CPF.");
+    setLoading(true); setErro(""); setListaConsultas([]);
+    try {
+        const res = await axios.get(`${API_CONSULTAS}/buscar-por-cpf?cpf=${cpfBusca}`);
+        setListaConsultas(res.data);
+        if(res.data.length === 0) setErro("Nenhuma consulta encontrada.");
+    } catch (error) { setErro("Erro ao buscar."); } finally { setLoading(false); }
+  };
+
+  const atualizarStatusConsulta = async (idConsulta, novoStatus) => {
+    if (!novoStatus || !window.confirm(`Mudar para ${novoStatus}?`)) return;
+    try {
+        await axios.put(`${API_CONSULTAS}/status/${idConsulta}`, { novoStatus });
+        const listaAtualizada = listaConsultas.map(c => c.idConsulta === idConsulta ? { ...c, status: novoStatus } : c);
+        setListaConsultas(listaAtualizada);
+        alert("Status atualizado!");
+    } catch (error) { alert("Erro ao atualizar status."); }
+  };
+
+  // --- 4. NOVAS FUNÇÕES (SERVIÇOS) ---
+  const listarTodosServicos = async () => {
+    setLoading(true); setErro("");
+    try {
+        // Chama seu endpoint GET /api/servicos
+        const res = await axios.get(API_SERVICOS);
+        setListaServicos(res.data);
     } catch (error) {
-      setErro("Erro ao carregar ficha.");
+        setErro("Não foi possível carregar a lista de serviços.");
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
@@ -144,16 +258,30 @@ const MenuMedico = () => {
       submenu: [
         { label: "Buscar paciente", view: "buscar-paciente" },
         { label: "Listar pacientes", view: "listar-pacientes" },
-        // REMOVIDO: { label: "Ficha do Paciente" } - Agora só acessa via tabela
         { label: "Consultar Prontuário", view: "prontuario" },
         { label: "Consultar Anamnese", view: "anamnese" },
       ],
     },
-    { name: "anamnese", icon: "ai-folder-add", label: "Anamnese", submenu: [{ label: "Registrar anamnese" }, { label: "Registrar Observação" }] },
-    { name: "consulta", icon: "fa-comment-medical", label: "Consultas", submenu: [{ label: "Buscar consulta" }, { label: "Agendar" }] },
-    { name: "servicos", icon: "ai-shipping-box-v1", label: "Serviços", submenu: [{ label: "Listar" }] },
+    { 
+      name: "anamnese", icon: "ai-folder-add", label: "Anamnese", 
+      submenu: [ { label: "Registrar anamnese", view: "registrar-anamnese" }, { label: "Registrar Observação", view: "registrar-observacao" } ] 
+    },
+    { 
+      name: "consulta", icon: "fa-comment-medical", label: "Consultas", 
+      submenu: [ { label: "Gerenciar consultas", view: "buscar-consulta" }, { label: "Agendar consulta", view: "agendar-consulta" } ] 
+    },
+    { 
+      name: "servicos", icon: "ai-shipping-box-v1", label: "Serviços", 
+      submenu: [
+        { label: "Listar serviços", view: "listar-servicos" }, // Adicionado View
+        { label: "Buscar serviços" },
+      ],
+    },
     { name: "perfil", icon: "ai-person", label: "Meu Perfil", submenu: [{ label: "Meus dados" }] },
-    { name: "info", icon: "ai-info", label: "Info", submenu: [{ label: "Contatos" }] },
+    { 
+      name: "info", icon: "ai-info", label: "Informações da Clínica", 
+      submenu: [{ label: "Localização e contatos", view: "info-clinica" }], // Adicionado View
+    },
   ];
 
   return (
@@ -194,7 +322,6 @@ const MenuMedico = () => {
       {/* ÁREA PRINCIPAL */}
       <main style={{ flex: 1, marginLeft: "280px", padding: "40px" }}>
         
-        {/* VIEW 1: DASHBOARD */}
         {viewAtual === "dashboard" && (
           <div className="card-welcome">
             <h1>👨‍⚕️ Painel Médico</h1>
@@ -202,12 +329,12 @@ const MenuMedico = () => {
           </div>
         )}
 
-        {/* VIEW 2: PRONTUÁRIO */}
+        {/* --- PRONTUÁRIOS E ANAMNESES --- */}
         {viewAtual === "prontuario" && (
           <div className="content-container">
             <h2 className="page-title"><FontAwesomeIcon icon={faFileMedicalAlt} /> Consultar Prontuário</h2>
             <div className="search-bar">
-              <input type="text" placeholder="Digite o CPF do Paciente..." value={cpfBusca} onChange={(e) => setCpfBusca(e.target.value)} />
+              <input type="text" placeholder="Digite o CPF..." value={cpfBusca} onChange={(e) => setCpfBusca(e.target.value)} />
               <button onClick={buscarProntuario} disabled={loading}>{loading ? "..." : "Pesquisar"}</button>
             </div>
             {erro && <div className="error-msg">{erro}</div>}
@@ -216,14 +343,14 @@ const MenuMedico = () => {
                 <div className="patient-header">
                   <div className="avatar-icon"><FontAwesomeIcon icon={faUserInjured} /></div>
                   <div className="patient-info">
-                    <h3>{dados.paciente?.nome || "Nome não informado"}</h3>
+                    <h3>{dados.paciente?.nome}</h3>
                     <p><FontAwesomeIcon icon={faEnvelope} /> {dados.paciente?.email}</p>
                     <p className="data-info"><FontAwesomeIcon icon={faCalendarAlt} /> Aberto em: {new Date(dados.dataCriacao).toLocaleDateString('pt-BR')}</p>
                   </div>
-                  <div className="prontuario-id">Prontuário #{dados.idProntuario}</div>
+                  <div className="prontuario-id">#{dados.idProntuario}</div>
                 </div>
                 <hr />
-                <h4 className="section-title"><FontAwesomeIcon icon={faHistory} /> Histórico de Evolução Clínica</h4>
+                <h4 className="section-title"><FontAwesomeIcon icon={faHistory} /> Histórico de Evolução</h4>
                 {dados.registros && dados.registros.length > 0 ? (
                   <div className="timeline">
                     {dados.registros.map((reg, idx) => (
@@ -243,95 +370,76 @@ const MenuMedico = () => {
           </div>
         )}
 
-        {/* VIEW 3: ANAMNESE */}
         {viewAtual === "anamnese" && (
           <div className="content-container">
             <h2 className="page-title green-theme"><FontAwesomeIcon icon={faNotesMedical} /> Consultar Anamnese</h2>
             <div className="search-bar">
-              <input type="text" placeholder="Digite o CPF do Paciente..." value={cpfBusca} onChange={(e) => setCpfBusca(e.target.value)} />
+              <input type="text" placeholder="Digite o CPF..." value={cpfBusca} onChange={(e) => setCpfBusca(e.target.value)} />
               <button onClick={buscarAnamnese} disabled={loading} className="btn-green">{loading ? "..." : "Pesquisar"}</button>
             </div>
             {erro && <div className="error-msg">{erro}</div>}
             {dados && (
               <div className="result-card fade-in">
                 <div className="anamnese-header">
-                  <div>
-                    <h3>Ficha de Anamnese</h3>
-                    <p style={{marginTop: '8px', fontSize: '1.1rem', color: '#444'}}><FontAwesomeIcon icon={faUserInjured} /> Paciente: <strong>{dados.paciente ? dados.paciente.nome : "Paciente"}</strong></p>
-                  </div>
+                  <div><h3>Ficha de Anamnese</h3><p style={{marginTop:8, color:'#444'}}><FontAwesomeIcon icon={faUserInjured} /> Paciente: <strong>{dados.paciente ? dados.paciente.nome : "Paciente"}</strong></p></div>
                   <span className="data-badge">Data: {new Date(dados.dataPreenchimento).toLocaleDateString('pt-BR')}</span>
                 </div>
                 <div className="anamnese-grid">
-                  <div className="anamnese-box clean-box"><strong>🗣️ Respostas do Paciente</strong><p>{dados.respostas}</p></div>
-                  <div className="anamnese-box clean-box"><strong>👨‍⚕️ Observações Médicas</strong><p>{dados.informacoes || "Nenhuma observação."}</p></div>
+                  <div className="anamnese-box clean-box"><strong>🗣️ Respostas</strong><p>{dados.respostas}</p></div>
+                  <div className="anamnese-box clean-box"><strong>👨‍⚕️ Observações</strong><p>{dados.informacoes || "Nenhuma."}</p></div>
                 </div>
               </div>
             )}
           </div>
         )}
 
-        {/* VIEW 4: LISTAR PACIENTES */}
         {viewAtual === "listar-pacientes" && (
           <div className="content-container">
             <h2 className="page-title"><FontAwesomeIcon icon={faList} /> Lista de Pacientes</h2>
-            
-            {loading && <p style={{textAlign:'center', color: '#666'}}>Carregando lista...</p>}
+            {loading && <p style={{textAlign:'center'}}>Carregando...</p>}
             {erro && <div className="error-msg">{erro}</div>}
-
             {listaPacientes.length > 0 && (
               <div className="result-card fade-in" style={{padding: 0, overflow: 'hidden'}}>
                 <table className="custom-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Nome</th>
-                      <th>Telefone</th>
-                      <th>Data Nascimento</th>
-                      <th>Endereço</th>
-                      <th>Ação</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {listaPacientes.map((p) => (
-                      <tr key={p.idUsuario}>
-                        <td>#{p.idUsuario}</td>
-                        <td>{p.nome}</td>
-                        <td>{p.telefone || "-"}</td>
-                        <td>{p.dataNascimento ? new Date(p.dataNascimento).toLocaleDateString('pt-BR') : "-"}</td>
-                        <td>{p.endereco || "-"}</td>
-                        <td><button className="btn-small" onClick={() => verFichaPaciente(p.idUsuario)}>Ver Ficha</button></td>
-                      </tr>
-                    ))}
-                  </tbody>
+                  <thead><tr><th>ID</th><th>Nome</th><th>Telefone</th><th>Nascimento</th><th>Endereço</th><th>Ação</th></tr></thead>
+                  <tbody>{listaPacientes.map(p => (<tr key={p.idUsuario}><td>#{p.idUsuario}</td><td>{p.nome}</td><td>{p.telefone || "-"}</td><td>{p.dataNascimento ? new Date(p.dataNascimento).toLocaleDateString('pt-BR') : "-"}</td><td>{p.endereco || "-"}</td><td><button className="btn-small" onClick={() => verFichaPaciente(p.idUsuario)}>Ver Ficha</button></td></tr>))}</tbody>
                 </table>
               </div>
             )}
           </div>
         )}
 
-        {/* VIEW 5: BUSCAR PACIENTE */}
         {viewAtual === "buscar-paciente" && (
           <div className="content-container">
             <h2 className="page-title"><FontAwesomeIcon icon={faSearch} /> Buscar Paciente</h2>
+            
+            {/* BARRA DE BUSCA COM BORDA VERMELHA SE TIVER ERRO */}
             <div className="search-bar">
-              <input type="text" placeholder="Digite o CPF para filtrar..." value={cpfBusca} onChange={(e) => setCpfBusca(e.target.value)} />
-              <button onClick={filtrarPacientes} disabled={loading}>{loading ? "..." : "Buscar"}</button>
+              <input 
+                type="text" 
+                placeholder="Digite o CPF..." 
+                value={cpfBusca} 
+                onChange={(e) => {
+                    setCpfBusca(e.target.value);
+                    setErro(""); // Limpa o erro assim que digitar algo novo
+                }} 
+                // AQUI OCORRE A MÁGICA DA BORDA VERMELHA
+                style={erro ? { border: "2px solid #dc2626", background: "#fff5f5" } : {}}
+              />
+              <button onClick={filtrarPacientes} disabled={loading}>
+                {loading ? "..." : "Buscar"}
+              </button>
             </div>
-            {erro && <div className="error-msg">{erro}</div>}
+
+            {/* MENSAGEM DE ERRO EMBAIXO DO CAMPO */}
+            {erro && <div className="error-msg" style={{marginTop: '10px'}}>⚠️ {erro}</div>}
+
             {listaPacientes.length > 0 && (
               <div className="result-card fade-in" style={{padding: 0, overflow: 'hidden'}}>
                 <table className="custom-table">
-                  <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Telefone</th>
-                        <th>Data Nascimento.</th>
-                        <th>Endereço</th>
-                        <th>Ação</th>
-                    </tr>
-                  </thead>
+                  <thead><tr><th>Nome</th><th>Telefone</th><th>Nascimento</th><th>Endereço</th><th>Ação</th></tr></thead>
                   <tbody>
-                    {listaPacientes.map((p) => (
+                    {listaPacientes.map(p => (
                       <tr key={p.idUsuario}>
                         <td>{p.nome}</td>
                         <td>{p.telefone || "-"}</td>
@@ -347,29 +455,177 @@ const MenuMedico = () => {
           </div>
         )}
 
-        {/* VIEW 6: FICHA DETALHE (CPF REMOVIDO) */}
         {viewAtual === "ficha-detalhe" && pacienteSelecionado && (
           <div className="content-container fade-in">
             <button className="btn-back" onClick={() => trocarTela("listar-pacientes")}>⬅ Voltar</button>
             <div className="result-card">
-              <div className="patient-header">
-                <div className="avatar-icon"><FontAwesomeIcon icon={faIdCard} /></div>
-                <div className="patient-info">
-                  <h3>{pacienteSelecionado.nome}</h3>
-                  <p className="data-info">Status: Ativo</p>
+              <div className="patient-header"><div className="avatar-icon"><FontAwesomeIcon icon={faIdCard} /></div><div className="patient-info"><h3>{pacienteSelecionado.nome}</h3><p className="data-info">Status: Ativo</p></div></div><hr/>
+              <div className="anamnese-grid"><div className="clean-box"><strong>Email:</strong> {pacienteSelecionado.email}</div><div className="clean-box"><strong>Telefone:</strong> {pacienteSelecionado.telefone || "-"}</div><div className="clean-box"><strong>Nascimento:</strong> {pacienteSelecionado.dataNascimento ? new Date(pacienteSelecionado.dataNascimento).toLocaleDateString('pt-BR') : "-"}</div><div className="clean-box" style={{gridColumn: 'span 2'}}><strong>Endereço:</strong> {pacienteSelecionado.endereco || "-"}</div></div>
+              <div style={{marginTop: 30, textAlign: 'right'}}><button className="btn-green" onClick={() => { setCpfBusca(pacienteSelecionado.cpf); trocarTela("prontuario"); buscarProntuario(); }}>Ir para Prontuário</button></div>
+            </div>
+          </div>
+        )}
+
+        {viewAtual === "registrar-anamnese" && (
+          <div className="content-container">
+            <h2 className="page-title"><FontAwesomeIcon icon={faPen} /> Nova / Editar Anamnese</h2>
+            <div className="search-bar" style={{marginBottom: 20}}><input type="text" placeholder="CPF..." value={cpfBusca} onChange={(e) => setCpfBusca(e.target.value)} /><button onClick={carregarParaEdicao}>Buscar Dados</button></div>
+            <div className="result-card fade-in">
+                {msgSucesso && <div className="success-msg" style={{marginTop:0, marginBottom:20}}>{msgSucesso}</div>}
+                <div style={{marginBottom: 20}}><label style={{fontWeight: 'bold', display:'block', marginBottom: 8}}>Respostas:</label><textarea rows="8" className="textarea-field" placeholder="Ex: Paciente relata..." value={textoForm} onChange={(e) => setTextoForm(e.target.value)}></textarea></div>
+                <button onClick={salvarNovaAnamnese} disabled={loading} className="btn-green"><FontAwesomeIcon icon={faSave} /> {loading ? "Salvando..." : "Salvar"}</button>
+                {erro && <div className="error-msg">{erro}</div>}
+            </div>
+          </div>
+        )}
+
+        {viewAtual === "registrar-observacao" && (
+          <div className="content-container">
+            <h2 className="page-title"><FontAwesomeIcon icon={faCommentMedical} /> Registrar Observação</h2>
+            <div className="search-bar"><input type="text" placeholder="Buscar Anamnese por CPF..." value={cpfBusca} onChange={(e) => setCpfBusca(e.target.value)} /><button onClick={buscarAnamnese} className="btn-green">Buscar</button></div>
+            {erro && <div className="error-msg">{erro}</div>}
+            {dados && (<div className="result-card fade-in"><div style={{marginBottom: 20}}><strong style={{display:'block', marginBottom:10}}>Atual:</strong><div className="clean-box" style={{background: '#f9f9f9', fontSize: '0.9rem'}}>{dados.informacoes || "Sem observações."}</div></div><div style={{marginBottom: 20}}><label style={{fontWeight: 'bold', display:'block', marginBottom: 8}}>Nova Observação:</label><textarea rows="4" className="textarea-field" value={textoForm} onChange={(e) => setTextoForm(e.target.value)}></textarea></div><button onClick={salvarObservacao} disabled={loading} className="btn-green"><FontAwesomeIcon icon={faSave} /> Adicionar</button>{msgSucesso && <div className="success-msg">{msgSucesso}</div>}</div>)}
+          </div>
+        )}
+
+        {/* --- CONSULTAS --- */}
+        {viewAtual === "agendar-consulta" && (
+          <div className="content-container">
+            <h2 className="page-title"><FontAwesomeIcon icon={faCalendarCheck} /> Agendar Consulta</h2>
+            <div className="result-card fade-in">
+                <div className="form-grid">
+                    <div className="form-group"><label>CPF do Paciente:</label><input type="text" className="input-field" placeholder="Apenas números" value={formConsulta.cpfPacienteInput} onChange={(e) => setFormConsulta({...formConsulta, cpfPacienteInput: e.target.value})} /></div>
+                    <div className="form-group"><label>Serviço:</label><select className="input-field" value={formConsulta.nomeServicoInput} onChange={(e) => setFormConsulta({...formConsulta, nomeServicoInput: e.target.value})}><option value="">Selecione...</option><option value="Limpeza">Limpeza</option><option value="Canal">Canal</option><option value="Extração">Extração</option></select></div>
+                    <div className="form-group"><label>Especialidade:</label><input type="text" className="input-field" placeholder="Ex: Ortodontia" value={formConsulta.especialidadeInput} onChange={(e) => setFormConsulta({...formConsulta, especialidadeInput: e.target.value})} /></div>
+                    <div className="form-group"><label>Data:</label><input type="date" className="input-field" value={formConsulta.data} onChange={(e) => setFormConsulta({...formConsulta, data: e.target.value})} /></div>
+                    <div className="form-group"><label>Hora:</label><input type="time" className="input-field" value={formConsulta.hora} onChange={(e) => setFormConsulta({...formConsulta, hora: e.target.value})} /></div>
                 </div>
+                <button onClick={agendarConsulta} disabled={loading} className="btn-green" style={{marginTop: 20, width: '100%'}}><FontAwesomeIcon icon={faSave} /> {loading ? "Agendando..." : "Confirmar Agendamento"}</button>
+                {msgSucesso && <div className="success-msg">{msgSucesso}</div>}
+                {erro && <div className="error-msg">{erro}</div>}
+            </div>
+          </div>
+        )}
+
+        {viewAtual === "buscar-consulta" && (
+          <div className="content-container">
+            <h2 className="page-title"><FontAwesomeIcon icon={faCalendarAlt} /> Gerenciar Consultas</h2>
+            <div className="search-bar"><input type="text" placeholder="Digite o CPF..." value={cpfBusca} onChange={(e) => setCpfBusca(e.target.value)} /><button onClick={buscarConsultas} disabled={loading}>{loading ? "..." : "Buscar"}</button></div>
+            {erro && <div className="error-msg">{erro}</div>}
+            {listaConsultas.length > 0 && (
+                <div className="result-card fade-in" style={{padding: 0, overflow: 'hidden'}}>
+                    <table className="custom-table">
+                        <thead><tr><th>Data/Hora</th><th>Serviço</th><th>Médico</th><th>Status Atual</th><th>Ação (Mudar Status)</th></tr></thead>
+                        <tbody>{listaConsultas.map((c) => (
+                                <tr key={c.idConsulta}>
+                                    <td>{new Date(c.dataHora).toLocaleDateString('pt-BR')} <br/><small><FontAwesomeIcon icon={faClock}/> {new Date(c.dataHora).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</small></td>
+                                    <td>{c.servico ? c.servico.nomeServico : "-"}</td>
+                                    <td>{c.medico ? c.medico.nome : "A definir"}</td>
+                                    <td><span className={`status-badge status-${c.status?.toLowerCase()}`}>{c.status}</span></td>
+                                    <td>
+                                        <select className="status-select" onChange={(e) => atualizarStatusConsulta(c.idConsulta, e.target.value)} defaultValue="">
+                                            <option value="" disabled>Alterar para...</option><option value="CONFIRMADA">Confirmada</option><option value="REALIZADA">Realizada</option><option value="CANCELADA">Cancelada</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            ))}</tbody>
+                    </table>
+                </div>
+            )}
+          </div>
+        )}
+
+        {/* --- 5. NOVAS TELAS: LISTAR SERVIÇOS --- */}
+        {viewAtual === "listar-servicos" && (
+          <div className="content-container">
+            <h2 className="page-title"><FontAwesomeIcon icon={faTooth} /> Serviços Disponíveis</h2>
+            
+            {/* O useEffect carrega automaticamente, mas deixamos msg de loading */}
+            {loading && <p style={{textAlign:'center', color: '#666'}}>Carregando catálogo...</p>}
+            {erro && <div className="error-msg">{erro}</div>}
+
+            {listaServicos.length > 0 && (
+              <div className="result-card fade-in" style={{padding: 0, overflow: 'hidden'}}>
+                <table className="custom-table">
+                  <thead>
+                    <tr>
+                      <th style={{width: '10%'}}>ID</th>
+                      <th style={{width: '30%'}}>Nome do Serviço</th>
+                      <th>Descrição Detalhada</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {listaServicos.map((s) => (
+                      <tr key={s.idServico}>
+                        <td style={{fontWeight: 'bold'}}>#{s.idServico}</td>
+                        <td style={{color: '#003153', fontWeight: 'bold'}}>{s.nomeServico}</td>
+                        <td>{s.descricao || "Sem descrição disponível."}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <hr/>
-              <div className="anamnese-grid">
-                {/* CPF REMOVIDO DAQUI CONFORME PEDIDO */}
-                <div className="clean-box"><strong>Email:</strong> {pacienteSelecionado.email}</div>
-                <div className="clean-box"><strong>Telefone:</strong> {pacienteSelecionado.telefone || "-"}</div>
-                <div className="clean-box"><strong>Data Nascimento:</strong> {pacienteSelecionado.dataNascimento ? new Date(pacienteSelecionado.dataNascimento).toLocaleDateString('pt-BR') : "-"}</div>
-                <div className="clean-box" style={{gridColumn: 'span 2'}}><strong>Endereço:</strong> {pacienteSelecionado.endereco || "-"}</div>
-              </div>
-              <div style={{marginTop: 30, textAlign: 'right'}}>
-                 
-              </div>
+            )}
+          </div>
+        )}
+
+        {/* --- 6. NOVA TELA: INFORMAÇÕES DA CLÍNICA --- */}
+        {viewAtual === "info-clinica" && (
+          <div className="content-container fade-in">
+            <h2 className="page-title"><FontAwesomeIcon icon={faInfoCircle} /> Informações da Clínica</h2>
+            
+            <div className="result-card">
+                {/* Logo e Nome */}
+                <div style={{
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  marginBottom: 30
+}}>
+  <img src="logo.svg" alt="DentalClinic" style={{height: 80, marginBottom: 15}} />
+  <h3 style={{color: '#003153', fontSize: '1.5rem', margin: 0}}>DentalClinic Advanced</h3>
+  <p style={{color: '#666', marginTop: 5}}>Excelência em Odontologia Digital</p>
+</div>
+
+                
+                <hr style={{margin: '25px 0', border: 0, borderTop: '1px solid #eee'}} />
+
+                <div className="form-grid">
+                    <div className="clean-box">
+                        <strong style={{color: '#007bff', fontSize: '1.1rem', display:'flex', alignItems:'center', gap: 10}}>
+                            <FontAwesomeIcon icon={faMapMarkerAlt} /> Endereço
+                        </strong>
+                        <p style={{marginTop: 15, lineHeight: 1.6}}>
+                            Av. Paulista, 1000 - Bela Vista<br/>
+                            Edifício Medical Center, 5º Andar<br/>
+                            São Paulo - SP, 01310-100
+                        </p>
+                    </div>
+
+                    <div className="clean-box">
+                        <strong style={{color: '#007bff', fontSize: '1.1rem', display:'flex', alignItems:'center', gap: 10}}>
+                            <FontAwesomeIcon icon={faPhone} /> Contatos
+                        </strong>
+                        <p style={{marginTop: 15, lineHeight: 1.6}}>
+                            <strong>Recepção:</strong> (11) 3333-4444<br/>
+                            <strong>WhatsApp:</strong> (11) 99999-8888<br/>
+                            <strong>Email:</strong> contato@dentalclinic.com
+                        </p>
+                    </div>
+
+                    <div className="clean-box">
+                        <strong style={{color: '#007bff', fontSize: '1.1rem', display:'flex', alignItems:'center', gap: 10}}>
+                            <FontAwesomeIcon icon={faClock} /> Horário de Atendimento
+                        </strong>
+                        <p style={{marginTop: 15, lineHeight: 1.6}}>
+                            <strong>Segunda a Sexta:</strong> 08:00 às 19:00<br/>
+                            <strong>Sábado:</strong> 08:00 às 13:00<br/>
+                            <strong>Domingo:</strong> Fechado
+                        </p>
+                    </div>
+
+                    
+                </div>
             </div>
           </div>
         )}
@@ -380,7 +636,7 @@ const MenuMedico = () => {
       <style>{`
         .content-container { width: 100%; max-width: 1100px; margin: 0 auto; }
         .page-title { color: #003153; margin-bottom: 25px; font-size: 1.8rem; display: flex; align-items: center; gap: 12px; }
-        .page-title.green-theme { color: #003153; }
+        .page-title.green-theme { color: #2e7d32; }
         .search-bar { display: flex; gap: 10px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .search-bar input { flex: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
         .search-bar input:focus { border-color: #007bff; }
@@ -388,6 +644,8 @@ const MenuMedico = () => {
         .search-bar button.btn-green { background: #007bff; }
         .result-card { background: white; border-radius: 16px; padding: 40px; margin-top: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
         .error-msg { background: #fee2e2; color: #dc2626; padding: 15px; border-radius: 8px; margin-top: 20px; font-weight: 500; }
+        .success-msg { background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-top: 20px; font-weight: 600; border-left: 5px solid #166534; }
+        
         .patient-header { display: flex; align-items: center; gap: 25px; margin-bottom: 30px; }
         .avatar-icon { width: 70px; height: 70px; background: #f0f7ff; color: #007bff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
         .patient-info h3 { margin: 0; color: #1e293b; font-size: 1.6rem; }
@@ -417,6 +675,26 @@ const MenuMedico = () => {
         .btn-green { background: #007bff; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor: pointer; font-weight: 600; }
         .btn-small { padding: 6px 12px; background: #e0f2fe; color: #007bff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
         .btn-back { background: transparent; border: none; color: #64748b; font-size: 1rem; cursor: pointer; margin-bottom: 10px; font-weight: 600; }
+        
+        /* INPUTS E TEXTAREAS */
+        .input-field { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
+        .input-field:focus { border-color: #007bff; }
+        .textarea-field { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; font-family: inherit; resize: vertical; outline: none; }
+        .textarea-field:focus { border-color: #007bff; }
+
+        /* FORMULÁRIO GRID */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { margin-bottom: 5px; font-weight: 600; color: #333; }
+
+        /* STATUS BADGES */
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
+        .status-solicitada { background: #fef9c3; color: #854d0e; }
+        .status-confirmada { background: #dbeafe; color: #1e40af; }
+        .status-realizada { background: #dcfce7; color: #166534; }
+        .status-cancelada { background: #fee2e2; color: #991b1b; }
+        .status-select { padding: 8px; border-radius: 6px; border: 1px solid #ddd; cursor: pointer; }
+
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .empty-state { text-align: center; padding: 50px; color: #94a3b8; font-style: italic; }
