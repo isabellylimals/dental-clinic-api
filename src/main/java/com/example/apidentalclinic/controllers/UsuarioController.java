@@ -59,4 +59,9 @@ public class UsuarioController {
         
         return ResponseEntity.ok(service.listarPorTipo(com.example.apidentalclinic.enums.TipoUsuario.MEDICO));
     }
+
+    @GetMapping("/pacientes")
+    public ResponseEntity<List<Usuario>> listarPacientes() {
+        return ResponseEntity.ok(service.listarPorTipo(com.example.apidentalclinic.enums.TipoUsuario.PACIENTE));
+    }
 }

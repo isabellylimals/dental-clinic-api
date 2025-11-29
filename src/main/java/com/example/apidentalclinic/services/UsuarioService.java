@@ -108,62 +108,31 @@ public class UsuarioService {
 
     // Editar
    public Usuario editarUsuario(Usuario usuario) {
+        // 1. Busca o usuário que já existe no banco
+        Usuario existente = usuarioRepository.findById(usuario.getIdUsuario())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
 
-    // Verificar se existe no banco
-    Usuario existente = usuarioRepository.findById(usuario.getIdUsuario())
-            .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
-
-    // -----------------------------------------
-    // 1) Validar EMAIL (não verifica duplicidade porque pode ser o mesmo)
-    // -----------------------------------------
-    if (!TratativasBackend.emailValido(usuario.getEmail())) {
-        throw new RuntimeException("Email inválido.");
-    }
-
-    // -----------------------------------------
-    // 2) Validar SENHA
-    // -----------------------------------------
-    if (!TratativasBackend.senhaValida(usuario.getSenha())) {
-        throw new RuntimeException("Senha inválida (mínimo 8 caracteres e sem espaços).");
-    }
-
-    // -----------------------------------------
-    // 3) Validar TELEFONE (opcional)
-    // -----------------------------------------
-    if (usuario.getTelefone() != null &&
-        !usuario.getTelefone().isBlank() &&
-        !TratativasBackend.telefoneValido(usuario.getTelefone())) {
-
-        throw new RuntimeException("Telefone inválido. Deve ter 10 ou 11 dígitos.");
-    }
-
-    // -----------------------------------------
-    // 4) Validar tipo de usuário
-    // -----------------------------------------
-    if (usuario.getTipoUsuario() == null) {
-        throw new RuntimeException("Tipo de usuário é obrigatório.");
-    }
-
-    // -----------------------------------------
-    // 5) Validações específicas para MÉDICO
-    // (NÃO mexe em CPF de paciente)
-    // -----------------------------------------
-    if (usuario instanceof Medico medico) {
-
-        if (!TratativasBackend.crmValido(medico.getCrm())) {
-            throw new RuntimeException("CRM inválido.");
+        // 2. Atualiza apenas os dados básicos
+        existente.setNome(usuario.getNome());
+        existente.setTelefone(usuario.getTelefone());
+        
+        // Só atualiza a senha se vier alguma coisa nova
+        if (usuario.getSenha() != null && !usuario.getSenha().isEmpty()) {
+            existente.setSenha(usuario.getSenha()); 
         }
 
-        if (!TratativasBackend.stringValida(medico.getEspecialidade())) {
-            throw new RuntimeException("Especialidade inválida.");
+        // 3. Atualiza dados específicos (Cast seguro)
+        if (existente instanceof Medico && usuario instanceof Medico) {
+            ((Medico) existente).setEspecialidade(((Medico) usuario).getEspecialidade());
+            // CRM geralmente não se muda, mas se quiser:
+            // ((Medico) existente).setCrm(((Medico) usuario).getCrm());
+        } else if (existente instanceof Paciente && usuario instanceof Paciente) {
+            ((Paciente) existente).setEndereco(((Paciente) usuario).getEndereco());
         }
-    }
 
-    // -----------------------------------------
-    // 6) Salvar alterações
-    // -----------------------------------------
-    return usuarioRepository.save(usuario);
-}
+        // 4. Salva o objeto EXISTENTE atualizado
+        return usuarioRepository.save(existente);
+    }
 
     // Desativar
     public void desativarConta(int id) {
