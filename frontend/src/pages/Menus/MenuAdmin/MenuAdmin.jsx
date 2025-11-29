@@ -12,14 +12,6 @@ const MenuAdmin = () => {
 
   const menuItems = [
     {
-      name: "dashboard",
-      icon: "ai-dashboard",
-      label: "Dashboard",
-      submenu: [
-        { label: "Visão Geral" }
-      ],
-    },
-    {
       name: "usuarios",
       icon: "ai-people-group",
       label: "Usuários",
@@ -37,8 +29,8 @@ const MenuAdmin = () => {
       label: "Serviços",
       submenu: [
         { label: "Cadastrar Serviço" },
-        { label: "Listar Serviços" },
-        { label: "Remover Serviço" },
+        { label: "Listar Serviços" }
+        // Removido: { label: "Remover Serviço" }
       ],
     },
     {
@@ -96,9 +88,7 @@ const MenuAdmin = () => {
               </button>
 
               <div
-                className={`sub-menu ${
-                  activeSubmenu === item.name ? "open" : ""
-                }`}
+                className={`sub-menu ${activeSubmenu === item.name ? "open" : ""}`}
               >
                 <ul>
                   {item.submenu.map((subItem, index) => (
