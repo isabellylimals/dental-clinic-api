@@ -255,7 +255,7 @@ export default function LoginSignup() {
             <div className="control">
               <input 
                 type="email" 
-                placeholder="seuemail@gmail.com"
+                placeholder="seu_email@gmail.com"
                 value={signupEmail} 
                 onChange={(e) => setSignupEmail(e.target.value)}
                 required

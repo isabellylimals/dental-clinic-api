@@ -83,6 +83,12 @@ private Paciente paciente;
         this.respostas = respostas;
     }
 
+    public Paciente getPaciente() {
+        return paciente;
+    }
+
+    
+
     @Override
     public String toString() {
         return "Anamnese [" +

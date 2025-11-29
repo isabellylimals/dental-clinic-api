@@ -35,8 +35,9 @@ public class RegistroAtendimento {
      @JsonBackReference //mudadado
     private Prontuario prontuario;
 
-    @ManyToOne
   
+    @ManyToOne
+    @JoinColumn(name = "id_medico") // <--- ADICIONE ISSO AQUI
     private Medico medico;
 
     @ManyToOne
