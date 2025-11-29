@@ -48,6 +48,7 @@ const MenuMedico = () => {
 
   // Estados para Serviços (NOVO)
   const [listaServicos, setListaServicos] = useState([]);
+  const [buscaServico, setBuscaServico] = useState("");
 
   // Estados de Formulário
   const [textoForm, setTextoForm] = useState(""); 
@@ -60,14 +61,15 @@ const MenuMedico = () => {
   const API_PACIENTES = "http://localhost:8080/api/gerenciador-pacientes";
   const API_ANAMNESES = "http://localhost:8080/api/anamneses"; 
   const API_CONSULTAS = "http://localhost:8080/api/consultas";
-  const API_SERVICOS = "http://localhost:8080/api/servicos"; // Nova URL adicionada
+  const API_SERVICOS = "http://localhost:8080/api/servicos";
 
   // --- EFEITO: CARREGAR LISTAS AUTOMATICAMENTE ---
+// --- EFEITO: CARREGAR LISTAS AUTOMATICAMENTE ---
   useEffect(() => {
     if (viewAtual === "listar-pacientes") {
         listarTodosPacientes();
     }
-    // Novo: Carrega serviços ao entrar na tela
+    // ADICIONE ESTE BLOCO:
     if (viewAtual === "listar-servicos") {
         listarTodosServicos();
     }
@@ -89,7 +91,8 @@ const MenuMedico = () => {
     setCpfBusca("");
     setListaPacientes([]);
     setListaConsultas([]);
-    setListaServicos([]); // Limpa serviços
+    setListaServicos([]); // Limpa lista anterior
+    setBuscaServico("");  // Limpa campo de busca
     setPacienteSelecionado(null);
     setFormConsulta({ cpfPacienteInput: "", nomeServicoInput: "", data: "", hora: "", especialidadeInput: "" });
   };
@@ -224,14 +227,29 @@ const MenuMedico = () => {
   };
 
   // --- 4. NOVAS FUNÇÕES (SERVIÇOS) ---
+  // 1. Listar Todos (Corrige o bug da listagem)
   const listarTodosServicos = async () => {
     setLoading(true); setErro("");
     try {
-        // Chama seu endpoint GET /api/servicos
         const res = await axios.get(API_SERVICOS);
         setListaServicos(res.data);
     } catch (error) {
-        setErro("Não foi possível carregar a lista de serviços.");
+        setErro("Erro ao carregar serviços.");
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  // 2. Buscar por Nome (Faz a busca funcionar)
+  const filtrarServicos = async () => {
+    if (!buscaServico) return setErro("Digite o nome do serviço.");
+    setLoading(true); setErro(""); setListaServicos([]);
+    try {
+        const res = await axios.get(`${API_SERVICOS}/buscar?nome=${buscaServico}`);
+        setListaServicos(res.data);
+        if (res.data.length === 0) setErro("Nenhum serviço encontrado.");
+    } catch (error) {
+        setErro("Erro ao buscar serviço.");
     } finally {
         setLoading(false);
     }
@@ -273,8 +291,9 @@ const MenuMedico = () => {
     { 
       name: "servicos", icon: "ai-shipping-box-v1", label: "Serviços", 
       submenu: [
-        { label: "Listar serviços", view: "listar-servicos" }, // Adicionado View
-        { label: "Buscar serviços" },
+        { label: "Listar serviços", view: "listar-servicos" },
+        // ADICIONE O VIEW AQUI EMBAIXO:
+        { label: "Buscar serviços", view: "buscar-servicos" }, 
       ],
     },
     { name: "perfil", icon: "ai-person", label: "Meu Perfil", submenu: [{ label: "Meus dados" }] },
@@ -569,6 +588,41 @@ const MenuMedico = () => {
           </div>
         )}
 
+        {/* TELA: BUSCAR SERVIÇOS */}
+        {viewAtual === "buscar-servicos" && (
+          <div className="content-container">
+            <h2 className="page-title"><FontAwesomeIcon icon={faSearch} /> Buscar Serviço</h2>
+            <div className="search-bar">
+                <input 
+                    type="text" 
+                    placeholder="Digite o nome (ex: Canal)..." 
+                    value={buscaServico} 
+                    onChange={(e) => setBuscaServico(e.target.value)} 
+                />
+                <button onClick={filtrarServicos} disabled={loading}>Buscar</button>
+            </div>
+            {erro && <div className="error-msg">{erro}</div>}
+            
+            {/* Reutiliza a mesma tabela para mostrar o resultado */}
+            {listaServicos.length > 0 && (
+              <div className="result-card fade-in" style={{padding: 0, overflow: 'hidden'}}>
+                <table className="custom-table">
+                  <thead><tr><th>ID</th><th>Serviço</th><th>Descrição</th></tr></thead>
+                  <tbody>
+                    {listaServicos.map((s) => (
+                      <tr key={s.idServico}>
+                        <td>#{s.idServico}</td>
+                        <td>{s.nomeServico}</td>
+                        <td>{s.descricao}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* --- 6. NOVA TELA: INFORMAÇÕES DA CLÍNICA --- */}
         {viewAtual === "info-clinica" && (
           <div className="content-container fade-in">
@@ -636,7 +690,7 @@ const MenuMedico = () => {
       <style>{`
         .content-container { width: 100%; max-width: 1100px; margin: 0 auto; }
         .page-title { color: #003153; margin-bottom: 25px; font-size: 1.8rem; display: flex; align-items: center; gap: 12px; }
-        .page-title.green-theme { color: #2e7d32; }
+        .page-title.green-theme { color: #003153; }
         .search-bar { display: flex; gap: 10px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .search-bar input { flex: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
         .search-bar input:focus { border-color: #007bff; }
