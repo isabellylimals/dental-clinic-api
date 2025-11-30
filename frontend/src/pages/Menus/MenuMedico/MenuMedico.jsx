@@ -182,6 +182,40 @@ const encerrarConta = async () => {
     alert("Erro ao encerrar conta.");
   }
 };
+const confirmarConsulta = async (idConsulta) => {
+  setErro("");
+  setMsgSucesso("");
+
+  try {
+    setLoading(true);
+
+    // 🔥 Atualiza imediatamente a lista no front
+    setConsultasMedico(prev =>
+      prev.map(cons =>
+        cons.idConsulta === idConsulta
+          ? { ...cons, status: "CONFIRMADA" }
+          : cons
+      )
+    );
+
+    // 🔥 Envia para o backend
+    await axios.post("http://localhost:8080/api/consultas/agendar", {
+      idConsulta,
+    });
+
+    setMsgSucesso("Consulta confirmada com sucesso!");
+
+    // 🔥 Confere no back e sincroniza (opcional, mas recomendado)
+    await buscarConsultasDoMedico();
+
+  } catch (error) {
+    console.error(error);
+    setErro("Erro ao confirmar consulta.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
 
 
@@ -1071,23 +1105,34 @@ const agendarConsulta = async () => {
                 <td>{c.nomePaciente}</td>
                 <td>{new Date(c.dataHora).toLocaleDateString("pt-BR")}</td>
                 <td>{new Date(c.dataHora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</td>
-                <td>
-                  <span className="status-badge" style={{
-                    background: 
-                      c.status === "CONFIRMADA" ? "#c8f7c5" :
-                      c.status === "CANCELADA" ? "#f8d7da" :
-                      "#e3f2fd",
-                    color:
-                      c.status === "CONFIRMADA" ? "#2e7d32" :
-                      c.status === "CANCELADA" ? "#c62828" :
-                      "#1565c0",
-                    padding: "6px 12px",
-                    borderRadius: "8px",
-                    fontWeight: "600"
-                  }}>
-                    {c.status}
-                  </span>
-                </td>
+            <td style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+  <span className="status-badge" style={{
+    background: 
+      c.status === "CONFIRMADA" ? "#c8f7c5" :
+      c.status === "CANCELADA" ? "#f8d7da" :
+      "#fff3cd",
+    color:
+      c.status === "CONFIRMADA" ? "#2e7d32" :
+      c.status === "CANCELADA" ? "#c62828" :
+      "#856404",
+    padding: "6px 12px",
+    borderRadius: "8px",
+    fontWeight: "600"
+  }}>
+    {c.status}
+  </span>
+
+  {c.status === "SOLICITADA" && (
+    <button
+      className="btn-green"
+      style={{ padding: "6px 10px", fontSize: "0.85rem" }}
+      onClick={() => confirmarConsulta(c.idConsulta)}
+    >
+      Confirmar
+    </button>
+  )}
+</td>
+
               </tr>
             ))}
           </tbody>
