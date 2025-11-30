@@ -187,3 +187,7 @@
   margin-right: 10px;
 }
 
+/* TESTE DE CACHE - forçar recarregamento */
+.cache-test {
+  border: 1px solid red !important;
+}

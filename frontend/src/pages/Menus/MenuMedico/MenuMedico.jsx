@@ -22,7 +22,8 @@ import {
   faClock,
   faEdit,
   faTooth,      // Novo ícone para Serviços
-  faInfoCircle  // Novo ícone para Informações
+  faInfoCircle, // Novo ícone para Informações
+  faStethoscope
 } from "@fortawesome/free-solid-svg-icons";
 
 const MenuMedico = () => {
@@ -35,6 +36,9 @@ const MenuMedico = () => {
   const [dados, setDados] = useState(null);
   const [listaPacientes, setListaPacientes] = useState([]);
   const [pacienteSelecionado, setPacienteSelecionado] = useState(null);
+  const [consultasMedico, setConsultasMedico] = useState([]);
+
+
 
   // Estados para Consultas
   const [listaConsultas, setListaConsultas] = useState([]);
@@ -55,6 +59,10 @@ const MenuMedico = () => {
   const [msgSucesso, setMsgSucesso] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
+// PERFIL DO MÉDICO
+const [medico, setMedico] = useState(null);
+const [editMode, setEditMode] = useState(false);
+const [salvando, setSalvando] = useState(false);
 
   // URLs da API
   const API_PRONTUARIOS = "http://localhost:8080/api/prontuarios";
@@ -63,8 +71,29 @@ const MenuMedico = () => {
   const API_CONSULTAS = "http://localhost:8080/api/consultas";
   const API_SERVICOS = "http://localhost:8080/api/servicos";
 
+  
+
+  useEffect(() => {
+  if (viewAtual === "agenda-medico" && medico) {
+    carregarAgendamentos();
+  }
+}, [viewAtual, medico]);
   // --- EFEITO: CARREGAR LISTAS AUTOMATICAMENTE ---
-// --- EFEITO: CARREGAR LISTAS AUTOMATICAMENTE ---
+
+  const carregarAgendamentos = async () => {
+  setLoading(true);
+  try {
+    const res = await axios.get(
+      `http://localhost:8080/api/consultas/${medico.idUsuario}/consultas`
+    );
+    setConsultasMedico(res.data);
+  } catch (e) {
+    console.error(e);
+    setErro("Erro ao carregar agendamentos.");
+  }
+  setLoading(false);
+};
+
   useEffect(() => {
     if (viewAtual === "listar-pacientes") {
         listarTodosPacientes();
@@ -74,11 +103,79 @@ const MenuMedico = () => {
         listarTodosServicos();
     }
   }, [viewAtual]);
+useEffect(() => {
+  const dadosLocal = localStorage.getItem("userData");
+  if (dadosLocal) {
+    const medicoLogado = JSON.parse(dadosLocal);
+    setMedico(medicoLogado);
+  }
+}, []);
 
   // --- 2. LÓGICA DE NAVEGAÇÃO ---
   const toggleSubmenu = (menuName) => {
     setActiveSubmenu(activeSubmenu === menuName ? null : menuName);
   };
+const salvarEdicao = async () => {
+  if (!medico) return;
+
+  setSalvando(true);
+  try {
+    const payload = {
+      idUsuario: medico.idUsuario,
+      nome: medico.nome,
+      email: medico.email,
+      telefone: medico.telefone,
+      crm: medico.crm,
+      especialidade: medico.especialidade,
+      senha: medico.senha,          // se não quiser trocar, pode deixar como está
+    };
+
+    const response = await axios.put(
+      "http://localhost:8080/api/medicos/editar",
+      payload
+    );
+
+    // Atualiza o estado e o localStorage com o que veio do back
+    localStorage.setItem("userData", JSON.stringify(response.data));
+    setMedico(response.data);
+    setEditMode(false);
+    alert("Dados atualizados com sucesso!");
+  } catch (e) {
+    console.error(e);
+    alert("Erro ao salvar alterações.");
+  }
+  setSalvando(false);
+};
+const encerrarConta = async () => {
+  if (!medico || !medico.idUsuario) {
+    alert("Usuário inválido.");
+    return;
+  }
+
+  const confirmar = confirm(
+    "Tem certeza que deseja encerrar sua conta?\nEsta ação vai desativar seu acesso."
+  );
+
+  if (!confirmar) return;
+
+  try {
+    await axios.delete(`http://localhost:8080/api/usuarios/${medico.idUsuario}`);
+
+    // Limpa dados locais
+    localStorage.removeItem("userData");
+
+    alert("Conta encerrada com sucesso!");
+
+    // Redireciona para login
+    window.location.href = "/login";
+
+  } catch (error) {
+    console.error(error);
+    alert("Erro ao encerrar conta.");
+  }
+};
+
+
 
   const trocarTela = (viewName) => {
     if (!viewName) return;
@@ -263,12 +360,15 @@ const MenuMedico = () => {
       label: "Dashboard",
       submenu: [{ label: "Visão Geral", view: "dashboard" }],
     },
-    {
-      name: "agenda",
-      icon: "ai-calendar",
-      label: "Agenda",
-      submenu: [{ label: "Agendamentos" }],
-    },
+      {
+  name: "agenda",
+  icon: "ai-calendar",
+  label: "Agenda",
+  submenu: [
+    { label: "Agendamentos", view: "agenda-medico" }
+  ],
+},
+
     {
       name: "pacientes",
       icon: "ai-people-group",
@@ -288,6 +388,7 @@ const MenuMedico = () => {
       name: "consulta", icon: "fa-comment-medical", label: "Consultas", 
       submenu: [ { label: "Gerenciar consultas", view: "buscar-consulta" }, { label: "Agendar consulta", view: "agendar-consulta" } ] 
     },
+    
     { 
       name: "servicos", icon: "ai-shipping-box-v1", label: "Serviços", 
       submenu: [
@@ -296,7 +397,16 @@ const MenuMedico = () => {
         { label: "Buscar serviços", view: "buscar-servicos" }, 
       ],
     },
-    { name: "perfil", icon: "ai-person", label: "Meu Perfil", submenu: [{ label: "Meus dados" }] },
+    {
+  name: "perfil",
+  icon: "ai-person",
+  label: "Meu Perfil",
+  submenu: [
+    { label: "Meus dados", view: "perfil" },
+    { label: "Encerrar conta", view: "encerrar-conta" }
+  ]
+},
+
     { 
       name: "info", icon: "ai-info", label: "Informações da Clínica", 
       submenu: [{ label: "Localização e contatos", view: "info-clinica" }], // Adicionado View
@@ -341,12 +451,176 @@ const MenuMedico = () => {
       {/* ÁREA PRINCIPAL */}
       <main style={{ flex: 1, marginLeft: "280px", padding: "40px" }}>
         
-        {viewAtual === "dashboard" && (
-          <div className="card-welcome">
-            <h1>Painel Médico</h1>
-            <p></p>
-          </div>
+       {viewAtual === "dashboard" && (
+  <div 
+    style={{
+      width: "100%",
+      maxWidth: "950px",
+      margin: "0 auto",
+      paddingTop: "60px",
+      animation: "fadeIn 0.6s ease"
+    }}
+  >
+    <div
+      style={{
+        background: "white",
+        padding: "60px 50px",
+        borderRadius: "22px",
+        boxShadow: "0 12px 40px rgba(0,0,0,0.06)",
+        border: "1px solid #e5e7eb",
+        textAlign: "center"
+      }}
+    >
+
+      {/* Título elegante */}
+      <h1
+        style={{
+          fontSize: "2.7rem",
+          color: "#1e293b",
+          fontWeight: "800",
+          letterSpacing: "-1px",
+          marginBottom: "12px"
+        }}
+      >
+        Painel do Médico
+      </h1>
+
+      {/* Linha decorativa */}
+      <div
+        style={{
+          width: "75px",
+          height: "4px",
+          background: "#3b82f6",
+          margin: "15px auto 30px auto",
+          borderRadius: "4px"
+        }}
+      ></div>
+
+      {/* Subtítulo */}
+      <p
+        style={{
+          fontSize: "1.25rem",
+          color: "#6b7280",
+          maxWidth: "85%",
+          margin: "0 auto",
+          lineHeight: "1.7"
+        }}
+      >
+        Bem-vindo ao seu ambiente de gestão clínica.  
+        Utilize o menu lateral para acessar pacientes, consultas, prontuários e configurações.
+      </p>
+
+      {/* Caixa informativa com Icone profissional */}
+      <div
+        style={{
+          marginTop: "50px",
+          background: "#f8fafc",
+          padding: "38px",
+          borderRadius: "18px",
+          border: "1px dashed #d0d7e1",
+          color: "#475569",
+          fontSize: "1.15rem",
+          fontWeight: "500",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "16px"
+        }}
+      >
+        <FontAwesomeIcon icon={faStethoscope} size="xl" color="#3b82f6" />
+        <span>
+          <strong>Dica:</strong> Acesse <strong>Meu Perfil</strong> para atualizar ou ajustar seus dados.
+        </span>
+      </div>
+
+    </div>
+  </div>
+)}
+
+{viewAtual === "perfil" && medico && (
+  <div className="content-container fade-in">
+    <h2 className="page-title"><FontAwesomeIcon icon={faUserMd}/> Meu Perfil</h2>
+
+    <div className="result-card">
+      <div className="info-grid">
+
+        <div className="clean-box">
+          <strong>Nome</strong>
+          {editMode ? (
+            <input value={medico.nome} onChange={(e)=>setMedico({...medico, nome:e.target.value})}/>
+          ) : (
+            <p>{medico.nome}</p>
+          )}
+        </div>
+
+        <div className="clean-box">
+          <strong>Email</strong>
+          {editMode ? (
+            <input value={medico.email} onChange={(e)=>setMedico({...medico, email:e.target.value})}/>
+          ) : (
+            <p>{medico.email}</p>
+          )}
+        </div>
+
+        <div className="clean-box">
+          <strong>Telefone</strong>
+          {editMode ? (
+            <input value={medico.telefone || ""} onChange={(e)=>setMedico({...medico, telefone:e.target.value})}/>
+          ) : (
+            <p>{medico.telefone || "-"}</p>
+          )}
+        </div>
+
+        <div className="clean-box">
+          <strong>CRM</strong>
+          {editMode ? (
+            <input value={medico.crm || ""} onChange={(e)=>setMedico({...medico, crm:e.target.value})}/>
+          ) : (
+            <p>{medico.crm}</p>
+          )}
+        </div>
+
+        <div className="clean-box">
+          <strong>Especialidade</strong>
+          {editMode ? (
+            <input value={medico.especialidade || ""} onChange={(e)=>setMedico({...medico, especialidade:e.target.value})}/>
+          ) : (
+            <p>{medico.especialidade}</p>
+          )}
+        </div>
+
+        <div className="clean-box">
+          <strong>Senha</strong>
+          {editMode ? (
+            <input type="password" value={medico.senha} onChange={(e)=>setMedico({...medico, senha:e.target.value})}/>
+          ) : (
+            <p>********</p>
+          )}
+        </div>
+
+      </div>
+
+      {/* Botões */}
+      <div style={{marginTop:"20px", display:"flex", justifyContent:"end", gap:"15px"}}>
+        {!editMode && (
+          <button className="btn-green" onClick={()=>setEditMode(true)}>
+            Editar
+          </button>
         )}
+        {editMode && (
+          <>
+            <button className="btn-back" onClick={()=>setEditMode(false)}>Cancelar</button>
+            <button className="btn-green" onClick={salvarEdicao} disabled={salvando}>
+              {salvando ? "Salvando..." : "Salvar"}
+            </button>
+          </>
+        )}
+      </div>
+
+    </div>
+
+  </div>
+)}
 
         {/* --- PRONTUÁRIOS E ANAMNESES --- */}
         {viewAtual === "prontuario" && (
@@ -622,6 +896,148 @@ const MenuMedico = () => {
             )}
           </div>
         )}
+{viewAtual === "encerrar-conta" && (
+  <div 
+    className="content-container fade-in" 
+    style={{ maxWidth: "650px", margin: "0 auto" }}
+  >
+    <div
+      style={{
+        background: "white",
+        padding: "45px",
+        borderRadius: "18px",
+        boxShadow: "0 15px 40px rgba(0,0,0,0.08)",
+        border: "1px solid #e5e7eb",
+        textAlign: "center",
+        animation: "fadeIn 0.3s ease"
+      }}
+    >
+      {/* TÍTULO */}
+      <h2
+        style={{
+          color: "#d32f2f",
+          fontSize: "2.2rem",
+          marginBottom: "18px",
+          fontWeight: "800"
+        }}
+      >
+        Encerrar Conta
+      </h2>
+
+      {/* EXPLICAÇÃO DO QUE É A AÇÃO */}
+      <p
+        style={{
+          fontSize: "17px",
+          lineHeight: "1.7",
+          color: "#4b5563",
+          marginBottom: "25px"
+        }}
+      >
+        Esta opção permite <strong>desativar sua conta</strong> no sistema.  
+        Após encerrar, você não poderá mais acessar sua área médica.
+      </p>
+
+      {/* ALERTA GRANDE */}
+      <div
+        style={{
+          background: "#fff5f5",
+          border: "1px solid #f8bcbc",
+          padding: "20px",
+          borderRadius: "12px",
+          color: "#b71c1c",
+          fontWeight: "600",
+          marginBottom: "35px",
+          fontSize: "15.5px"
+        }}
+      >
+        ⚠️ Atenção: Esta ação é permanente.  
+        Somente um administrador poderá reativar sua conta no futuro.
+      </div>
+
+      {/* BOTÃO CENTRALIZADO */}
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <button
+          onClick={() => encerrarConta()}
+          style={{
+            backgroundColor: "#d32f2f",
+            color: "white",
+            border: "none",
+            padding: "15px 40px",
+            borderRadius: "12px",
+            fontSize: "18px",
+            fontWeight: "700",
+            cursor: "pointer",
+            transition: "0.2s",
+            boxShadow: "0 4px 12px rgba(211,47,47,0.35)"
+          }}
+          onMouseOver={(e) => (e.target.style.backgroundColor = "#b71c1c")}
+          onMouseOut={(e) => (e.target.style.backgroundColor = "#d32f2f")}
+        >
+          Encerrar Minha Conta
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{viewAtual === "agenda-medico" && (
+  <div className="content-container fade-in">
+    <h2 className="page-title">
+      <FontAwesomeIcon icon={faCalendarAlt} /> Meus Agendamentos
+    </h2>
+
+    {loading && <p>Carregando agenda...</p>}
+
+    {!loading && consultasMedico.length === 0 && (
+      <div className="empty-state">
+        Nenhuma consulta encontrada.
+      </div>
+    )}
+
+    {!loading && consultasMedico.length > 0 && (
+      <div className="result-card fade-in">
+        <table className="custom-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Paciente</th>
+              <th>Data</th>
+              <th>Hora</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {consultasMedico.map(c => (
+              <tr key={c.idConsulta}>
+                <td>#{c.idConsulta}</td>
+                <td>{c.nomePaciente}</td>
+                <td>{new Date(c.dataHora).toLocaleDateString("pt-BR")}</td>
+                <td>{new Date(c.dataHora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</td>
+                <td>
+                  <span className="status-badge" style={{
+                    background: 
+                      c.status === "CONFIRMADA" ? "#c8f7c5" :
+                      c.status === "CANCELADA" ? "#f8d7da" :
+                      "#e3f2fd",
+                    color:
+                      c.status === "CONFIRMADA" ? "#2e7d32" :
+                      c.status === "CANCELADA" ? "#c62828" :
+                      "#1565c0",
+                    padding: "6px 12px",
+                    borderRadius: "8px",
+                    fontWeight: "600"
+                  }}>
+                    {c.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+)}
 
         {/* --- 6. NOVA TELA: INFORMAÇÕES DA CLÍNICA --- */}
         {viewAtual === "info-clinica" && (
