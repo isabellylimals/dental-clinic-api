@@ -16,9 +16,26 @@ import iconservice4 from "../../assets/icons/service4.svg";
 import iconservice5 from "../../assets/icons/service5.svg";
 import iconservice6 from "../../assets/icons/service6.svg";
 import iconSeta from "../../assets/icons/seta.svg";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+//import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faLinkedin, faInstagram, faSquareTwitter, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+
+import {
+  faStar,
+  faPhone,
+  faAward,
+  faUsers,
+  faClock,
+  faTooth,
+  faMedal,
+  faShieldAlt,
+  faHeart,
+  faChartLine,
+  faMapMarkerAlt,
+  faEnvelope,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function Home() {
   return (
@@ -26,10 +43,20 @@ export default function Home() {
       <div className="home-container">
         {/* Navbar */}
         <header className="navbar">
-          <div className="logo">
-            <div className="logo-icon">✨</div>
-            <span>BrightSmile Dental</span>
-          </div>
+       <div className="logo">
+  <div className="logo-icon">
+    {/* Ícone da marca (estrela, dente, etc.) */}
+    <FontAwesomeIcon icon={faStar} />
+    {/* se quiser dente: faTooth */}
+  </div>
+
+  <div className="logo-text">
+    <span className="brand-strong">BrightSmile</span>
+    <span className="brand-light">Dental</span>
+  </div>
+</div>
+
+
 
           <nav className="nav-links">
             <a href="#beginning">Início</a>
@@ -39,7 +66,11 @@ export default function Home() {
           </nav>
 
           <div className="nav-right">
-            <span className="phone">📞 (84) 98765-4321</span>
+            <span className="phone">
+  <FontAwesomeIcon icon={faPhone} style={{ marginRight: "6px" }} />
+  (84) 98765-4321
+</span>
+
 
             {/* BOTÃO QUE VAI PARA LOGIN */}
             <Link className="btn-blue" to="/login">
@@ -52,7 +83,11 @@ export default function Home() {
         {/* HERO */}
         <section className="hero" id="beginning">
           <div className="hero-left">
-            <div className="badge">✨ Cuidado Dental Premiado</div>
+           <div className="badge">
+  <FontAwesomeIcon icon={faStar} style={{ marginRight: "6px" }} />
+  Cuidado Dental Premiado
+</div>
+
 
             <h1>
               Seu Sorriso Perfeito <br /> Começa Aqui
@@ -78,19 +113,28 @@ export default function Home() {
             {/* Stats */}
             <div className="stats">
               <div className="stat">
-                <div className="stat-icon">🎗️</div>
+                <div className="stat-icon">
+                <FontAwesomeIcon icon={faAward} />
+                </div>
+
                 <p className="info">10+ Anos</p>
                 <p>Experiência</p>
               </div>
 
               <div className="stat">
-                <div className="stat-icon">👥</div>
+                <div className="stat-icon">
+              <FontAwesomeIcon icon={faUsers} />
+              </div>
+
                 <p className="info">1.000+</p>
                 <p>Pacientes Felizes</p>
               </div>
 
               <div className="stat">
-                <div className="stat-icon">⏰</div>
+               <div className="stat-icon">
+                 <FontAwesomeIcon icon={faClock} />
+                </div>
+
                 <p className="info">Seg a Sáb</p>
                 <p>Atendimento Emergencial</p>
               </div>
@@ -105,7 +149,10 @@ export default function Home() {
             />
 
             <div className="floating-card">
-              <span className="tooth">🦷</span>
+              <span className="tooth">
+              <FontAwesomeIcon icon={faTooth} />
+            </span>
+
               <div>
                 <strong>99% Taxa de Sucesso</strong>
                 <br />
@@ -284,7 +331,12 @@ export default function Home() {
               <div className="rating-box">
                 <h3>4.9/5</h3>
                 <p>Avaliação dos Pacientes</p>
-                <div className="stars">⭐⭐⭐⭐⭐</div>
+               <div className="stars">
+  {[...Array(5)].map((_, i) => (
+    <FontAwesomeIcon key={i} icon={faStar} className="star-icon" />
+  ))}
+</div>
+
               </div>
             </div>
 
@@ -313,7 +365,10 @@ export default function Home() {
               {/* Features */}
               <div className="about-features">
                 <div className="feature">
-                  <div className="icon blue">🎖️</div>
+                  <div className="icon blue">
+              <FontAwesomeIcon icon={faMedal} />
+              </div>
+
                   <div>
                     <h4>Equipe Especializada</h4>
                     <p>Dentistas altamente qualificados com anos de experiência</p>
@@ -321,7 +376,10 @@ export default function Home() {
                 </div>
 
                 <div className="feature">
-                  <div className="icon purple">🛡️</div>
+                  <div className="icon purple">
+  <FontAwesomeIcon icon={faShieldAlt} />
+</div>
+
                   <div>
                     <h4>Seguro e Estéril</h4>
                     <p>Protocolos de esterilização e segurança de última geração</p>
@@ -329,7 +387,10 @@ export default function Home() {
                 </div>
 
                 <div className="feature">
-                  <div className="icon sky">💙</div>
+                  <div className="icon sky">
+  <FontAwesomeIcon icon={faHeart} />
+</div>
+
                   <div>
                     <h4>Cuidado ao Paciente</h4>
                     <p>Cuidado compassivo personalizado para suas necessidades</p>
@@ -337,7 +398,10 @@ export default function Home() {
                 </div>
 
                 <div className="feature">
-                  <div className="icon green">📈</div>
+                  <div className="icon green">
+  <FontAwesomeIcon icon={faChartLine} />
+</div>
+
                   <div>
                     <h4>Tecnologia Avançada</h4>
                     <p>Equipamentos modernos para tratamentos precisos</p>
@@ -365,7 +429,10 @@ export default function Home() {
             <div className="contact-info">
 
               <div className="contact-card">
-                <div className="icon sky">📍</div>
+                <div className="icon sky">
+  <FontAwesomeIcon icon={faMapMarkerAlt} />
+</div>
+
                 <div>
                   <h3>Visite-Nos</h3>
                   <p>123 Dental Street,<br />Suite 100<br />New York, NY 10001</p>
@@ -373,7 +440,10 @@ export default function Home() {
               </div>
 
               <div className="contact-card">
-                <div className="icon purple">📞</div>
+                <div className="icon purple">
+  <FontAwesomeIcon icon={faPhone} />
+</div>
+
                 <div>
                   <h3>Ligue Para Nós</h3>
                   <p>(84) 98765-4321</p>
@@ -382,7 +452,10 @@ export default function Home() {
               </div>
 
               <div className="contact-card">
-                <div className="icon blue">✉️</div>
+                <div className="icon blue">
+  <FontAwesomeIcon icon={faEnvelope} />
+</div>
+
                 <div>
                   <h3>Envie um E-mail</h3>
                   <p>info@brightsmile.com</p>
@@ -391,7 +464,10 @@ export default function Home() {
               </div>
 
               <div className="contact-card gradient">
-                <div className="icon white">⏰</div>
+                <div className="icon white">
+  <FontAwesomeIcon icon={faClock} />
+</div>
+
                 <div>
                   <h3>Horário de Funcionamento</h3>
                   <p>Seg–Sex: 8:00 – 18:00<br />
@@ -459,7 +535,10 @@ export default function Home() {
           <div className="footer-top">
             <div className="footer-left">
               <div className="footer-logo">
-                <div className="logo-icon">✨</div>
+                <div className="logo-icon">
+  <FontAwesomeIcon icon={faStar} />
+</div>
+
                 <div className="footer-brand">BrightSmile Dental</div>
               </div>
               <p className="footer-desc">
@@ -516,9 +595,11 @@ export default function Home() {
 
           <div className="footer-bottom">
             <div>© 2025 BrightSmile Dental. Todos os direitos reservados.</div>
-            <div className="made-with">
-              Feito com <span className="heart">❤️</span> para sorrisos bonitos
-            </div>
+          <div className="made-with">
+  Desenvolvido para proporcionar a melhor experiência ao paciente.
+</div>
+
+
             <div className="policies">
               <Link to="#">Política de Privacidade</Link>
               <Link to="#">Termos de Serviço</Link>
