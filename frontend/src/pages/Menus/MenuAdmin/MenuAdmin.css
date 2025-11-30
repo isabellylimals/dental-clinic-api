@@ -1,9 +1,20 @@
+/* ========================================= */
+/* RESET GERAL                 */
+/* ========================================= */
 * {
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
-/* ===== SIDEBAR ===== */
+body {
+  background-color: #f4f7fa; /* Cor de fundo suave para o site */
+}
+
+/* ========================================= */
+/* SIDEBAR                   */
+/* ========================================= */
 .sidebar {
   position: fixed;
   top: 24px;
@@ -17,6 +28,7 @@
   padding: 0 16px;
   border-radius: 18px;
 
+  /* Efeito de Vidro (Glassmorphism) */
   background: linear-gradient(160deg, rgba(255,255,255,0.40), rgba(220,240,255,0.30));
   backdrop-filter: blur(26px);
   border: 1px solid rgba(255, 255, 255, 0.35);
@@ -24,31 +36,34 @@
 
   overflow-y: auto;
   transition: 0.3s;
+  z-index: 1000; /* Garante que o menu fique acima se necessário */
 }
 
 .sidebar::-webkit-scrollbar {
   width: 0;
 }
 
-/* ===== HEADER */
+/* Header da Sidebar (Logo) */
 .sidebar header {
   display: flex;
   align-items: center;
   gap: 8px;
-
   height: 58px;       
   padding: 0 8px 0 4px;
   border-bottom: 1px solid rgba(255,255,255,0.35);
 }
 
-/* ===== BURGER ===== */
+.sidebar header img {
+  height: 26px;            
+}
+
+/* Botão de Burger (se houver) */
 .sidebar-burger {
   width: 34px !important;   
   height: 34px !important;
   display: flex;
   align-items: center;
   justify-content: center;
-
   background: transparent;
   border: 0;
   cursor: pointer;
@@ -60,29 +75,21 @@
   color: #003153;
 }
 
-.sidebar header img {
-  height: 26px;            
-}
-
-/* ===== BOTÕES PRINCIPAIS ===== */
+/* Botões do Menu */
 .sidebar button {
   display: flex;
   align-items: center;
   gap: 16px;
-
   width: 100%;
   height: 46px;              
   padding: 0 12px;
-
   border-radius: 10px;
   background: transparent;
   border: 0;
   cursor: pointer;
-
   color: #003153;
   font-size: 15px;
   font-weight: 500;
-
   transition: 0.25s ease;
 }
 
@@ -105,20 +112,15 @@
 
 .sidebar button p {
   flex: 1;
+  text-align: left;
 }
 
+/* Ícone de seta girando */
 .sidebar button.active > i:last-child {
-  rotate: -180deg;
+  transform: rotate(-180deg); /* Usei transform ao invés de rotate para compatibilidade */
 }
 
-/* ===== LISTAS ===== */
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-/* ===== SUBMENUS ===== */
+/* Submenus */
 .sub-menu {
   max-height: 0;
   overflow: hidden;
@@ -130,34 +132,12 @@
   max-height: 500px;
 }
 
-.sub-menu ul {
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  margin: 0;
-}
-
-/* ===== SUBMENU ITEMS ===== */
 .sub-menu li button {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-
-  width: 100%;
   padding: 8px 14px 8px 34px;
-
-  border: 0;
-  border-radius: 8px;
-  margin-top: 4px;
-
   background: rgba(255,255,255,0.45);
-
   font-size: 14px;   
   font-weight: 400;
-  color: #003153;
-
-  text-align: left;
-  line-height: 1.25;
+  margin-top: 4px;
 }
 
 .sub-menu li button:hover {
@@ -169,48 +149,82 @@
   color: white;
 }
 
-/* ===== RESPONSIVO ===== */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 230px;
-  }
+/* ========================================= */
+/* ESTRUTURA DO PAINEL             */
+/* ========================================= */
 
-  .sidebar button {
-    font-size: 14px;
-  }
-
-  .sub-menu li button {
-    padding-left: 28px;
-    font-size: 13px;
-  }
-}
-
-/* ===== DASHBOARD HEADER NO TOPO ===== */
+/* Container Principal (Onde fica todo o conteúdo à direita) */
 .dashboard-container {
-  margin-left: 270px; /* espaço para a sidebar fixa */
+  /* Margem Esquerda = Largura Sidebar (270) + Espaço Esquerdo (24) + Respiro (26) */
+  margin-left: 320px; 
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  
+  width: calc(100% - 320px); /* Garante que não estoure a tela */
 }
 
+/* Header do Painel (Barra Branca no Topo) */
 .dashboard-header {
-  position: sticky; /* fixa no topo */
+  position: sticky; /* Fixa ao rolar a página */
   top: 0;
   
-  padding: 20px 30px;
+  /* Fundo Branco Sólido */
+  background-color: #ffffff;
   
-  z-index: 10; /* para ficar acima do conteúdo */
+  height: 80px; /* Altura fixa para alinhar bem */
+  padding: 0 30px;
+  
+  /* Centralizar o Título "Painel Admin" */
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  
+  /* Sombra suave embaixo */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #e0e0e0;
+  
+  z-index: 100; /* Fica acima do conteúdo ao rolar */
 }
 
 .dashboard-header h1 {
-  font-size: 2.5rem;
-  font-weight: bold;
+  font-size: 2rem;
+  font-weight: 700;
   color: #003153;
   margin: 0;
+  text-align: center;
 }
 
+/* Conteúdo interno do Painel */
 .dashboard-content {
   padding: 30px;
   flex: 1;
+  width: 100%;
+}
+
+/* ========================================= */
+/* RESPONSIVO                  */
+/* ========================================= */
+@media (max-width: 768px) {
+  /* Sidebar fica menor ou oculta no mobile */
+  .sidebar {
+    width: 80px; /* Exemplo: Sidebar encolhida */
+    left: 10px;
+    padding: 0 8px;
+  }
+
+  .sidebar button p, 
+  .sidebar header h2,
+  .sidebar button i:last-child {
+    display: none; /* Esconde textos no mobile */
+  }
+
+  /* Ajusta o container para a nova largura da sidebar */
+  .dashboard-container {
+    margin-left: 100px;
+    width: calc(100% - 100px);
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.5rem; /* Fonte menor no mobile */
+  }
 }

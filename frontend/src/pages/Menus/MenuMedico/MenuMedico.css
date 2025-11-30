@@ -1,9 +1,20 @@
+/* ========================================= */
+/* RESET GERAL                 */
+/* ========================================= */
 * {
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
-/* ===== SIDEBAR ===== */
+body {
+  background-color: #f4f7fa; /* Fundo suave para destacar o header branco */
+}
+
+/* ========================================= */
+/* SIDEBAR (Menu Lateral)          */
+/* ========================================= */
 .sidebar {
   position: fixed;
   top: 24px;
@@ -17,6 +28,7 @@
   padding: 0 16px;
   border-radius: 18px;
 
+  /* Efeito Vidro */
   background: linear-gradient(160deg, rgba(255,255,255,0.40), rgba(220,240,255,0.30));
   backdrop-filter: blur(26px);
   border: 1px solid rgba(255, 255, 255, 0.35);
@@ -24,31 +36,34 @@
 
   overflow-y: auto;
   transition: 0.3s;
+  z-index: 1000;
 }
 
 .sidebar::-webkit-scrollbar {
   width: 0;
 }
 
-/* ===== HEADER — REDUZIDO ===== */
+/* HEADER DA SIDEBAR */
 .sidebar header {
   display: flex;
   align-items: center;
   gap: 8px;
-
   height: 58px;        
   padding: 0 8px 0 4px;
   border-bottom: 1px solid rgba(255,255,255,0.35);
 }
 
-/* ===== BURGER ===== */
+.sidebar header img {
+  height: 26px;         
+}
+
+/* BURGER */
 .sidebar-burger {
   width: 34px !important;    
   height: 34px !important;
   display: flex;
   align-items: center;
   justify-content: center;
-
   background: transparent;
   border: 0;
   cursor: pointer;
@@ -57,31 +72,24 @@
 
 .sidebar-burger i {
   color: #003153;
+  font-size: 20px; /* Garante tamanho do ícone */
 }
 
-.sidebar header img {
-  height: 26px;         
-}
-
-/* ===== BOTÕES PRINCIPAIS ===== */
+/* BOTÕES PRINCIPAIS */
 .sidebar button {
   display: flex;
   align-items: center;
   gap: 16px;
-
   width: 100%;
   height: 46px;              
   padding: 0 12px;
-
   border-radius: 10px;
   background: transparent;
   border: 0;
   cursor: pointer;
-
   color: #003153;
   font-size: 15px;
   font-weight: 500;
-
   transition: 0.25s ease;
 }
 
@@ -104,20 +112,20 @@
 
 .sidebar button p {
   flex: 1;
+  text-align: left;
 }
 
 .sidebar button.active > i:last-child {
-  rotate: -180deg;
+  transform: rotate(-180deg);
 }
 
-/* ===== LISTAS ===== */
+/* LISTAS E SUBMENUS */
 .sidebar ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-/* ===== SUBMENUS ===== */
 .sub-menu {
   max-height: 0;
   overflow: hidden;
@@ -136,25 +144,20 @@
   margin: 0;
 }
 
-/* ===== SUBMENU ITEMS ===== */
+/* ITENS DO SUBMENU */
 .sidebar .sub-menu li button {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-
   width: 100%;
   padding: 8px 14px 8px 34px;
-
   border: 0;
   border-radius: 8px;
   margin-top: 4px;
-
   background: rgba(255,255,255,0.45);
-
   font-size: 12.5px; 
   font-weight: 400;
   color: #003153;
-
   text-align: left;
   line-height: 1.25;
 }
@@ -168,14 +171,7 @@
   color: white;
 }
 
-/* Para responsividade */
-@media (max-width: 768px) {
-  .sidebar .sub-menu li button {
-    padding-left: 28px;
-    font-size: 11px;
-  }
-}
-
+/* Ícones Extras */
 .fa-icon {
   font-size: 18px;
   margin-right: 10px;
@@ -187,7 +183,87 @@
   margin-right: 10px;
 }
 
-/* TESTE DE CACHE - forçar recarregamento */
-.cache-test {
-  border: 1px solid red !important;
+/* ========================================= */
+/* ESTRUTURA DO PAINEL (CONTAINER E HEADER)  */
+/* ========================================= */
+
+/* Container Principal */
+.dashboard-container {
+  /* Margem: 270 (sidebar) + 24 (left) + 26 (respiro) = 320px */
+  margin-left: 320px; 
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: calc(100% - 320px);
+}
+
+/* Header (Topo Branco) */
+.dashboard-header {
+  position: sticky;
+  top: 0;
+  
+  /* Fundo Branco Sólido */
+  background-color: #ffffff;
+  
+  height: 80px;
+  padding: 0 30px;
+  
+  /* Centraliza o título */
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  
+  /* Sombra e Borda */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #e0e0e0;
+  
+  z-index: 100;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #003153;
+  margin: 0;
+  text-align: center;
+}
+
+/* Conteúdo */
+.dashboard-content {
+  padding: 30px;
+  flex: 1;
+  width: 100%;
+}
+
+/* ========================================= */
+/* RESPONSIVO                  */
+/* ========================================= */
+@media (max-width: 768px) {
+  /* Ajuste Sidebar Mobile */
+  .sidebar {
+    width: 80px; 
+    left: 10px;
+    padding: 0 8px;
+  }
+
+  .sidebar button p, 
+  .sidebar header h2,
+  .sidebar button i:last-child {
+    display: none;
+  }
+
+  .sidebar .sub-menu li button {
+    padding-left: 28px;
+    font-size: 11px;
+  }
+
+  /* Ajuste Container Mobile */
+  .dashboard-container {
+    margin-left: 100px;
+    width: calc(100% - 100px);
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.5rem;
+  }
 }
