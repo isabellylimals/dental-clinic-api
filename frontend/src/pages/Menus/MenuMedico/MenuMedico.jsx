@@ -94,15 +94,23 @@ const [salvando, setSalvando] = useState(false);
   setLoading(false);
 };
 
-  useEffect(() => {
+useEffect(() => {
+
     if (viewAtual === "listar-pacientes") {
         listarTodosPacientes();
     }
-    // ADICIONE ESTE BLOCO:
+
     if (viewAtual === "listar-servicos") {
         listarTodosServicos();
     }
-  }, [viewAtual]);
+
+    // 👇 ESTA LINHA É A QUE FALTAVA!
+    if (viewAtual === "agendar-consulta") {
+        listarTodosServicos();
+    }
+
+}, [viewAtual]);
+
 useEffect(() => {
   const dadosLocal = localStorage.getItem("userData");
   if (dadosLocal) {
@@ -291,17 +299,48 @@ const encerrarConta = async () => {
     } catch (error) { setErro("Erro ao salvar."); } finally { setLoading(false); }
   };
 
-  const agendarConsulta = async () => {
-    const { cpfPacienteInput, nomeServicoInput, data, hora, especialidadeInput } = formConsulta;
-    if (!cpfPacienteInput || !nomeServicoInput || !data || !hora) return setErro("Preencha campos obrigatórios.");
-    setLoading(true); setErro(""); setMsgSucesso("");
-    try {
-        const dataHoraFormatada = `${data}T${hora}:00`;
-        await axios.post(`${API_CONSULTAS}/solicitar`, { cpfPacienteInput, nomeServicoInput, especialidadeInput, dataHora: dataHoraFormatada });
-        setMsgSucesso("Consulta agendada!");
-        setFormConsulta({ ...formConsulta, cpfPacienteInput: "", data: "", hora: "" });
-    } catch (error) { setErro("Erro ao agendar."); } finally { setLoading(false); }
-  };
+const agendarConsulta = async () => {
+  const medicoLogado = JSON.parse(localStorage.getItem("userData"));
+
+  if (!medicoLogado || !medicoLogado.idUsuario) {
+      return setErro("Erro: Médico não identificado. Refaça o login.");
+  }
+
+  const { cpfPacienteInput, nomeServicoInput, data, hora, especialidadeInput } = formConsulta;
+
+  if (!cpfPacienteInput || !nomeServicoInput || !data || !hora)
+      return setErro("Preencha todos os campos obrigatórios.");
+
+  setLoading(true);
+  setErro("");
+  setMsgSucesso("");
+
+  try {
+      const dataHoraFormatada = `${data}T${hora}:00`;
+
+      await axios.post(`http://localhost:8080/api/consultas/solicitar`, {
+          cpfPacienteInput,
+          nomeServicoInput,
+          especialidadeInput,
+          dataHora: dataHoraFormatada,
+          medicoId: medicoLogado.idUsuario
+      });
+
+      setMsgSucesso("Consulta agendada!");
+      setFormConsulta({
+          cpfPacienteInput: "",
+          nomeServicoInput: "",
+          data: "",
+          hora: "",
+          especialidadeInput: ""
+      });
+
+  } catch (error) {
+      setErro("Erro ao agendar.");
+  } finally {
+      setLoading(false);
+  }
+};
 
   const buscarConsultas = async () => {
     if (!cpfBusca) return setErro("Digite o CPF.");
@@ -788,7 +827,26 @@ const encerrarConta = async () => {
             <div className="result-card fade-in">
                 <div className="form-grid">
                     <div className="form-group"><label>CPF do Paciente:</label><input type="text" className="input-field" placeholder="Apenas números" value={formConsulta.cpfPacienteInput} onChange={(e) => setFormConsulta({...formConsulta, cpfPacienteInput: e.target.value})} /></div>
-                    <div className="form-group"><label>Serviço:</label><select className="input-field" value={formConsulta.nomeServicoInput} onChange={(e) => setFormConsulta({...formConsulta, nomeServicoInput: e.target.value})}><option value="">Selecione...</option><option value="Limpeza">Limpeza</option><option value="Canal">Canal</option><option value="Extração">Extração</option></select></div>
+                    <div className="form-group"><label>Serviço:</label>
+                    <select
+                      className="input-field"
+                      value={formConsulta.nomeServicoInput}
+                      onChange={(e) =>
+                        setFormConsulta({
+                          ...formConsulta,
+                          nomeServicoInput: e.target.value
+                        })
+                      }
+                    >
+                      <option value="">Selecione...</option>
+
+                      {listaServicos.map((s) => (
+                        <option key={s.idServico} value={s.nomeServico}>
+                          {s.nomeServico}
+                        </option>
+                      ))}
+                    </select>
+                    </div>
                     <div className="form-group"><label>Especialidade:</label><input type="text" className="input-field" placeholder="Ex: Ortodontia" value={formConsulta.especialidadeInput} onChange={(e) => setFormConsulta({...formConsulta, especialidadeInput: e.target.value})} /></div>
                     <div className="form-group"><label>Data:</label><input type="date" className="input-field" value={formConsulta.data} onChange={(e) => setFormConsulta({...formConsulta, data: e.target.value})} /></div>
                     <div className="form-group"><label>Hora:</label><input type="time" className="input-field" value={formConsulta.hora} onChange={(e) => setFormConsulta({...formConsulta, hora: e.target.value})} /></div>
