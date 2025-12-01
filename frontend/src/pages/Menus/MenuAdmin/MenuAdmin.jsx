@@ -11,7 +11,8 @@ import {
   faCheckCircle, 
   faSearch,
   faList,
-  faSave
+  faSave,
+  faTooth // Ícone para Serviços
 } from "@fortawesome/free-solid-svg-icons";
 
 const MenuAdmin = () => {
@@ -19,24 +20,19 @@ const MenuAdmin = () => {
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const [telaAtiva, setTelaAtiva] = useState("dashboard");
 
-  // Estados de Dados
+  // Estados de Dados (Usuários)
   const [listaUsuarios, setListaUsuarios] = useState([]);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
   
-  // Estado do Formulário (Unificado para Cadastro e Edição)
+  // Estados de Dados (Serviços) - NOVO
+  const [listaServicos, setListaServicos] = useState([]);
+  const [formServico, setFormServico] = useState({ nomeServico: "", descricao: "" });
+
+  // Estado do Formulário (Usuários)
   const [formData, setFormData] = useState({
-    idUsuario: "",
-    nome: "",
-    email: "",
-    senha: "",
-    telefone: "",
-    tipoUsuario: "MEDICO", // Padrão
-    // Campos específicos
-    crm: "",
-    especialidade: "",
-    cpf: "",
-    dataNascimento: "",
-    endereco: ""
+    idUsuario: "", nome: "", email: "", senha: "", telefone: "",
+    tipoUsuario: "MEDICO", crm: "", especialidade: "", cpf: "",
+    dataNascimento: "", endereco: ""
   });
 
   // Feedback
@@ -45,6 +41,7 @@ const MenuAdmin = () => {
   const [sucesso, setSucesso] = useState("");
 
   const API_URL = "http://localhost:8080/api/usuarios";
+  const API_SERVICOS = "http://localhost:8080/api/servicos"; // Nova URL
 
   // --- 2. GERENCIAMENTO DE TELAS E LIMPEZA ---
   const toggleSubmenu = (menuName) => {
@@ -55,6 +52,7 @@ const MenuAdmin = () => {
     setTelaAtiva(nomeTela);
     // Limpa estados ao trocar de tela
     setListaUsuarios([]);
+    setListaServicos([]); // Limpa lista de serviços
     setUsuarioSelecionado(null);
     setErro("");
     setSucesso("");
@@ -68,99 +66,104 @@ const MenuAdmin = () => {
       tipoUsuario: "MEDICO", crm: "", especialidade: "", cpf: "",
       dataNascimento: "", endereco: ""
     });
+    setFormServico({ nomeServico: "", descricao: "" }); // Limpa form de serviço
   };
 
-  // --- 3. FUNÇÕES DE API ---
-
-  // A) Listar (Genérico para Médicos ou Pacientes)
-  const listarPorTipo = async (tipo) => { // tipo = 'medicos' ou 'pacientes'
+  // --- 3. FUNÇÕES DE API (USUÁRIOS) ---
+  const listarPorTipo = async (tipo) => { 
     setLoading(true); setErro("");
     try {
       const res = await axios.get(`${API_URL}/${tipo}`);
       setListaUsuarios(res.data);
-    } catch (error) {
-      setErro("Erro ao carregar lista de usuários.");
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { setErro("Erro ao carregar lista de usuários."); } finally { setLoading(false); }
   };
 
-  // B) Cadastrar Usuário
   const cadastrarUsuario = async () => {
     setLoading(true); setErro(""); setSucesso("");
     try {
-      // O Backend espera um JSON com os campos certos.
-      // O campo "tipoUsuario" define se o Java vai criar Medico ou Paciente
       await axios.post(`${API_URL}/cadastro`, formData);
       setSucesso("Usuário cadastrado com sucesso!");
       limparFormulario();
-    } catch (error) {
-      setErro(error.response?.data || "Erro ao cadastrar usuário.");
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { setErro(error.response?.data || "Erro ao cadastrar usuário."); } finally { setLoading(false); }
   };
 
-  // C) Editar Usuário
   const editarUsuario = async () => {
     setLoading(true); setErro(""); setSucesso("");
     try {
       await axios.put(`${API_URL}/editar`, formData);
       setSucesso("Usuário atualizado com sucesso!");
-      setUsuarioSelecionado(null); // Sai do modo edição
+      setUsuarioSelecionado(null); 
       limparFormulario();
-    } catch (error) {
-      setErro("Erro ao editar usuário.");
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { setErro("Erro ao editar usuário."); } finally { setLoading(false); }
   };
 
-  // D) Desativar Usuário
   const desativarUsuario = async (id) => {
     if (!window.confirm("Tem certeza que deseja desativar este usuário?")) return;
     try {
       await axios.delete(`${API_URL}/${id}`);
       alert("Usuário desativado.");
-      // Atualiza a lista localmente
       setListaUsuarios(listaUsuarios.map(u => u.idUsuario === id ? {...u, stats: false} : u));
-    } catch (error) {
-      alert("Erro ao desativar.");
-    }
+    } catch (error) { alert("Erro ao desativar."); }
   };
 
-  // E) Reativar Conta
   const reativarUsuario = async (id) => {
     if (!window.confirm("Deseja reativar esta conta?")) return;
     try {
       await axios.put(`${API_URL}/${id}/ativar`);
       alert("Conta reativada com sucesso!");
       setListaUsuarios(listaUsuarios.map(u => u.idUsuario === id ? {...u, stats: true} : u));
-    } catch (error) {
-      alert("Erro ao reativar.");
-    }
+    } catch (error) { alert("Erro ao reativar."); }
   };
 
-  // Auxiliar para preencher form na edição
   const prepararEdicao = (usuario) => {
     setUsuarioSelecionado(usuario);
     setFormData({
       ...usuario,
-      // Garante que campos nulos não quebrem o input (controlled components)
-      crm: usuario.crm || "",
-      especialidade: usuario.especialidade || "",
-      cpf: usuario.cpf || "",
-      endereco: usuario.endereco || "",
-      senha: usuario.senha || "" // A senha vem do banco, cuidado ao exibir
+      crm: usuario.crm || "", especialidade: usuario.especialidade || "",
+      cpf: usuario.cpf || "", endereco: usuario.endereco || "", senha: usuario.senha || ""
     });
   };
 
-  // --- EFEITOS (Carregamento Automático para Listagens) ---
+  // --- 4. FUNÇÕES DE API (SERVIÇOS - NOVO) ---
+
+  // Cadastrar Serviço
+  const cadastrarServico = async () => {
+    if (!formServico.nomeServico) return setErro("O nome do serviço é obrigatório.");
+    
+    setLoading(true); setErro(""); setSucesso("");
+    try {
+        await axios.post(API_SERVICOS, formServico);
+        setSucesso("Serviço cadastrado com sucesso!");
+        setFormServico({ nomeServico: "", descricao: "" });
+    } catch (error) {
+        setErro("Erro ao cadastrar serviço.");
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  // Listar Serviços
+  const listarServicos = async () => {
+    setLoading(true); setErro("");
+    try {
+        const res = await axios.get(API_SERVICOS);
+        setListaServicos(res.data);
+    } catch (error) {
+        setErro("Erro ao carregar serviços.");
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  // --- EFEITOS ---
   useEffect(() => {
     if (telaAtiva === "listar-medicos") listarPorTipo("medicos");
     if (telaAtiva === "listar-pacientes") listarPorTipo("pacientes");
+    
+    // Novo: Carregar serviços se a tela for a de listar
+    if (telaAtiva === "listar-servicos") listarServicos();
+
     if (telaAtiva === "desativar-usuario" || telaAtiva === "reativar-conta" || telaAtiva === "editar-usuario") {
-        // Para gerenciar, carregamos todos (o endpoint geral /api/usuarios existe no seu controller)
         const carregarTodos = async () => {
             try { const res = await axios.get(API_URL); setListaUsuarios(res.data); } 
             catch (e) { setErro("Erro ao carregar lista completa."); }
@@ -170,7 +173,7 @@ const MenuAdmin = () => {
   }, [telaAtiva]);
 
 
-  // --- 4. MENU LATERAL ---
+  // --- 5. MENU LATERAL ---
   const menuItems = [
     {
       name: "dashboard",
@@ -191,8 +194,15 @@ const MenuAdmin = () => {
         { label: "Listar Pacientes", view: "listar-pacientes" },
       ],
     },
-    // ... outros menus mantidos (servicos, relatorio, etc)
-    { name: "servicos", icon: "ai-shipping-box-v1", label: "Serviços", submenu: [{ label: "Cadastrar Serviço" }, { label: "Listar Serviços" }] },
+    { 
+      name: "servicos", 
+      icon: "ai-shipping-box-v1", 
+      label: "Serviços", 
+      submenu: [
+        { label: "Cadastrar Serviço", view: "cadastrar-servico" }, // Novo
+        { label: "Listar Serviços", view: "listar-servicos" }      // Novo
+      ] 
+    },
     { name: "relatorio", icon: "ai-folder", label: "Relatório", submenu: [{ label: "Gerar Relatório" }] },
     { name: "perfil", icon: "ai-person", label: "Meu Perfil", submenu: [{ label: "Meus dados" }, { label: "Encerrar conta" }] },
     { name: "config", icon: "ai-gear", label: "Configurações", submenu: [{ label: "Informações da Clínica" }] },
@@ -272,15 +282,13 @@ const MenuAdmin = () => {
                   <input type="text" placeholder="Telefone" className="input-field" value={formData.telefone} onChange={e => setFormData({...formData, telefone: e.target.value})} />
               </div>
 
-              {/* CAMPOS ESPECÍFICOS: MÉDICO */}
+              {/* CAMPOS ESPECÍFICOS */}
               {formData.tipoUsuario === "MEDICO" && (
                   <div className="form-grid" style={{marginTop: 15}}>
                       <input type="text" placeholder="CRM" className="input-field" value={formData.crm} onChange={e => setFormData({...formData, crm: e.target.value})} />
                       <input type="text" placeholder="Especialidade" className="input-field" value={formData.especialidade} onChange={e => setFormData({...formData, especialidade: e.target.value})} />
                   </div>
               )}
-
-              {/* CAMPOS ESPECÍFICOS: PACIENTE */}
               {formData.tipoUsuario === "PACIENTE" && (
                   <div className="form-grid" style={{marginTop: 15}}>
                       <input type="text" placeholder="CPF" className="input-field" value={formData.cpf} onChange={e => setFormData({...formData, cpf: e.target.value})} />
@@ -292,44 +300,28 @@ const MenuAdmin = () => {
                   </div>
               )}
 
-              <button className="btn-green" onClick={cadastrarUsuario} disabled={loading}>
-                {loading ? "Cadastrando..." : "Cadastrar"}
-              </button>
-
+              <button className="btn-green" onClick={cadastrarUsuario} disabled={loading}>{loading ? "Cadastrando..." : "Cadastrar"}</button>
               {sucesso && <div className="success-msg">{sucesso}</div>}
               {erro && <div className="error-msg">{erro}</div>}
             </div>
           )}
 
-          {/* 2. EDITAR USUÁRIO (Busca na lista -> Abre Form) */}
+          {/* 2. EDITAR USUÁRIO */}
           {telaAtiva === "editar-usuario" && (
             <div className="list-card">
               <h2><FontAwesomeIcon icon={faEdit} /> Editar Usuário</h2>
               <p style={{marginBottom: 20}}>Selecione um usuário da lista abaixo para editar.</p>
               
-              {/* Se um usuário foi selecionado, mostra o formulário de edição */}
               {usuarioSelecionado ? (
                   <div className="form-card" style={{border: '1px solid #ccc'}}>
                       <h3>Editando: {usuarioSelecionado.nome}</h3>
-                      {/* Reutiliza a lógica de campos do cadastro, mas com valores preenchidos */}
                       <div className="form-grid">
                           <input type="text" placeholder="Nome" className="input-field" value={formData.nome} onChange={e => setFormData({...formData, nome: e.target.value})} />
                           <input type="text" placeholder="Telefone" className="input-field" value={formData.telefone} onChange={e => setFormData({...formData, telefone: e.target.value})} />
-                          {/* Campo de Senha (Opcional na edição, mas mantido aqui) */}
-                          <input type="password" placeholder="Nova Senha (ou mantenha a atual)" className="input-field" value={formData.senha} onChange={e => setFormData({...formData, senha: e.target.value})} />
+                          <input type="password" placeholder="Nova Senha (opcional)" className="input-field" value={formData.senha} onChange={e => setFormData({...formData, senha: e.target.value})} />
                       </div>
-                      
-                      {/* Campos Específicos Editáveis */}
-                      {formData.tipoUsuario === "MEDICO" && (
-                          <div className="form-grid" style={{marginTop: 10}}>
-                              <input type="text" placeholder="Especialidade" className="input-field" value={formData.especialidade} onChange={e => setFormData({...formData, especialidade: e.target.value})} />
-                          </div>
-                      )}
-                      {formData.tipoUsuario === "PACIENTE" && (
-                          <div className="form-grid" style={{marginTop: 10}}>
-                              <input type="text" placeholder="Endereço" className="input-field" value={formData.endereco} onChange={e => setFormData({...formData, endereco: e.target.value})} />
-                          </div>
-                      )}
+                      {formData.tipoUsuario === "MEDICO" && (<div className="form-grid" style={{marginTop: 10}}><input type="text" placeholder="Especialidade" className="input-field" value={formData.especialidade} onChange={e => setFormData({...formData, especialidade: e.target.value})} /></div>)}
+                      {formData.tipoUsuario === "PACIENTE" && (<div className="form-grid" style={{marginTop: 10}}><input type="text" placeholder="Endereço" className="input-field" value={formData.endereco} onChange={e => setFormData({...formData, endereco: e.target.value})} /></div>)}
 
                       <div style={{marginTop: 20, display:'flex', gap: 10}}>
                         <button className="btn-green" onClick={editarUsuario}>Salvar Alterações</button>
@@ -337,20 +329,10 @@ const MenuAdmin = () => {
                       </div>
                   </div>
               ) : (
-                  // Lista para selecionar quem editar
                   <div className="table-responsive">
                     <table className="custom-table">
                         <thead><tr><th>ID</th><th>Nome</th><th>Tipo</th><th>Ação</th></tr></thead>
-                        <tbody>
-                            {listaUsuarios.map(u => (
-                                <tr key={u.idUsuario}>
-                                    <td>{u.idUsuario}</td>
-                                    <td>{u.nome}</td>
-                                    <td>{u.tipoUsuario}</td>
-                                    <td><button className="btn-small" onClick={() => prepararEdicao(u)}>Editar</button></td>
-                                </tr>
-                            ))}
-                        </tbody>
+                        <tbody>{listaUsuarios.map(u => (<tr key={u.idUsuario}><td>{u.idUsuario}</td><td>{u.nome}</td><td>{u.tipoUsuario}</td><td><button className="btn-small" onClick={() => prepararEdicao(u)}>Editar</button></td></tr>))}</tbody>
                     </table>
                   </div>
               )}
@@ -358,50 +340,30 @@ const MenuAdmin = () => {
             </div>
           )}
 
-          {/* 3 & 4. DESATIVAR / REATIVAR (Tabela de Gerenciamento) */}
+          {/* 3 & 4. DESATIVAR / REATIVAR */}
           {(telaAtiva === "desativar-usuario" || telaAtiva === "reativar-conta") && (
             <div className="list-card">
                 <h2>Gerenciar Status da Conta</h2>
-                <p>
-                    {telaAtiva === "desativar-usuario" ? "Desativar usuários ativos." : "Reativar usuários inativos."}
-                </p>
-
+                <p>{telaAtiva === "desativar-usuario" ? "Desativar usuários ativos." : "Reativar usuários inativos."}</p>
                 <div className="table-responsive">
                     <table className="custom-table">
                         <thead><tr><th>Nome</th><th>Email</th><th>Tipo</th><th>Status</th><th>Ação</th></tr></thead>
                         <tbody>
                             {listaUsuarios
-                                .filter(u => telaAtiva === "desativar-usuario" ? u.stats === true : u.stats === false) // Filtra
+                                .filter(u => telaAtiva === "desativar-usuario" ? u.stats === true : u.stats === false) 
                                 .map(u => (
                                 <tr key={u.idUsuario}>
                                     <td>{u.nome}</td>
                                     <td>{u.email}</td>
                                     <td>{u.tipoUsuario}</td>
+                                    <td><span style={{padding:'4px 8px', borderRadius:'12px', fontSize:'0.8rem', backgroundColor: u.stats ? '#dcfce7' : '#fee2e2', color: u.stats ? '#166534' : '#991b1b'}}>{u.stats ? "ATIVO" : "INATIVO"}</span></td>
                                     <td>
-                                        <span style={{
-                                            padding:'4px 8px', borderRadius:'12px', fontSize:'0.8rem',
-                                            backgroundColor: u.stats ? '#dcfce7' : '#fee2e2',
-                                            color: u.stats ? '#166534' : '#991b1b'
-                                        }}>
-                                            {u.stats ? "ATIVO" : "INATIVO"}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        {u.stats ? (
-                                            <button className="btn-small" style={{backgroundColor: '#fee2e2', color:'#991b1b'}} onClick={() => desativarUsuario(u.idUsuario)}>
-                                                <FontAwesomeIcon icon={faTrash} /> Desativar
-                                            </button>
-                                        ) : (
-                                            <button className="btn-small" style={{backgroundColor: '#dcfce7', color:'#166534'}} onClick={() => reativarUsuario(u.idUsuario)}>
-                                                <FontAwesomeIcon icon={faCheckCircle} /> Reativar
-                                            </button>
-                                        )}
+                                        {u.stats ? (<button className="btn-small" style={{backgroundColor: '#fee2e2', color:'#991b1b'}} onClick={() => desativarUsuario(u.idUsuario)}><FontAwesomeIcon icon={faTrash} /> Desativar</button>) : (<button className="btn-small" style={{backgroundColor: '#dcfce7', color:'#166534'}} onClick={() => reativarUsuario(u.idUsuario)}><FontAwesomeIcon icon={faCheckCircle} /> Reativar</button>)}
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
-                    {listaUsuarios.length === 0 && <p style={{textAlign:'center', padding:20}}>Nenhum usuário encontrado para esta ação.</p>}
                 </div>
             </div>
           )}
@@ -412,17 +374,7 @@ const MenuAdmin = () => {
                 <h2><FontAwesomeIcon icon={faUserDoctor} /> Lista de Médicos</h2>
                 <table className="custom-table">
                     <thead><tr><th>Nome</th><th>CRM</th><th>Especialidade</th><th>Email</th><th>Status</th></tr></thead>
-                    <tbody>
-                        {listaUsuarios.map(m => (
-                            <tr key={m.idUsuario}>
-                                <td>{m.nome}</td>
-                                <td>{m.crm}</td>
-                                <td>{m.especialidade}</td>
-                                <td>{m.email}</td>
-                                <td>{m.stats ? "Ativo" : "Inativo"}</td>
-                            </tr>
-                        ))}
-                    </tbody>
+                    <tbody>{listaUsuarios.map(m => (<tr key={m.idUsuario}><td>{m.nome}</td><td>{m.crm}</td><td>{m.especialidade}</td><td>{m.email}</td><td>{m.stats ? "Ativo" : "Inativo"}</td></tr>))}</tbody>
                 </table>
             </div>
           )}
@@ -433,25 +385,67 @@ const MenuAdmin = () => {
                 <h2><FontAwesomeIcon icon={faUserInjured} /> Lista de Pacientes</h2>
                 <table className="custom-table">
                     <thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Email</th><th>Status</th></tr></thead>
-                    <tbody>
-                        {listaUsuarios.map(p => (
-                            <tr key={p.idUsuario}>
-                                <td>{p.nome}</td>
-                                <td>{p.cpf}</td>
-                                <td>{p.telefone}</td>
-                                <td>{p.email}</td>
-                                <td>{p.stats ? "Ativo" : "Inativo"}</td>
-                            </tr>
-                        ))}
-                    </tbody>
+                    <tbody>{listaUsuarios.map(p => (<tr key={p.idUsuario}><td>{p.nome}</td><td>{p.cpf}</td><td>{p.telefone}</td><td>{p.email}</td><td>{p.stats ? "Ativo" : "Inativo"}</td></tr>))}</tbody>
                 </table>
+            </div>
+          )}
+
+          {/* --- NOVAS TELAS: SERVIÇOS --- */}
+
+          {/* 7. CADASTRAR SERVIÇO */}
+          {telaAtiva === "cadastrar-servico" && (
+            <div className="form-card">
+                <h2><FontAwesomeIcon icon={faPlus} /> Cadastrar Novo Serviço</h2>
+                
+                <div className="form-group">
+                    <label>Nome do Serviço:</label>
+                    <input type="text" className="input-field" placeholder="Ex: Clareamento, Limpeza..." 
+                        value={formServico.nomeServico} onChange={(e) => setFormServico({...formServico, nomeServico: e.target.value})} 
+                    />
+                </div>
+                <div className="form-group" style={{marginTop: 15}}>
+                    <label>Descrição:</label>
+                    <textarea rows="4" className="input-field" style={{resize:'vertical'}} placeholder="Descreva o serviço..." 
+                        value={formServico.descricao} onChange={(e) => setFormServico({...formServico, descricao: e.target.value})} 
+                    />
+                </div>
+
+                <button className="btn-green" onClick={cadastrarServico} disabled={loading} style={{marginTop: 20}}>
+                    {loading ? "Salvando..." : "Salvar Serviço"}
+                </button>
+
+                {sucesso && <div className="success-msg">{sucesso}</div>}
+                {erro && <div className="error-msg">{erro}</div>}
+            </div>
+          )}
+
+          {/* 8. LISTAR SERVIÇOS */}
+          {telaAtiva === "listar-servicos" && (
+            <div className="list-card">
+                <h2><FontAwesomeIcon icon={faTooth} /> Catálogo de Serviços</h2>
+                {listaServicos.length > 0 ? (
+                    <table className="custom-table">
+                        <thead><tr><th>ID</th><th>Nome</th><th>Descrição</th></tr></thead>
+                        <tbody>
+                            {listaServicos.map(s => (
+                                <tr key={s.idServico}>
+                                    <td style={{fontWeight:'bold'}}>#{s.idServico}</td>
+                                    <td>{s.nomeServico}</td>
+                                    <td>{s.descricao || "-"}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                ) : (
+                    <p style={{padding: 20, textAlign:'center'}}>Nenhum serviço cadastrado.</p>
+                )}
             </div>
           )}
 
         </div>
       </div>
 
-      {/* CSS INLINE (Para garantir o estilo sem depender de arquivo externo se faltar) */}
+      {/* CSS INLINE */}
       <style>{`
         .dashboard-content { background-color: #f4f7f6; min-height: 100vh; }
         .form-card, .list-card, .welcome-card {
