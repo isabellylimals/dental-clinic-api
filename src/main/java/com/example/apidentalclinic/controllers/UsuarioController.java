@@ -64,4 +64,17 @@ public class UsuarioController {
     public ResponseEntity<List<Usuario>> listarPacientes() {
         return ResponseEntity.ok(service.listarPorTipo(com.example.apidentalclinic.enums.TipoUsuario.PACIENTE));
     }
+    @PutMapping("/{id}/dados-extras")
+public ResponseEntity<?> adicionarDadosExtras(
+        @PathVariable int id,
+        @RequestBody Map<String, Object> dadosExtras) {
+
+    try {
+        return ResponseEntity.ok(service.salvarDadosExtras(id, dadosExtras));
+
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+}
+
 }

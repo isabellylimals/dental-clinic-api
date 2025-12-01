@@ -19,37 +19,158 @@ const MenuPaciente = () => {
   const [termoPesquisa, setTermoPesquisa] = useState('');
   const [loadingServicos, setLoadingServicos] = useState(false);
   const API_URL = 'http://localhost:8080/api';
+const [editMode, setEditMode] = useState(false);
+ const [formData, setFormData] = useState({
+  nome: "",
+  cpf: "",
+  email: "",
+  telefone: "",
+  dataNascimento: "",
+  endereco: ""
+});
+const renderContent = (menuName, label) => {
+  switch (menuName) {
+    case 'consultas':
+      return renderConsultaContent(label);
+    case 'servicos':
+      return renderServicosContent(label);
+    case 'anamnese':
+      return renderAnamneseContent(label);
+    case 'prontuario':
+      return renderProntuarioContent(label);
+    case 'perfil':
+      return renderPerfilContent(label);
+    case 'info':
+      return renderInfoContent(label);
+    default:
+      return <div>Conteúdo em desenvolvimento.</div>;
+  }
+};
+const salvarDadosExtras = async () => {
+  try {
+    const payload = {
+      telefone: formData.telefone,
+      endereco: formData.endereco,
+      dataNascimento: formData.dataNascimento
+    };
+
+    const res = await fetch(`${API_URL}/usuarios/${idPaciente}/dados-extras`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      alert("Erro ao adicionar dados extras");
+      return;
+    }
+
+    const atualizado = await res.json();
+
+    localStorage.setItem("userData", JSON.stringify(atualizado));
+    setUserData(atualizado);
+
+    alert("Dados extras salvos com sucesso!");
+
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao salvar dados extras");
+  }
+};
+
 
   useEffect(() => {
     carregarDadosUsuario();
   }, []);
 
-  // NOVA FUNÇÃO: Carrega os dados do usuário do localStorage
-  const carregarDadosUsuario = () => {
-    try {
-      const userDataString = localStorage.getItem('userData');
-      if (userDataString) {
-        const user = JSON.parse(userDataString);
-        setUserData(user);
-        
-        // Define o CPF e ID do usuário logado
-        if (user.cpf) {
-          setCpfPaciente(user.cpf);
-        }
-        if (user.idUsuario) {
-          setIdPaciente(user.idUsuario);
-          console.log('ID do usuário logado:', user.idUsuario);
-          setDadosCarregados(true); // Marca que os dados foram carregados
-        } else {
-          console.error('ID não encontrado nos dados do usuário');
-        }
-      } else {
-        console.error('Dados do usuário não encontrados no localStorage');
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados do usuário:', error);
+const atualizarCampo = (campo, valor) => {
+  setFormData(prev => ({ ...prev, [campo]: valor }));
+};
+
+const salvarPerfil = async () => {
+  try {
+    const payload = {
+      idUsuario: idPaciente,
+      nome: formData.nome,
+      email: formData.email,
+      telefone: formData.telefone,
+      senha: userData.senha, 
+      tipoUsuario: userData.tipoUsuario,
+
+      // CAMPOS EXCLUSIVOS DO PACIENTE
+      cpf: formData.cpf,
+      dataNascimento: formData.dataNascimento,
+      endereco: formData.endereco
+    };
+
+    const res = await fetch(`${API_URL}/usuarios/editar`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      alert("Erro ao atualizar perfil");
+      return;
     }
-  };
+
+    const atualizado = await res.json();
+
+    localStorage.setItem("userData", JSON.stringify(atualizado));
+    setUserData(atualizado);
+
+    alert("Dados atualizados com sucesso!");
+    setEditMode(false);
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao salvar alterações");
+  }
+};
+
+
+  // NOVA FUNÇÃO: Carrega os dados do usuário do localStorage
+ const carregarDadosUsuario = () => {
+  try {
+    const userDataString = localStorage.getItem('userData');
+
+    if (!userDataString) {
+      console.error('Dados do usuário não encontrados no localStorage');
+      return;
+    }
+
+    const user = JSON.parse(userDataString);
+    setUserData(user);
+
+    // Preenche o formulário com TODOS os dados do paciente
+    setFormData({
+      nome: user.nome || "",
+      cpf: user.cpf || "",
+      email: user.email || "",
+      telefone: user.telefone || "",
+      dataNascimento: user.dataNascimento 
+        ? user.dataNascimento.substring(0, 10) 
+        : "",
+      endereco: user.endereco || ""
+    });
+
+    // Define o CPF do usuário logado
+    if (user.cpf) {
+      setCpfPaciente(user.cpf);
+    }
+
+    // Define o ID do usuário logado
+    if (user.idUsuario) {
+      setIdPaciente(user.idUsuario);
+      console.log('ID do usuário logado:', user.idUsuario);
+      setDadosCarregados(true);
+    } else {
+      console.error('ID não encontrado nos dados do usuário');
+    }
+
+  } catch (error) {
+    console.error('Erro ao carregar dados do usuário:', error);
+  }
+};
 
   useEffect(() => {
     if (dadosCarregados && idPaciente) {
@@ -1057,41 +1178,180 @@ const MenuPaciente = () => {
 
   const renderPerfilContent = (label) => {
     switch (label) {
-      case 'Meus dados pessoais':
-        return (
-          <div className="content-section">
-            <h2>Meus Dados Pessoais</h2>
-            <div className="profile-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Nome Completo:</label>
-                  <input type="text" defaultValue="" className="form-input" />
-                </div>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>CPF:</label>
-                  <input type="text" defaultValue="" className="form-input" />
-                </div>
-                <div className="form-group">
-                  <label>Email</label>
-                  <input type="email" defaultValue="" className="form-input" />
-                </div>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Telefone</label>
-                  <input type="tel" defaultValue="" className="form-input" />
-                </div>
-                <div className="form-group">
-                  <label>Data de Nascimento</label>
-                  <input type="date" defaultValue="" className="form-input" />
-                </div>
-              </div>
-              <button className="btn-primary">Salvar Alterações</button>
-            </div>
+  case 'Meus dados pessoais':
+  return (
+    <div className="content-section profile-wrapper">
+
+      <div className="profile-card">
+
+        {/* Cabeçalho */}
+        <div className="profile-header">
+          <div className="avatar">
+            <i className="ai-person"></i>
           </div>
-        );
+
+          <div className="profile-title">
+            <h2>Meu Perfil</h2>
+            <p>Gerencie suas informações pessoais</p>
+          </div>
+        </div>
+
+        {/* FORM */}
+        <div className="profile-form-grid">
+
+          {/* Nome */}
+          <div className="form-group full">
+            <label>Nome Completo</label>
+            <input
+              type="text"
+              className="form-input"
+              value={formData.nome}
+              disabled={!editMode}
+              onChange={(e) => atualizarCampo("nome", e.target.value)}
+            />
+          </div>
+
+          {/* CPF - sempre bloqueado */}
+          <div className="form-group">
+            <label>CPF</label>
+            <input
+              type="text"
+              className="form-input"
+              value={formData.cpf}
+              disabled={true}
+              style={{ background: "#ececec", cursor: "not-allowed" }}
+            />
+          </div>
+
+          {/* Email - sempre bloqueado */}
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              className="form-input"
+              value={formData.email}
+              disabled={true}
+              style={{ background: "#ececec", cursor: "not-allowed" }}
+            />
+          </div>
+
+          {/* Telefone - editável */}
+          <div className="form-group">
+            <label>Telefone</label>
+            <input
+              type="tel"
+              className="form-input"
+              value={formData.telefone}
+              disabled={!editMode}
+              onChange={(e) => atualizarCampo("telefone", e.target.value)}
+            />
+          </div>
+
+          {/* Data de nascimento - sempre bloqueada */}
+          <div className="form-group">
+            <label>Data de Nascimento</label>
+            <input
+              type="date"
+              className="form-input"
+              value={formData.dataNascimento}
+              disabled={true}
+              style={{ background: "#ececec", cursor: "not-allowed" }}
+            />
+          </div>
+
+          {/* Endereço - editável */}
+          <div className="form-group full">
+            <label>Endereço</label>
+            <input
+              type="text"
+              className="form-input"
+              value={formData.endereco}
+              disabled={!editMode}
+              onChange={(e) => atualizarCampo("endereco", e.target.value)}
+            />
+          </div>
+
+        </div>
+
+        {/* Botões */}
+        <div className="profile-actions">
+          {!editMode ? (
+            <button className="btn-primary edit-btn" onClick={() => setEditMode(true)}>
+              <i className="ai-edit"></i> Editar Dados
+            </button>
+          ) : (
+            <button className="btn-primary save-btn" onClick={salvarPerfil}>
+              <i className="ai-check"></i> Salvar Alterações
+            </button>
+          )}
+        </div>
+
+      </div>
+
+    </div>
+  );
+case 'Adicionar dados extras':
+  return (
+    <div className="content-section profile-wrapper">
+      <div className="profile-card">
+
+        <div className="profile-header">
+          <div className="avatar">
+           <i className="ai-person"></i>
+          </div>
+
+          <div className="profile-title">
+            <h2>Adicionar Dados Extras</h2>
+            <p>Complete suas informações de perfil</p>
+          </div>
+        </div>
+
+        <div className="profile-form-grid">
+
+          <div className="form-group">
+            <label>Telefone</label>
+            <input
+              type="tel"
+              className="form-input"
+              value={formData.telefone}
+              onChange={(e) => atualizarCampo("telefone", e.target.value)}
+              placeholder="Digite seu telefone"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Data de Nascimento</label>
+            <input
+              type="date"
+              className="form-input"
+              value={formData.dataNascimento}
+              onChange={(e) => atualizarCampo("dataNascimento", e.target.value)}
+            />
+          </div>
+
+          <div className="form-group full">
+            <label>Endereço</label>
+            <input
+              type="text"
+              className="form-input"
+              value={formData.endereco}
+              onChange={(e) => atualizarCampo("endereco", e.target.value)}
+              placeholder="Digite seu endereço"
+            />
+          </div>
+
+        </div>
+
+        <div className="profile-actions">
+          <button className="btn-primary save-btn" onClick={salvarDadosExtras}>
+            <i className="ai-check"></i> Salvar Dados
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+
 
       case 'Encerrar conta':
         return (
@@ -1185,7 +1445,8 @@ const MenuPaciente = () => {
         component = <div><h2>{label}</h2><p>Conteúdo em desenvolvimento.</p></div>;
     }
 
-    setActiveContent({ menuName, label, component });
+   setActiveContent({ menuName, label });
+
     setError(null);
   }
 
@@ -1233,6 +1494,7 @@ const MenuPaciente = () => {
       label: 'Meu Perfil',
       submenu: [
         { label: 'Meus dados pessoais' },
+        { label: 'Adicionar dados extras' }, 
         { label: 'Encerrar conta' }
       ]
     },
@@ -1304,8 +1566,9 @@ const MenuPaciente = () => {
         )}
 
         {activeContent ? (
-          activeContent.component
-        ) : (
+  renderContent(activeContent.menuName, activeContent.label)
+) : (
+
           <div className="welcome-section">
             <h1>Bem-vindo ao Portal do Paciente</h1>
             <p>Selecione uma opção no menu lateral para começar.</p>

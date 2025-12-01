@@ -1,16 +1,20 @@
 package com.example.apidentalclinic.services;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.example.apidentalclinic.enums.TipoUsuario;
 import com.example.apidentalclinic.models.Medico;
 import com.example.apidentalclinic.models.Paciente;
 import com.example.apidentalclinic.models.Usuario;
+import com.example.apidentalclinic.repositories.PacienteRepository;
 import com.example.apidentalclinic.repositories.UsuarioRepository;
 import com.example.apidentalclinic.util.TratativasBackend;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UsuarioService {
@@ -20,6 +24,9 @@ public class UsuarioService {
 
     @Autowired
     private ProntuarioService prontuarioService;
+
+    @Autowired
+    private PacienteRepository pacienteRepository;
 
     // -----------------------------------------
     // Cadastrar Usuário (Paciente, Médico, Admin)
@@ -158,4 +165,31 @@ public class UsuarioService {
     public List<Usuario> listarPorTipo(TipoUsuario tipo) {
         return usuarioRepository.findByTipoUsuario(tipo);
     }
+    public Paciente salvarDadosExtras(int id, Map<String, Object> dadosExtras) {
+
+    Paciente paciente = pacienteRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
+
+    if (dadosExtras.containsKey("telefone")) {
+        paciente.setTelefone((String) dadosExtras.get("telefone"));
+    }
+
+    if (dadosExtras.containsKey("endereco")) {
+        paciente.setEndereco((String) dadosExtras.get("endereco"));
+    }
+
+    if (dadosExtras.containsKey("dataNascimento")) {
+        String dataStr = (String) dadosExtras.get("dataNascimento");
+
+        try {
+            Date data = java.sql.Date.valueOf(dataStr); // yyyy-MM-dd
+            paciente.setDataNascimento(data);
+        } catch (Exception e) {
+            throw new RuntimeException("Formato de data inválido: " + dataStr);
+        }
+    }
+
+    return pacienteRepository.save(paciente);
+}
+
 }
