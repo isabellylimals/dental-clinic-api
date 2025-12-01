@@ -1,3 +1,4 @@
+/* MenuPaciente.css - VERSÃO COMPLETAMENTE CORRIGIDA */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -195,7 +196,150 @@
   margin-bottom: 24px;
 }
 
-/* ===== FORMULÁRIOS ===== */
+/* ===== FORMULÁRIO SOLICITAR CONSULTA - CORRIGIDO ===== */
+.card-solicitar-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.card-solicitar {
+  max-width: 500px;
+  width: 100%;
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e8ff;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-solicitar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #1976ff, #0d5ddb);
+}
+
+.card-solicitar h2 {
+  color: #003153;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-solicitar h2::before {
+  content: '1';
+  background: #1976ff;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.card-solicitar small {
+  color: #666;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 32px;
+  font-style: italic;
+  padding-left: 44px;
+  line-height: 1.5;
+}
+
+/* ESTILOS CORRETOS PARA OS CAMPOS DO FORMULÁRIO */
+.form-field-solicitar {
+  margin-bottom: 24px;
+  display: block;
+  width: 100%;
+}
+
+.form-field-solicitar label {
+  display: block;
+  margin-bottom: 8px;
+  color: #003153;
+  font-weight: 600;
+  font-size: 14px;
+  width: 100%;
+}
+
+.form-field-solicitar input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e1e8ff;
+  border-radius: 12px;
+  background: #f8fbff;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  color: #003153;
+  font-family: "Poppins", sans-serif;
+  display: block;
+  box-sizing: border-box;
+}
+
+.form-field-solicitar input:focus {
+  outline: none;
+  border-color: #1976ff;
+  box-shadow: 0 0 0 4px rgba(25, 118, 255, 0.15);
+  background: white;
+}
+
+.form-field-solicitar input:hover {
+  border-color: #b3d4ff;
+}
+
+.form-field-solicitar input::placeholder {
+  color: #a0aec0;
+  font-weight: 400;
+}
+
+/* Estilo específico para o datetime-local */
+.form-field-solicitar input[type="datetime-local"] {
+  cursor: pointer;
+}
+
+.btn-solicitar {
+  width: 100%;
+  background: linear-gradient(135deg, #1976ff, #0d5ddb);
+  color: white;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 16px;
+  font-family: "Poppins", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+}
+
+.btn-solicitar:hover {
+  background: linear-gradient(135deg, #1565c0, #0b4da3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(25, 118, 255, 0.4);
+}
+
+.btn-solicitar:active {
+  transform: translateY(0);
+}
+
+/* ===== RESTANTE DO CSS (mantenha igual) ===== */
 .form-container {
   max-width: 600px;
 }
@@ -209,6 +353,8 @@
 
 .form-group {
   margin-bottom: 20px;
+  display: block;
+  width: 100%;
 }
 
 .form-group label {
@@ -217,9 +363,9 @@
   color: #003153;
   font-weight: 500;
   font-size: 14px;
+  width: 100%;
 }
 
-/* INPUTS */
 .form-input,
 .form-textarea,
 .form-select,
@@ -234,6 +380,8 @@
   transition: all 0.3s ease;
   color: #003153;
   font-family: "Poppins", sans-serif;
+  display: block;
+  box-sizing: border-box;
 }
 
 .form-input:focus,
@@ -262,7 +410,6 @@
   background-size: 12px;
 }
 
-/* ===== BOTÕES ===== */
 .btn-primary {
   background: #1976ff;
   color: white;
@@ -283,13 +430,6 @@
   background: #1565c0;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(25, 118, 255, 0.3);
-}
-
-.btn-primary:disabled {
-  background: #b0b0b0;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
 .btn-secondary {
@@ -333,7 +473,6 @@
   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
 }
 
-/* ===== SEARCH BAR ===== */
 .search-section {
   margin-bottom: 24px;
 }
@@ -355,7 +494,6 @@
   gap: 12px;
 }
 
-/* ===== CARDS E LISTAS ===== */
 .consultas-list,
 .status-list,
 .dashboard-cards {
@@ -447,7 +585,6 @@
   min-height: 40px;
 }
 
-/* ===== STATUS BADGES ===== */
 .status {
   display: inline-block;
   padding: 4px 12px;
@@ -472,7 +609,6 @@
   border: 1px solid #ff9800;
 }
 
-/* ===== RADIO GROUP ===== */
 .radio-group {
   display: flex;
   gap: 16px;
@@ -496,7 +632,6 @@
   height: 16px;
 }
 
-/* ===== VALIDAÇÃO ===== */
 .validation-badge {
   display: inline-flex;
   align-items: center;
@@ -514,7 +649,6 @@
   color: #4caf50;
 }
 
-/* ===== TABELAS ===== */
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -550,7 +684,6 @@
   background: #f8f9fa;
 }
 
-/* ===== ABAS ===== */
 .prontuario-tabs {
   margin-top: 24px;
 }
@@ -609,7 +742,6 @@
   font-size: 14px;
 }
 
-/* ===== PENDING ITEMS ===== */
 .pending-orders,
 .pending-anamnese {
   margin-top: 16px;
@@ -657,7 +789,6 @@
   font-size: 14px;
 }
 
-/* ===== FORM ROWS ===== */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -669,7 +800,6 @@
   max-width: 600px;
 }
 
-/* ===== ALERTAS ===== */
 .alert {
   padding: 20px;
   border-radius: 8px;
@@ -702,7 +832,6 @@
   font-size: 14px;
 }
 
-/* ===== CANCEL SECTION ===== */
 .cancel-section {
   margin-top: 20px;
 }
@@ -746,7 +875,6 @@
   font-size: 13px;
 }
 
-/* ===== PRICE E CATEGORY ===== */
 .price {
   display: block;
   font-size: 16px;
@@ -755,56 +883,6 @@
   margin: 8px 0;
 }
 
-.category {
-  display: inline-block;
-  background: #f8f9fa;
-  color: #495057;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Cores diferentes para categorias */
-.servico-card[data-category="Odontologia Geral"] {
-  border-left-color: #007bff;
-}
-
-.servico-card[data-category="Dentística"] {
-  border-left-color: #28a745;
-}
-
-.servico-card[data-category="Endodontia"] {
-  border-left-color: #dc3545;
-}
-
-.servico-card[data-category="Ortodontia"] {
-  border-left-color: #ffc107;
-}
-
-.servico-card[data-category="Odontopediatria"] {
-  border-left-color: #17a2b8;
-}
-
-.servico-card[data-category="Cirurgia Bucomaxilofacial"] {
-  border-left-color: #6f42c1;
-}
-
-.servico-card[data-category="Implantodontia"] {
-  border-left-color: #e83e8c;
-}
-
-.servico-card[data-category="Prótese Dentária"] {
-  border-left-color: #fd7e14;
-}
-
-.servico-card[data-category="Odontologia Estética"] {
-  border-left-color: #20c997;
-}
-
-/* ===== WELCOME SECTION ===== */
 .welcome-section {
   text-align: center;
   padding: 40px 20px;
@@ -870,7 +948,6 @@
   margin: 0;
 }
 
-/* ===== ERROR MESSAGE ===== */
 .error-message {
   background: #ffebee;
   border: 1px solid #f44336;
@@ -889,7 +966,6 @@
   flex-shrink: 0;
 }
 
-/* ===== APPOINTMENT ITEM ===== */
 .appointment-item {
   display: flex;
   justify-content: space-between;
@@ -910,7 +986,6 @@
   font-size: 13px;
 }
 
-/* ===== RESPONSIVO ===== */
 @media (max-width: 1024px) {
   .sidebar {
     width: 250px;
@@ -1010,9 +1085,37 @@
   .price {
     font-size: 14px;
   }
+  
+  .card-solicitar {
+    padding: 24px 20px;
+  }
+  
+  .card-solicitar h2 {
+    font-size: 22px;
+  }
+  
+  .card-solicitar h2::before {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+  
+  .card-solicitar small {
+    padding-left: 40px;
+    font-size: 13px;
+  }
+  
+  .form-field-solicitar input {
+    padding: 12px 14px;
+    margin-bottom: 20px;
+  }
+  
+  .btn-solicitar {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
 }
 
-/* Estados de loading */
 .loading-state {
   display: flex;
   align-items: center;
@@ -1038,7 +1141,6 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Estados vazios */
 .empty-state {
   text-align: center;
   padding: 40px 20px;
