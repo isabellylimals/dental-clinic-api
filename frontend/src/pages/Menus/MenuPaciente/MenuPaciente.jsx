@@ -1467,7 +1467,6 @@ case 'Adicionar dados extras':
       icon: 'ai-shipping-box-v1',
       label: 'Serviços',
       submenu: [
-        { label: 'Pesquisar serviços' },
         { label: 'Todos os serviços' }
       ]
     },
