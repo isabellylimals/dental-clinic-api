@@ -12,7 +12,8 @@ import {
   faSearch,
   faList,
   faSave,
-  faTooth // Ícone para Serviços
+  faTooth, // Ícone para Serviços
+  faFileAlt // Ícone para Relatório (NOVO)
 } from "@fortawesome/free-solid-svg-icons";
 
 const MenuAdmin = () => {
@@ -20,28 +21,37 @@ const MenuAdmin = () => {
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const [telaAtiva, setTelaAtiva] = useState("dashboard");
 
-  // Estados de Dados (Usuários)
+  // Estados de Dados (Usuários e Serviços)
   const [listaUsuarios, setListaUsuarios] = useState([]);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
-  
-  // Estados de Dados (Serviços) - NOVO
   const [listaServicos, setListaServicos] = useState([]);
-  const [formServico, setFormServico] = useState({ nomeServico: "", descricao: "" });
+  
+  // Estado do Relatório (NOVO)
+  const [filtrosRelatorio, setFiltrosRelatorio] = useState({
+    inicio: "",
+    fim: "",
+    idMedico: "",
+    status: ""
+  });
+  const [resultadoRelatorio, setResultadoRelatorio] = useState("");
 
-  // Estado do Formulário (Usuários)
+  // Estado dos Formulários
   const [formData, setFormData] = useState({
     idUsuario: "", nome: "", email: "", senha: "", telefone: "",
     tipoUsuario: "MEDICO", crm: "", especialidade: "", cpf: "",
     dataNascimento: "", endereco: ""
   });
+  const [formServico, setFormServico] = useState({ nomeServico: "", descricao: "" });
 
   // Feedback
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
+  // URLs da API
   const API_URL = "http://localhost:8080/api/usuarios";
-  const API_SERVICOS = "http://localhost:8080/api/servicos"; // Nova URL
+  const API_SERVICOS = "http://localhost:8080/api/servicos"; 
+  const API_ADMIN = "http://localhost:8080/api/administrador"; // Nova URL para relatório
 
   // --- 2. GERENCIAMENTO DE TELAS E LIMPEZA ---
   const toggleSubmenu = (menuName) => {
@@ -52,8 +62,9 @@ const MenuAdmin = () => {
     setTelaAtiva(nomeTela);
     // Limpa estados ao trocar de tela
     setListaUsuarios([]);
-    setListaServicos([]); // Limpa lista de serviços
+    setListaServicos([]); 
     setUsuarioSelecionado(null);
+    setResultadoRelatorio(""); // Limpa relatório anterior
     setErro("");
     setSucesso("");
     setLoading(false);
@@ -66,7 +77,8 @@ const MenuAdmin = () => {
       tipoUsuario: "MEDICO", crm: "", especialidade: "", cpf: "",
       dataNascimento: "", endereco: ""
     });
-    setFormServico({ nomeServico: "", descricao: "" }); // Limpa form de serviço
+    setFormServico({ nomeServico: "", descricao: "" });
+    setFiltrosRelatorio({ inicio: "", fim: "", idMedico: "", status: "" });
   };
 
   // --- 3. FUNÇÕES DE API (USUÁRIOS) ---
@@ -124,32 +136,41 @@ const MenuAdmin = () => {
     });
   };
 
-  // --- 4. FUNÇÕES DE API (SERVIÇOS - NOVO) ---
-
-  // Cadastrar Serviço
+  // --- 4. FUNÇÕES DE API (SERVIÇOS) ---
   const cadastrarServico = async () => {
     if (!formServico.nomeServico) return setErro("O nome do serviço é obrigatório.");
-    
     setLoading(true); setErro(""); setSucesso("");
     try {
         await axios.post(API_SERVICOS, formServico);
         setSucesso("Serviço cadastrado com sucesso!");
         setFormServico({ nomeServico: "", descricao: "" });
-    } catch (error) {
-        setErro("Erro ao cadastrar serviço.");
-    } finally {
-        setLoading(false);
-    }
+    } catch (error) { setErro("Erro ao cadastrar serviço."); } finally { setLoading(false); }
   };
 
-  // Listar Serviços
   const listarServicos = async () => {
     setLoading(true); setErro("");
     try {
         const res = await axios.get(API_SERVICOS);
         setListaServicos(res.data);
+    } catch (error) { setErro("Erro ao carregar serviços."); } finally { setLoading(false); }
+  };
+
+  // --- 5. FUNÇÃO DE RELATÓRIO (NOVO) ---
+  const gerarRelatorio = async () => {
+    setLoading(true); setErro(""); setResultadoRelatorio("");
+    
+    // Monta a Query String manualmente para garantir o formato correto
+    const params = new URLSearchParams();
+    if (filtrosRelatorio.inicio) params.append("inicio", filtrosRelatorio.inicio + ":00"); // Adiciona segundos se necessário
+    if (filtrosRelatorio.fim) params.append("fim", filtrosRelatorio.fim + ":59");
+    if (filtrosRelatorio.idMedico) params.append("idMedico", filtrosRelatorio.idMedico);
+    if (filtrosRelatorio.status) params.append("status", filtrosRelatorio.status);
+
+    try {
+        const res = await axios.get(`${API_ADMIN}/relatorio?${params.toString()}`);
+        setResultadoRelatorio(res.data);
     } catch (error) {
-        setErro("Erro ao carregar serviços.");
+        setErro("Erro ao gerar relatório. Verifique as datas.");
     } finally {
         setLoading(false);
     }
@@ -159,8 +180,6 @@ const MenuAdmin = () => {
   useEffect(() => {
     if (telaAtiva === "listar-medicos") listarPorTipo("medicos");
     if (telaAtiva === "listar-pacientes") listarPorTipo("pacientes");
-    
-    // Novo: Carregar serviços se a tela for a de listar
     if (telaAtiva === "listar-servicos") listarServicos();
 
     if (telaAtiva === "desativar-usuario" || telaAtiva === "reativar-conta" || telaAtiva === "editar-usuario") {
@@ -173,7 +192,7 @@ const MenuAdmin = () => {
   }, [telaAtiva]);
 
 
-  // --- 5. MENU LATERAL ---
+  // --- 6. MENU LATERAL ---
   const menuItems = [
     {
       name: "dashboard",
@@ -199,13 +218,17 @@ const MenuAdmin = () => {
       icon: "ai-shipping-box-v1", 
       label: "Serviços", 
       submenu: [
-        { label: "Cadastrar Serviço", view: "cadastrar-servico" }, // Novo
-        { label: "Listar Serviços", view: "listar-servicos" }      // Novo
+        { label: "Cadastrar Serviço", view: "cadastrar-servico" },
+        { label: "Listar Serviços", view: "listar-servicos" }
       ] 
     },
-    { name: "relatorio", icon: "ai-folder", label: "Relatório", submenu: [{ label: "Gerar Relatório" }] },
-    { name: "perfil", icon: "ai-person", label: "Meu Perfil", submenu: [{ label: "Meus dados" }, { label: "Encerrar conta" }] },
-    { name: "config", icon: "ai-gear", label: "Configurações", submenu: [{ label: "Informações da Clínica" }] },
+    { 
+      name: "relatorio", 
+      icon: "ai-folder", 
+      label: "Relatório", 
+      submenu: [{ label: "Gerar Relatório", view: "gerar-relatorio" }] // Adicionado View
+    },
+    
   ];
 
   return (
@@ -390,32 +413,14 @@ const MenuAdmin = () => {
             </div>
           )}
 
-          {/* --- NOVAS TELAS: SERVIÇOS --- */}
-
           {/* 7. CADASTRAR SERVIÇO */}
           {telaAtiva === "cadastrar-servico" && (
             <div className="form-card">
                 <h2><FontAwesomeIcon icon={faPlus} /> Cadastrar Novo Serviço</h2>
-                
-                <div className="form-group">
-                    <label>Nome do Serviço:</label>
-                    <input type="text" className="input-field" placeholder="Ex: Clareamento, Limpeza..." 
-                        value={formServico.nomeServico} onChange={(e) => setFormServico({...formServico, nomeServico: e.target.value})} 
-                    />
-                </div>
-                <div className="form-group" style={{marginTop: 15}}>
-                    <label>Descrição:</label>
-                    <textarea rows="4" className="input-field" style={{resize:'vertical'}} placeholder="Descreva o serviço..." 
-                        value={formServico.descricao} onChange={(e) => setFormServico({...formServico, descricao: e.target.value})} 
-                    />
-                </div>
-
-                <button className="btn-green" onClick={cadastrarServico} disabled={loading} style={{marginTop: 20}}>
-                    {loading ? "Salvando..." : "Salvar Serviço"}
-                </button>
-
-                {sucesso && <div className="success-msg">{sucesso}</div>}
-                {erro && <div className="error-msg">{erro}</div>}
+                <div className="form-group"><label>Nome do Serviço:</label><input type="text" className="input-field" placeholder="Ex: Clareamento..." value={formServico.nomeServico} onChange={(e) => setFormServico({...formServico, nomeServico: e.target.value})} /></div>
+                <div className="form-group" style={{marginTop: 15}}><label>Descrição:</label><textarea rows="4" className="input-field" placeholder="Descreva..." value={formServico.descricao} onChange={(e) => setFormServico({...formServico, descricao: e.target.value})} /></div>
+                <button className="btn-green" onClick={cadastrarServico} disabled={loading} style={{marginTop: 20}}>{loading ? "Salvando..." : "Salvar Serviço"}</button>
+                {sucesso && <div className="success-msg">{sucesso}</div>}{erro && <div className="error-msg">{erro}</div>}
             </div>
           )}
 
@@ -426,18 +431,42 @@ const MenuAdmin = () => {
                 {listaServicos.length > 0 ? (
                     <table className="custom-table">
                         <thead><tr><th>ID</th><th>Nome</th><th>Descrição</th></tr></thead>
-                        <tbody>
-                            {listaServicos.map(s => (
-                                <tr key={s.idServico}>
-                                    <td style={{fontWeight:'bold'}}>#{s.idServico}</td>
-                                    <td>{s.nomeServico}</td>
-                                    <td>{s.descricao || "-"}</td>
-                                </tr>
-                            ))}
-                        </tbody>
+                        <tbody>{listaServicos.map(s => (<tr key={s.idServico}><td style={{fontWeight:'bold'}}>#{s.idServico}</td><td>{s.nomeServico}</td><td>{s.descricao || "-"}</td></tr>))}</tbody>
                     </table>
-                ) : (
-                    <p style={{padding: 20, textAlign:'center'}}>Nenhum serviço cadastrado.</p>
+                ) : <p style={{padding: 20, textAlign:'center'}}>Nenhum serviço cadastrado.</p>}
+            </div>
+          )}
+
+          {/* --- 9. RELATÓRIO (NOVO) --- */}
+          {telaAtiva === "gerar-relatorio" && (
+            <div className="form-card">
+                <h2><FontAwesomeIcon icon={faFileAlt} /> Gerar Relatório Administrativo</h2>
+                <p>Preencha os filtros para gerar o relatório de consultas.</p>
+                
+                <div className="form-grid">
+                    <div><label>Data Início (obrigatório se fim existir):</label><input type="datetime-local" className="input-field" value={filtrosRelatorio.inicio} onChange={(e) => setFiltrosRelatorio({...filtrosRelatorio, inicio: e.target.value})} /></div>
+                    <div><label>Data Fim:</label><input type="datetime-local" className="input-field" value={filtrosRelatorio.fim} onChange={(e) => setFiltrosRelatorio({...filtrosRelatorio, fim: e.target.value})} /></div>
+                    <div><label>ID do Médico (opcional):</label><input type="number" className="input-field" placeholder="Ex: 1" value={filtrosRelatorio.idMedico} onChange={(e) => setFiltrosRelatorio({...filtrosRelatorio, idMedico: e.target.value})} /></div>
+                    <div>
+                        <label>Status (opcional):</label>
+                        <select className="input-field" value={filtrosRelatorio.status} onChange={(e) => setFiltrosRelatorio({...filtrosRelatorio, status: e.target.value})}>
+                            <option value="">Todos</option>
+                            <option value="SOLICITADA">Solicitada</option>
+                            <option value="CONFIRMADA">Confirmada</option>
+                            <option value="REALIZADA">Realizada</option>
+                            <option value="CANCELADA">Cancelada</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button className="btn-green" onClick={gerarRelatorio} disabled={loading}>{loading ? "Gerando..." : "Gerar Relatório"}</button>
+                {erro && <div className="error-msg">{erro}</div>}
+
+                {resultadoRelatorio && (
+                    <div style={{marginTop: 30, background: '#f9f9f9', padding: 20, borderRadius: 8, border: '1px solid #ddd'}}>
+                        <h4 style={{marginBottom: 10}}>Resultado:</h4>
+                        <pre style={{whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '0.9rem'}}>{resultadoRelatorio}</pre>
+                    </div>
                 )}
             </div>
           )}
