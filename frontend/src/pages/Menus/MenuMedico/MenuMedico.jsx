@@ -205,7 +205,6 @@ const confirmarConsulta = async (idConsulta) => {
 
     setMsgSucesso("Consulta confirmada com sucesso!");
 
-    // 🔥 Confere no back e sincroniza (opcional, mas recomendado)
     await buscarConsultasDoMedico();
 
   } catch (error) {
@@ -230,8 +229,8 @@ const confirmarConsulta = async (idConsulta) => {
     setCpfBusca("");
     setListaPacientes([]);
     setListaConsultas([]);
-    setListaServicos([]); // Limpa lista anterior
-    setBuscaServico("");  // Limpa campo de busca
+    setListaServicos([]);
+    setBuscaServico("");  
     setPacienteSelecionado(null);
     setFormConsulta({ cpfPacienteInput: "", nomeServicoInput: "", data: "", hora: "", especialidadeInput: "" });
   };

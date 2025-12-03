@@ -650,7 +650,7 @@ const criarProntuario = async () => {
             <div className="card-solicitar-container">
               <div className="card-solicitar">
                 <h2>1. Solicitar Consulta</h2>
-                <small>Tenta criar consulta (Valida disponibilidade imediata)</small>
+              
 
                 {error && (
                   <div className="error-message">
@@ -670,7 +670,7 @@ const criarProntuario = async () => {
                     style={{backgroundColor: '#f5f5f5', color: '#666'}}
                   />
                   <small style={{color: '#666', fontSize: '12px'}}>
-                    CPF do usuário logado (preenchido automaticamente)
+            
                   </small>
                 </div>
 
@@ -1560,7 +1560,7 @@ case 'Adicionar dados extras':
             <div className="clinic-info">
               <div className="info-card">
                 <h3><i className="ai-location"></i> Localização</h3>
-                <p>Rua Exemplo, 123 - Centro</p>
+                <p>Rua João Frederico, 123 - Centro</p>
                 <p>São Paulo - SP, 01234-567</p>
               </div>
               <div className="info-card">
@@ -1572,8 +1572,7 @@ case 'Adicionar dados extras':
               <div className="info-card">
                 <h3><i className="ai-clock"></i> Horário de Funcionamento</h3>
                 <p>Segunda a Sexta: 7h às 19h</p>
-                <p>Sábado: 8h às 12h</p>
-                <p>Domingo: Fechado</p>
+                <p>Finais de Semana: Fechado</p>
               </div>
             </div>
           </div>

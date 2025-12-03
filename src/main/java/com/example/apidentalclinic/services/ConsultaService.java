@@ -1,17 +1,23 @@
 package com.example.apidentalclinic.services;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+ import org.springframework.stereotype.Service;
 
 import com.example.apidentalclinic.dtos.ConsultaDTO;
 import com.example.apidentalclinic.enums.StatusConsulta;
-import com.example.apidentalclinic.models.*;
-import com.example.apidentalclinic.repositories.*;
+import com.example.apidentalclinic.models.Consulta;
+import com.example.apidentalclinic.models.Medico;
+import com.example.apidentalclinic.models.Paciente;
+import com.example.apidentalclinic.models.Servico;
+import com.example.apidentalclinic.repositories.ConsultaRepository;
+import com.example.apidentalclinic.repositories.MedicoRepository;
+import com.example.apidentalclinic.repositories.PacienteRepository;
+import com.example.apidentalclinic.repositories.ServicoRepository;
 
 @Service
 public class ConsultaService {
@@ -31,7 +37,7 @@ public class ConsultaService {
             consultaInput.getNomeServicoInput() == null) {
             throw new IllegalArgumentException("CPF do Paciente, Especialidade e Nome do Serviço são obrigatórios.");
         }
-
+  
         
         Paciente paciente = pacienteRepository.findByCpf(consultaInput.getCpfPacienteInput())
                 .orElseThrow(() -> new RuntimeException("Paciente não encontrado com CPF: " + consultaInput.getCpfPacienteInput()));
@@ -46,7 +52,7 @@ public class ConsultaService {
         
         Medico medico = medicos.get(0); 
 
-        
+        validarHorarioComercial(consultaInput.getDataHora());
         boolean horarioOcupado = consultaRepository.existsByMedicoIdUsuarioAndDataHora(
                 medico.getIdUsuario(), 
                 consultaInput.getDataHora()
@@ -82,7 +88,7 @@ public class ConsultaService {
                 consultaExistente.getDataHora(),
                 idConsulta
         );
-
+       
         if (conflito) {
             throw new RuntimeException("O médico já possui OUTRA consulta confirmada neste horário.");
         }
@@ -140,5 +146,21 @@ public class ConsultaService {
     ).toList();
 }
 
+ // Não esqueça de importar
+
+
+private void validarHorarioComercial(LocalDateTime dataHora) {
+    int hora = dataHora.getHour();
+    DayOfWeek diaSemana = dataHora.getDayOfWeek();
+
+    // Validação de Fim de Semana (Fica mais legível ler SATURDAY/SUNDAY)
+    if (diaSemana == DayOfWeek.SATURDAY || diaSemana == DayOfWeek.SUNDAY) {
+        throw new IllegalArgumentException("Horário inválido. O atendimento não é realizado aos finais de semana.");
+    }
     
+    // Validação das Horas (08:00 até 16:59)
+    if (hora < 7 || hora >= 19) {
+        throw new IllegalArgumentException("Horário inválido. O atendimento é apenas das 07:00 às 19:00.");
+    }
+}
 }
