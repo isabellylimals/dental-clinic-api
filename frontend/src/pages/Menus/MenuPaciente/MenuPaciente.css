@@ -7,10 +7,10 @@
 }
 
 .layout {
+  display: flex;
   width: 100%;
   min-height: 100vh;
-  display: flex;
-  background: #f7faff;
+  overflow-x: hidden;
 }
 
 .menu-paciente-container {
@@ -18,13 +18,14 @@
 }
 
 .main-content {
-  margin-left: 318px;
-  padding: 24px; 
-  background: #f7faff;
-  min-height: 100vh;
   flex: 1;
-  border-radius: 20px;
-  width: calc(100% - 318px);
+  margin-left: 280px; /* empurra TODO o conteúdo para a direita */
+  padding: 20px 40px;
+
+  width: calc(100vw - 280px);
+  max-width: calc(100vw - 280px);
+
+  overflow-x: visible;
 }
 
 /* ===== SIDEBAR ===== */
@@ -75,7 +76,7 @@
 
 .sidebar-burger i {
   font-size: 20px;
-  color: #003153;
+  color: #0217252f;
 }
 
 .sidebar header img {
@@ -117,10 +118,11 @@
   margin: 4px 0;
 }
 
+/* onde muda  cor dos botoe nos menu*/
 .sidebar-content li > button.active {
-  background: linear-gradient(135deg, #1976ff, #0d5ddb);
+  background: linear-gradient(135deg, #012254, #0d5ddb);
   color: white;
-  box-shadow: 0 4px 15px rgba(25,118,255,0.45);
+  box-shadow: 0 4px 15px rgba(1, 11, 26, 0.45);
   border-radius: 8px;
   margin: 4px 0;
 }
@@ -223,7 +225,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #1976ff, #0d5ddb);
+  background: linear-gradient(90deg, #012254, #0d5ddb);
 }
 
 .card-solicitar h2 {
@@ -238,7 +240,7 @@
 
 .card-solicitar h2::before {
   content: '1';
-  background: #1976ff;
+  background: #012254;
   color: white;
   width: 32px;
   height: 32px;
@@ -292,7 +294,7 @@
 
 .form-field-solicitar input:focus {
   outline: none;
-  border-color: #1976ff;
+  border-color: #012254;
   box-shadow: 0 0 0 4px rgba(25, 118, 255, 0.15);
   background: white;
 }
@@ -313,7 +315,7 @@
 
 .btn-solicitar {
   width: 100%;
-  background: linear-gradient(135deg, #1976ff, #0d5ddb);
+  background: linear-gradient(135deg, #012254, #0d5ddb);
   color: white;
   border: none;
   padding: 16px 24px;
@@ -390,7 +392,7 @@
 .filter-select:focus,
 .search-input:focus {
   outline: none;
-  border-color: #1976ff;
+  border-color: #012254;
   box-shadow: 0 0 0 3px rgba(25, 118, 255, 0.1);
 }
 
@@ -411,7 +413,7 @@
 }
 
 .btn-primary {
-  background: #1976ff;
+  background: #012254;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -434,8 +436,8 @@
 
 .btn-secondary {
   background: white;
-  color: #1976ff;
-  border: 2px solid #1976ff;
+  color: #012254;
+  border: 2px solid #012254;
   padding: 10px 20px;
   border-radius: 8px;
   font-size: 14px;
@@ -448,7 +450,7 @@
 }
 
 .btn-secondary:hover {
-  background: #1976ff;
+  background: #012254;
   color: white;
 }
 
@@ -543,7 +545,7 @@
 .servico-card:hover,
 .info-card:hover,
 .dashboard-card:hover {
-  border-color: #1976ff;
+  border-color: #012254;
   box-shadow: 0 4px 15px rgba(25, 118, 255, 0.1);
   transform: translateY(-2px);
 }
@@ -712,7 +714,7 @@
 
 .tab.active {
   background: white;
-  color: #1976ff;
+  color: #012254;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -879,7 +881,7 @@
   display: block;
   font-size: 16px;
   font-weight: bold;
-  color: #1976ff;
+  color: #012254;
   margin: 8px 0;
 }
 
@@ -930,7 +932,7 @@
 
 .stat-card i {
   font-size: 40px;
-  color: #1976ff;
+  color: #012254;
   margin-bottom: 16px;
 }
 
@@ -1122,7 +1124,7 @@
   justify-content: center;
   gap: 12px;
   padding: 40px;
-  color: #1976ff;
+  color: #012254;
   font-weight: 500;
 }
 
@@ -1131,7 +1133,7 @@
   width: 20px;
   height: 20px;
   border: 2px solid #f3f3f3;
-  border-top: 2px solid #1976ff;
+  border-top: 2px solid #012254;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -1182,7 +1184,7 @@
 .avatar {
   width: 70px;
   height: 70px;
-  background: #007bff;
+  background: #0d1b2a;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -1234,7 +1236,7 @@
 
 .btn-primary {
   padding: 10px 18px;
-  background: #007bff;
+  background: #0d1b2a;
   color: white;
   border-radius: 6px;
   border: none;
@@ -1242,10 +1244,13 @@
 }
 
 .btn-primary:hover {
-  background: #005fcc;
+  background: #0a2442;
 }
 
 .edit-btn i,
 .save-btn i {
   margin-right: 6px;
 }
+
+
+/* isa add*/

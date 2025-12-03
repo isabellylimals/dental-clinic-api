@@ -272,13 +272,11 @@ const MenuAdmin = () => {
         <div className="dashboard-content" style={{padding: '20px'}}>
           
           {/* DASHBOARD */}
-       {telaAtiva === "dashboard" && (
+      {telaAtiva === "dashboard" && (
   <div className="admin-dashboard">
 
     <h1 className="dash-title">Painel do Administrador</h1>
     <p className="dash-subtitle">Gerencie usuários, serviços e relatórios do sistema.</p>
-
-    <div className="dash-separator"></div>
 
     <div className="dash-cards">
       {[

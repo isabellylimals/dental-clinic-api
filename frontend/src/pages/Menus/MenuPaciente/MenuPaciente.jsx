@@ -10,7 +10,7 @@ const MenuPaciente = () => {
   const [loading, setLoading] = useState(false);
   const [cpfPaciente, setCpfPaciente] = useState('');
   const [prontuario, setProntuario] = useState(null);
-  const [anamneses, setAnamneses] = useState([]);
+const [anamnese, setAnamnese] = useState(null);
   const [idPaciente, setIdPaciente] = useState(null);
   const [userData, setUserData] = useState(null);
   const [dadosCarregados, setDadosCarregados] = useState(false);
@@ -46,6 +46,86 @@ const renderContent = (menuName, label) => {
       return <div>Conteúdo em desenvolvimento.</div>;
   }
 };
+
+
+const cardAviso = {
+  background: "#fff7ed",
+  border: "1px solid #fed7aa",
+  padding: "35px",
+  borderRadius: "18px",
+  textAlign: "center",
+  color: "#9a3412",
+  boxShadow: "0 4px 16px rgba(0,0,0,0.04)",
+  maxWidth: "700px",
+  margin: "0 auto"
+};
+
+const cardAvisoGrande = { ...cardAviso, maxWidth: "800px" };
+
+const tituloAviso = {
+  marginBottom: "10px",
+  fontSize: "1.4rem",
+  fontWeight: 700
+};
+
+const textoAviso = {
+  maxWidth: "500px",
+  margin: "0 auto 20px"
+};
+
+const btnPrimario = {
+  padding: "10px 22px",
+  fontSize: "1rem"
+};
+
+const cardPrincipal = {
+  background: "white",
+  padding: "25px 40px",
+  borderRadius: "16px",
+  border: "1px solid #e2e8f0",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.04)",
+  width: "100%",
+  maxWidth: "100%",     
+  margin: "0 auto",
+};
+
+
+const cabecalhoCard = {
+  marginBottom: "30px",
+  paddingBottom: "20px",
+  borderBottom: "2px solid #e2e8f0"
+};
+
+const tituloSessao = {
+  fontSize: "1.5rem",
+  fontWeight: 700,
+  marginBottom: "12px",
+  color: "#0f172a"
+};
+
+const subTitulo = {
+  fontSize: "1.15rem",
+  fontWeight: 700,
+  
+  marginBottom: "6px"
+};
+
+const cardConteudo = {
+  background: "#f8fafc",
+  padding: "30px",
+  borderRadius: "16px",
+  border: "1px solid #e2e8f0"
+};
+
+const caixaConteudo = {
+  background: "white",
+  padding: "18px",
+  borderRadius: "12px",
+  border: "1px solid #e2e8f0",
+  whiteSpace: "pre-wrap",
+  fontSize: "0.95rem"
+};
+
 const salvarDadosExtras = async () => {
   try {
     const payload = {
@@ -448,129 +528,115 @@ const salvarPerfil = async () => {
     }
   };
 
-  const carregarProntuario = async () => {
-    if (!idPaciente) {
-      console.log('ID do paciente não disponível para carregar prontuário');
-      return;
-    }
+ const carregarProntuario = async () => {
+  if (!idPaciente) return;
 
-    try {
-      setError(null);
-      
-      console.log('Buscando prontuário para ID:', idPaciente);
-      
-      const res = await fetch(`${API_URL}/prontuarios/paciente/${idPaciente}`);
-      
-      if (res.ok) {
-        const data = await res.json();
-        setProntuario(data);
-        
-        // Carrega as anamneses do paciente usando o ID
-        const resAnamneses = await fetch(`${API_URL}/anamneses/paciente/${idPaciente}`);
-        if (resAnamneses.ok) {
-          const anamnesesData = await resAnamneses.json();
-          setAnamneses(Array.isArray(anamnesesData) ? anamnesesData : []);
-        }
-      } else if (res.status === 404) {
-        // Prontuário não existe - isso é normal
-        setProntuario(null);
-        setAnamneses([]);
-      } else if (res.status === 500) {
-        // Erro de serialização no backend - trata como se não existisse
-        console.log('Erro 500 no backend, tratando como prontuário não encontrado');
-        setProntuario(null);
-        setAnamneses([]);
-      } else {
-        const errorText = await res.text();
-        console.error('Erro ao carregar prontuário:', errorText);
-        setProntuario(null);
-        setAnamneses([]);
-      }
-    } catch (err) {
-      console.error('Erro ao carregar prontuário:', err);
+  try {
+    setError(null);
+
+    const res = await fetch(`${API_URL}/prontuarios/paciente/${idPaciente}`);
+
+    if (!res.ok) {
+      // Prontuário não existe ainda
       setProntuario(null);
-      setAnamneses([]);
-    }
-  };
-
-  const criarProntuario = async () => {
-    if (!idPaciente) {
-      setError('Não foi possível encontrar o ID do paciente');
+      setAnamnese(null);
       return;
     }
 
-    try {
-      setError(null);
-      
-      console.log('Criando prontuário para ID:', idPaciente);
-      
-      // Usa o ID do paciente na URL
-      const res = await fetch(`${API_URL}/prontuarios/criar/${idPaciente}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
+    const data = await res.json();
 
-      if (res.ok) {
-        const data = await res.json();
-        setProntuario(data);
-        alert('Prontuário criado com sucesso!');
-        
-        // Recarrega as anamneses após criar o prontuário
-        const resAnamneses = await fetch(`${API_URL}/anamneses/paciente/${idPaciente}`);
-        if (resAnamneses.ok) {
-          const anamnesesData = await resAnamneses.json();
-          setAnamneses(Array.isArray(anamnesesData) ? anamnesesData : []);
-        }
-      } else {
-        const errorText = await res.text();
-        
-        // Se o erro for que o prontuário já existe, tenta carregá-lo
-        if (errorText.includes('já possui') || res.status === 400) {
-          setError('Prontuário já existe. Carregando informações...');
-          await carregarProntuario();
-        } else {
-          setError('Erro ao criar prontuário: ' + errorText);
-        }
+    setProntuario(data);                 // pronto
+    setAnamnese(data.anamnese || null); // pega a anamnese do prontuário
+
+  } catch (err) {
+    console.error("Erro ao carregar prontuário:", err);
+    setProntuario(null);
+    setAnamnese(null);
+  }
+};
+const criarProntuario = async () => {
+  if (!idPaciente) {
+    setError("Não foi possível encontrar o ID do paciente");
+    return;
+  }
+
+  try {
+    setError(null);
+
+    const res = await fetch(`${API_URL}/prontuarios/criar/${idPaciente}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+
+      // Se já existe, apenas carrega
+      if (errorText.includes("já possui")) {
+        await carregarProntuario();
+        return;
       }
-    } catch (err) {
-      setError('Erro: ' + err.message);
+
+      setError("Erro ao criar prontuário: " + errorText);
+      return;
     }
-  };
+
+    const prontuario = await res.json();
+
+    setProntuario(prontuario);
+    setAnamnese(prontuario.anamnese || null);
+
+    alert("Prontuário criado com sucesso!");
+
+  } catch (err) {
+    setError("Erro: " + err.message);
+  }
+};
+
+  
 
   const preencherAnamnese = async (respostas) => {
-    try {
-      setError(null);
-      
-      // Usa o ID do paciente
-      if (!idPaciente) {
-        setError('Não foi possível encontrar o ID do paciente');
-        return null;
-      }
+  try {
+    setError(null);
 
-      const res = await fetch(`${API_URL}/anamneses/preencher`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cpf: cpfPaciente,
-          respostas: JSON.stringify(respostas)
-        })
-      });
+    // 1️⃣ CRIA A ANAMNESE
+    const res = await fetch(`${API_URL}/anamneses/preencher`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        cpf: cpfPaciente,
+        respostas: JSON.stringify(respostas)
+      })
+    });
 
-      if (res.ok) {
-        const data = await res.json();
-        alert('Anamnese preenchida com sucesso!');
-        await carregarProntuario(); // Recarrega o prontuário para atualizar as anamneses
-        return data;
-      } else {
-        const errorText = await res.text();
-        setError('Erro ao preencher anamnese: ' + errorText);
-        return null;
-      }
-    } catch (err) {
-      setError('Erro de conexão com o servidor');
+    if (!res.ok) {
+      const errorText = await res.text();
+      setError("Erro ao preencher anamnese: " + errorText);
       return null;
     }
-  };
+
+    const novaAnamnese = await res.json();
+
+    // 2️⃣ VINCULA AO PRONTUÁRIO
+    await fetch(`${API_URL}/prontuarios/${idPaciente}/anamnese`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idAnamnese: novaAnamnese.idAnamnese })
+    });
+
+    // 3️⃣ CARREGA TUDO NOVAMENTE
+    await carregarProntuario();
+
+    alert("Anamnese preenchida e vinculada ao prontuário!");
+
+    return novaAnamnese;
+
+  } catch (err) {
+    setError("Erro de conexão com o servidor");
+    return null;
+  }
+};
+
 
   const toggleSubmenu = (menuName) => {
     setActiveSubmenu(activeSubmenu === menuName ? null : menuName);
@@ -1009,85 +1075,116 @@ const salvarPerfil = async () => {
             </div>
           </div>
         );
+case "Consultar Anamnese":
+  return (
+    <div className="content-section" style={{ maxWidth: "1100px", margin: "0 auto", padding: "30px" }}>
 
-      case 'Consultar Anamnese':
-        return (
-          <div className="content-section">
-            <h2>Consultar Histórico de Anamnese</h2>
-            
-            {!prontuario ? (
-              <div className="warning-card">
-                <i className="ai-warning"></i>
-                <h3>Prontuário Não Encontrado</h3>
-                <p>Você precisa ter um prontuário ativo para visualizar as anamneses.</p>
-                <button className="btn-primary" onClick={criarProntuario}>
-                  Criar Prontuário
-                </button>
-              </div>
-            ) : anamneses.length === 0 ? (
-              <div className="warning-card">
-                <i className="ai-warning"></i>
-                <h3>Nenhuma Anamnese Encontrada</h3>
-                <p>Você ainda não preencheu nenhuma anamnese. Preencha a anamnese antes de consultar.</p>
-                <button className="btn-primary" onClick={() => handleSubmenuClick('Preencher Anamnese', 'anamnese')}>
-                  Preencher Anamnese
-                </button>
-              </div>
-            ) : (
-              <div className="historico-anamnese">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Data de Preenchimento</th>
-                      <th>Respostas</th>
-                      <th>Informações Médicas</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {anamneses.map((anamnese) => (
-                      <tr key={anamnese.idAnamnese}>
-                        <td>{new Date(anamnese.dataPreenchimento).toLocaleDateString('pt-BR')}</td>
-                        <td>
-                          <button 
-                            className="btn-secondary"
-                            onClick={() => {
-                              try {
-                                const respostas = JSON.parse(anamnese.respostas);
-                                alert('Respostas da Anamnese:\n\n' + 
-                                      `Doenças crônicas: ${respostas.doenca_cronica === 'sim' ? 'Sim' : 'Não'}\n` +
-                                      `Uso de medicamentos: ${respostas.uso_medicamento === 'sim' ? 'Sim' : 'Não'}\n` +
-                                      `Alergias: ${respostas.alergias === 'sim' ? 'Sim' : 'Não'}\n` +
-                                      `Cirurgias anteriores: ${respostas.cirurgia === 'sim' ? 'Sim' : 'Não'}\n` +
-                                      `Fuma: ${respostas.fuma === 'sim' ? 'Sim' : 'Não'}\n` +
-                                      `Consome álcool: ${respostas.alcool === 'sim' ? 'Sim' : 'Não'}`);
-                              } catch (e) {
-                                alert('Respostas: ' + anamnese.respostas);
-                              }
-                            }}
-                          >
-                            Visualizar Respostas
-                          </button>
-                        </td>
-                        <td>
-                          {anamnese.informacoes ? (
-                            <button 
-                              className="btn-secondary"
-                              onClick={() => alert('Informações Médicas:\n\n' + anamnese.informacoes)}
-                            >
-                              Visualizar Informações
-                            </button>
-                          ) : (
-                            <span className="status pending">Sem informações</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        );
+      <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "25px", color: "#1e293b", textAlign: "center" }}>
+        Consultar Anamnese
+      </h2>
+
+      {/* SE NÃO HÁ PRONTUÁRIO */}
+      {!prontuario ? (
+        <div className="warning-card" style={cardAviso}>
+          <h3 style={tituloAviso}>Prontuário Não Encontrado</h3>
+          <p style={textoAviso}>
+            Você precisa ter um prontuário ativo para visualizar a anamnese.
+          </p>
+          <button className="btn-primary" style={btnPrimario} onClick={criarProntuario}>
+            Criar Prontuário
+          </button>
+        </div>
+
+      ) : !prontuario.anamnese ? (
+        /* SE NÃO HÁ ANAMNESE */
+        <div className="warning-card" style={cardAviso}>
+          <h3 style={tituloAviso}>Nenhuma Anamnese Encontrada</h3>
+          <p style={textoAviso}>Preencha a anamnese antes de consultar.</p>
+
+          <button
+            className="btn-primary"
+            style={btnPrimario}
+            onClick={() => handleSubmenuClick("Preencher Anamnese", "anamnese")}
+          >
+            Preencher Anamnese
+          </button>
+        </div>
+
+      ) : (
+        /* EXIBIÇÃO DA ANAMNESE */
+        <div
+          style={{
+            background: "white",
+            padding: "35px",
+            borderRadius: "18px",
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 6px 20px rgba(0,0,0,0.05)",
+          }}
+        >
+          <table className="data-table" style={{ width: "100%", textAlign: "center" }}>
+            <thead>
+              <tr>
+                <th>Data de Preenchimento</th>
+                <th>Respostas</th>
+                <th>Informações Médicas</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td style={{ fontWeight: 600 }}>
+                  {new Date(prontuario.anamnese.dataPreenchimento).toLocaleDateString("pt-BR")}
+                </td>
+
+                <td>
+                  <button
+                    className="btn-secondary"
+                    onClick={() => {
+                      try {
+                        const r = JSON.parse(prontuario.anamnese.respostas);
+                        alert(
+                          "Respostas da Anamnese:\n\n" +
+                            `Doenças crônicas: ${r.doenca_cronica}\n` +
+                            `Uso de medicamentos: ${r.uso_medicamento}\n` +
+                            `Alergias: ${r.alergias}\n` +
+                            `Cirurgias anteriores: ${r.cirurgia}\n` +
+                            `Fuma: ${r.fuma}\n` +
+                            `Álcool: ${r.alcool}`
+                        );
+                      } catch {
+                        alert("Respostas: " + prontuario.anamnese.respostas);
+                      }
+                    }}
+                  >
+                    Visualizar Respostas
+                  </button>
+                </td>
+
+                <td>
+                  {prontuario.anamnese.informacoes ? (
+                    <button
+                      className="btn-secondary"
+                      onClick={() => {
+                        alert(
+                          "Informações Médicas:\n\n" +
+                            prontuario.anamnese.informacoes
+                        );
+                      }}
+                    >
+                      Visualizar Informações
+                    </button>
+                  ) : (
+                    <span className="status pending">Sem informações</span>
+                  )}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+
 
       default:
         return <div><h2>{label}</h2><p>Conteúdo em desenvolvimento.</p></div>;
@@ -1096,205 +1193,153 @@ const salvarPerfil = async () => {
 
   const renderProntuarioContent = (label) => {
     switch (label) {
-     case "Visualizar prontuário":
+case "Visualizar prontuário":
   return (
     <div
       style={{
-        maxWidth: "900px",
+        width: "100%",
+        maxWidth: "1600px",
         margin: "0 auto",
-        padding: "30px",
-        animation: "fadeIn 0.4s ease"
+        padding: "10px 20px",
+        animation: "fadeIn 0.3s ease",
       }}
     >
       <h2
         style={{
           fontSize: "2rem",
           fontWeight: 800,
-          marginBottom: "25px",
-          color: "#1e293b"
+          marginBottom: "10px",
+          color: "#1e293b",
+          textAlign: "center",
         }}
       >
         Meu Prontuário Médico
       </h2>
 
-      {/* Se não existir prontuário */}
-      {!prontuario ? (
-        <div
-          style={{
-            background: "#fff7ed",
-            border: "1px solid #fed7aa",
-            padding: "35px",
-            borderRadius: "18px",
-            textAlign: "center",
-            color: "#9a3412",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.04)"
-          }}
-        >
-          <h3 style={{ marginBottom: "8px", fontSize: "1.35rem" }}>
-            Prontuário Não Encontrado
-          </h3>
+      {/* BLOCO SUPERIOR – INFORMACOES DO PRONTUARIO */}
+      <div
+        style={{
+          width: "100%",
+          background: "white",
+          padding: "20px 30px",
+          borderRadius: "16px",
+          border: "1px solid #e2e8f0",
+          boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
+          marginBottom: "20px", // pouca distância para o bloco de baixo
+        }}
+      >
+        <h3 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#1e293b" }}>
+          Informações do Prontuário
+        </h3>
 
-          <p style={{ maxWidth: "500px", margin: "0 auto 20px" }}>
-            Você ainda não possui um prontuário médico. Clique no botão abaixo para criar.
-          </p>
+        <p><strong>Data de Criação:</strong> {new Date(prontuario.dataCriacao).toLocaleDateString("pt-BR")}</p>
+        <p><strong>Paciente:</strong> {prontuario.paciente?.nome}</p>
+        <p><strong>CPF:</strong> {prontuario.paciente?.cpf}</p>
+      </div>
 
-          <button
-            className="btn-primary"
-            style={{ padding: "10px 22px", fontSize: "1rem" }}
-            onClick={criarProntuario}
-          >
-            Criar Prontuário
-          </button>
-        </div>
-      ) : (
-        <div
-          style={{
-            background: "white",
-            padding: "35px",
-            borderRadius: "20px",
-            border: "1px solid #e2e8f0",
-            boxShadow: "0 6px 20px rgba(0,0,0,0.05)"
-          }}
-        >
+      {/* BLOCO INFERIOR – ANAMNESE (LARGO NA HORIZONTAL) */}
+   <div
+  style={{
+    width: "100%",
+    maxWidth: "1000px",   // aumenta MUITO a largura
+    margin: "0 auto",
+    background: "white",
+    padding: "30px 40px", // mais horizontal, menos vertical
+    borderRadius: "16px",
+    border: "1px solid #e2e8f0",
+    boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
+  }}
+>
 
-          {/* Cabeçalho */}
-          <div
-            style={{
-              marginBottom: "30px",
-              paddingBottom: "20px",
-              borderBottom: "2px solid #e2e8f0"
-            }}
-          >
-            <h3
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: 700,
-                color: "#0f172a",
-                marginBottom: "10px"
-              }}
+        {!prontuario.anamnese ? (
+          <div style={{ textAlign: "center" }}>
+            <h4 style={{ fontSize: "1.3rem", fontWeight: 700, color: "#c2410c" }}>
+              Nenhuma Anamnese Encontrada
+            </h4>
+
+            <p style={{ maxWidth: "600px", margin: "10px auto" }}>
+              Preencha a anamnese para visualizar.
+            </p>
+
+            <button
+              className="btn-primary"
+              style={{ padding: "10px 20px" }}
+              onClick={() => handleSubmenuClick("Preencher Anamnese", "anamnese")}
             >
-              Informações do Prontuário
+              Preencher Anamnese
+            </button>
+          </div>
+        ) : (
+          <>
+            <h3 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "10px" }}>
+              Anamnese Vinculada
             </h3>
 
-            <p><strong>Data de Criação:</strong> {new Date(prontuario.dataCriacao).toLocaleDateString("pt-BR")}</p>
-            <p><strong>Paciente:</strong> {prontuario.paciente?.nome || "N/A"}</p>
-            <p><strong>CPF:</strong> {prontuario.paciente?.cpf || "N/A"}</p>
-          </div>
+            <p><strong>ID:</strong> {prontuario.anamnese.idAnamnese}</p>
+            <p><strong>Data:</strong> {new Date(prontuario.anamnese.dataPreenchimento).toLocaleDateString("pt-BR")}</p>
 
-          {/* Conteúdo (apenas Anamnese) */}
-          <div
-            style={{
-              background: "#f8fafc",
-              padding: "25px",
-              borderRadius: "16px",
-              border: "1px solid #e2e8f0"
-            }}
-          >
-            {!prontuario.anamnese ? (
-              <div style={{ textAlign: "center", padding: "25px" }}>
-                <h4
-                  style={{
-                    fontSize: "1.2rem",
-                    fontWeight: 700,
-                    marginBottom: "8px",
-                    color: "#b45309"
-                  }}
-                >
-                  Nenhuma Anamnese Encontrada
-                </h4>
+            {/* CAIXA DE RESPOSTAS – LARGA HORIZONTAL */}
+            <h4 style={{ marginTop: "15px", fontWeight: 700 }}>Respostas do Questionário:</h4>
+            <div
+              style={{
+                background: "#f8fafc",
+                borderRadius: "12px",
+                padding: "18px",
+                border: "1px solid #e2e8f0",
+                whiteSpace: "pre-line",
+                width: "100%",        // ocupa toda horizontal
+                fontSize: "1rem",
+              }}
+            >
+              {formatarRespostas(prontuario.anamnese.respostas)}
+            </div>
 
-                <p style={{ maxWidth: "550px", margin: "0 auto 20px" }}>
-                  Você precisa preencher uma anamnese para visualizar as informações.
-                </p>
-
-                <button
-                  className="btn-primary"
-                  style={{ padding: "10px 20px" }}
-                  onClick={() =>
-                    handleSubmenuClick("Preencher Anamnese", "anamnese")
-                  }
-                >
-                  Preencher Anamnese
-                </button>
-              </div>
-            ) : (
-              <div>
-                <h4
-                  style={{
-                    fontSize: "1.3rem",
-                    fontWeight: 700,
-                    marginBottom: "15px"
-                  }}
-                >
-                  Anamnese Vinculada
-                </h4>
-
-                <p><strong>ID da Anamnese:</strong> {prontuario.anamnese.idAnamnese}</p>
-                <p>
-                  <strong>Data de Preenchimento:</strong>{" "}
-                  {new Date(prontuario.anamnese.dataPreenchimento).toLocaleDateString("pt-BR")}
-                </p>
-
-                <div style={{ marginTop: "25px" }}>
-                  <h5
-                    style={{
-                      fontSize: "1.1rem",
-                      fontWeight: 700,
-                      marginBottom: "6px"
-                    }}
-                  >
-                    Respostas do Questionário:
-                  </h5>
-
-                  <div
-                    style={{
-                      background: "white",
-                      padding: "18px",
-                      borderRadius: "12px",
-                      border: "1px solid #e2e8f0",
-                      whiteSpace: "pre-wrap",
-                      fontSize: "0.95rem"
-                    }}
-                  >
-                    {prontuario.anamnese.respostas || "Nenhuma resposta disponível"}
-                  </div>
-
-                  <h5
-                    style={{
-                      marginTop: "20px",
-                      fontSize: "1.1rem",
-                      fontWeight: 700
-                    }}
-                  >
-                    Informações Médicas:
-                  </h5>
-
-                  <div
-                    style={{
-                      background: "white",
-                      padding: "18px",
-                      borderRadius: "12px",
-                      border: "1px solid #e2e8f0",
-                      marginTop: "8px",
-                      fontSize: "0.95rem"
-                    }}
-                  >
-                    {prontuario.anamnese.informacoes ||
-                      "Nenhuma informação médica registrada"}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+            <h4 style={{ marginTop: "20px", fontWeight: 700 }}>Informações Médicas:</h4>
+            <div
+              style={{
+                background: "#f8fafc",
+                borderRadius: "12px",
+                padding: "18px",
+                border: "1px solid #e2e8f0",
+                whiteSpace: "pre-line",
+                width: "100%",
+                fontSize: "1rem",
+              }}
+            >
+              {prontuario.anamnese.informacoes || "Nenhuma informação registrada"}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
+
+
+
 
       default:
         return <div><h2>{label}</h2><p>Conteúdo em desenvolvimento.</p></div>;
     }
   };
+const formatarRespostas = (respostasJSON) => {
+  try {
+    const r = JSON.parse(respostasJSON);
+
+    return (
+      "Doenças crônicas: " + r.doenca_cronica + "\n" +
+      "Uso de medicamentos: " + r.uso_medicamento + "\n" +
+      "Medicamentos: " + (r.medicamentos || "Nenhum") + "\n" +
+      "Alergias: " + r.alergias + "\n" +
+      "Lista de alergias: " + (r.alergias_lista || "Nenhuma") + "\n" +
+      "Cirurgias anteriores: " + r.cirurgia + "\n" +
+      "Cirurgias: " + (r.cirurgias_lista || "Nenhuma") + "\n" +
+      "Fuma: " + r.fuma + "\n" +
+      "Álcool: " + r.alcool
+    );
+  } catch {
+    return respostasJSON;
+  }
+};
 
   const renderPerfilContent = (label) => {
     switch (label) {

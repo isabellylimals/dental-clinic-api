@@ -1165,7 +1165,7 @@ const agendarConsulta = async () => {
 
                 <div className="form-grid">
                     <div className="clean-box">
-                        <strong style={{color: '#007bff', fontSize: '1.1rem', display:'flex', alignItems:'center', gap: 10}}>
+                        <strong style={{color: '#0063ccff', fontSize: '1.1rem', display:'flex', alignItems:'center', gap: 10}}>
                             <FontAwesomeIcon icon={faMapMarkerAlt} /> Endereço
                         </strong>
                         <p style={{marginTop: 15, lineHeight: 1.6}}>
@@ -1176,7 +1176,7 @@ const agendarConsulta = async () => {
                     </div>
 
                     <div className="clean-box">
-                        <strong style={{color: '#007bff', fontSize: '1.1rem', display:'flex', alignItems:'center', gap: 10}}>
+                        <strong style={{color: '#012254', fontSize: '1.1rem', display:'flex', alignItems:'center', gap: 10}}>
                             <FontAwesomeIcon icon={faPhone} /> Contatos
                         </strong>
                         <p style={{marginTop: 15, lineHeight: 1.6}}>
@@ -1187,7 +1187,7 @@ const agendarConsulta = async () => {
                     </div>
 
                     <div className="clean-box">
-                        <strong style={{color: '#007bff', fontSize: '1.1rem', display:'flex', alignItems:'center', gap: 10}}>
+                        <strong style={{color: '#012254', fontSize: '1.1rem', display:'flex', alignItems:'center', gap: 10}}>
                             <FontAwesomeIcon icon={faClock} /> Horário de Atendimento
                         </strong>
                         <p style={{marginTop: 15, lineHeight: 1.6}}>
@@ -1212,22 +1212,22 @@ const agendarConsulta = async () => {
         .page-title.green-theme { color: #003153; }
         .search-bar { display: flex; gap: 10px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .search-bar input { flex: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
-        .search-bar input:focus { border-color: #007bff; }
-        .search-bar button { padding: 0 30px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .search-bar button.btn-green { background: #007bff; }
+        .search-bar input:focus { border-color: #012254; }
+        .search-bar button { padding: 0 30px; background: #012254; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .search-bar button.btn-green { background: #012254; }
         .result-card { background: white; border-radius: 16px; padding: 40px; margin-top: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
         .error-msg { background: #fee2e2; color: #dc2626; padding: 15px; border-radius: 8px; margin-top: 20px; font-weight: 500; }
         .success-msg { background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-top: 20px; font-weight: 600; border-left: 5px solid #166534; }
         
         .patient-header { display: flex; align-items: center; gap: 25px; margin-bottom: 30px; }
-        .avatar-icon { width: 70px; height: 70px; background: #f0f7ff; color: #007bff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        .avatar-icon { width: 70px; height: 70px; background: #f0f7ff; color: #012254; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
         .patient-info h3 { margin: 0; color: #1e293b; font-size: 1.6rem; }
         .patient-info p { margin: 5px 0 0; color: #64748b; font-size: 1rem; }
         .prontuario-id { margin-left: auto; background: #f8fafc; padding: 8px 20px; border-radius: 30px; color: #64748b; font-weight: bold; border: 1px solid #e2e8f0; }
         .section-title { color: #334155; margin-top: 40px; margin-bottom: 25px; font-size: 1.3rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
         .timeline { border-left: 3px solid #e2e8f0; padding-left: 30px; margin-left: 15px; }
         .timeline-item { position: relative; margin-bottom: 35px; }
-        .timeline-item::before { content: ''; position: absolute; left: -38px; top: 6px; width: 14px; height: 14px; background: #007bff; border-radius: 50%; border: 4px solid white; box-shadow: 0 0 0 2px #e2e8f0; }
+        .timeline-item::before { content: ''; position: absolute; left: -38px; top: 6px; width: 14px; height: 14px; background: #012254; border-radius: 50%; border: 4px solid white; box-shadow: 0 0 0 2px #e2e8f0; }
         .timeline-date { font-size: 0.95rem; color: #64748b; font-weight: 600; margin-bottom: 8px; }
         .timeline-content { background: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
         .medico-badge { display:inline-flex; align-items:center; gap:6px; background: #f1f5f9; color: #334155; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 12px; }
@@ -1245,15 +1245,15 @@ const agendarConsulta = async () => {
         .custom-table th { background: #f8fafc; color: #475569; font-weight: 600; text-align: left; padding: 15px 20px; border-bottom: 1px solid #e2e8f0; }
         .custom-table td { padding: 15px 20px; border-bottom: 1px solid #f1f5f9; color: #334155; }
         .custom-table tr:hover { background: #f8fafc; }
-        .btn-green { background: #007bff; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor: pointer; font-weight: 600; }
-        .btn-small { padding: 6px 12px; background: #e0f2fe; color: #007bff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+        .btn-green { background: #012254; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor: pointer; font-weight: 600; }
+        .btn-small { padding: 6px 12px; background: #e0f2fe; color: #012254; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
         .btn-back { background: transparent; border: none; color: #64748b; font-size: 1rem; cursor: pointer; margin-bottom: 10px; font-weight: 600; }
         
         /* INPUTS E TEXTAREAS */
         .input-field { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
-        .input-field:focus { border-color: #007bff; }
+        .input-field:focus { border-color: #012254; }
         .textarea-field { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; font-family: inherit; resize: vertical; outline: none; }
-        .textarea-field:focus { border-color: #007bff; }
+        .textarea-field:focus { border-color: #012254; }
 
         /* FORMULÁRIO GRID */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
