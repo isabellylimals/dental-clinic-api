@@ -1096,80 +1096,200 @@ const salvarPerfil = async () => {
 
   const renderProntuarioContent = (label) => {
     switch (label) {
-      case 'Visualizar prontuário':
-        return (
-          <div className="content-section">
-            <h2>Meu Prontuário Médico</h2>
-            
-            {!prontuario ? (
-              <div className="warning-card">
-                <i className="ai-warning"></i>
-                <h3>Prontuário Não Encontrado</h3>
-                <p>Você ainda não possui um prontuário médico. Clique no botão abaixo para criar seu prontuário.</p>
-                <button className="btn-primary" onClick={criarProntuario}>
-                  Criar Prontuário
+     case "Visualizar prontuário":
+  return (
+    <div
+      style={{
+        maxWidth: "900px",
+        margin: "0 auto",
+        padding: "30px",
+        animation: "fadeIn 0.4s ease"
+      }}
+    >
+      <h2
+        style={{
+          fontSize: "2rem",
+          fontWeight: 800,
+          marginBottom: "25px",
+          color: "#1e293b"
+        }}
+      >
+        Meu Prontuário Médico
+      </h2>
+
+      {/* Se não existir prontuário */}
+      {!prontuario ? (
+        <div
+          style={{
+            background: "#fff7ed",
+            border: "1px solid #fed7aa",
+            padding: "35px",
+            borderRadius: "18px",
+            textAlign: "center",
+            color: "#9a3412",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.04)"
+          }}
+        >
+          <h3 style={{ marginBottom: "8px", fontSize: "1.35rem" }}>
+            Prontuário Não Encontrado
+          </h3>
+
+          <p style={{ maxWidth: "500px", margin: "0 auto 20px" }}>
+            Você ainda não possui um prontuário médico. Clique no botão abaixo para criar.
+          </p>
+
+          <button
+            className="btn-primary"
+            style={{ padding: "10px 22px", fontSize: "1rem" }}
+            onClick={criarProntuario}
+          >
+            Criar Prontuário
+          </button>
+        </div>
+      ) : (
+        <div
+          style={{
+            background: "white",
+            padding: "35px",
+            borderRadius: "20px",
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 6px 20px rgba(0,0,0,0.05)"
+          }}
+        >
+
+          {/* Cabeçalho */}
+          <div
+            style={{
+              marginBottom: "30px",
+              paddingBottom: "20px",
+              borderBottom: "2px solid #e2e8f0"
+            }}
+          >
+            <h3
+              style={{
+                fontSize: "1.5rem",
+                fontWeight: 700,
+                color: "#0f172a",
+                marginBottom: "10px"
+              }}
+            >
+              Informações do Prontuário
+            </h3>
+
+            <p><strong>Data de Criação:</strong> {new Date(prontuario.dataCriacao).toLocaleDateString("pt-BR")}</p>
+            <p><strong>Paciente:</strong> {prontuario.paciente?.nome || "N/A"}</p>
+            <p><strong>CPF:</strong> {prontuario.paciente?.cpf || "N/A"}</p>
+          </div>
+
+          {/* Conteúdo (apenas Anamnese) */}
+          <div
+            style={{
+              background: "#f8fafc",
+              padding: "25px",
+              borderRadius: "16px",
+              border: "1px solid #e2e8f0"
+            }}
+          >
+            {!prontuario.anamnese ? (
+              <div style={{ textAlign: "center", padding: "25px" }}>
+                <h4
+                  style={{
+                    fontSize: "1.2rem",
+                    fontWeight: 700,
+                    marginBottom: "8px",
+                    color: "#b45309"
+                  }}
+                >
+                  Nenhuma Anamnese Encontrada
+                </h4>
+
+                <p style={{ maxWidth: "550px", margin: "0 auto 20px" }}>
+                  Você precisa preencher uma anamnese para visualizar as informações.
+                </p>
+
+                <button
+                  className="btn-primary"
+                  style={{ padding: "10px 20px" }}
+                  onClick={() =>
+                    handleSubmenuClick("Preencher Anamnese", "anamnese")
+                  }
+                >
+                  Preencher Anamnese
                 </button>
               </div>
             ) : (
-              <div className="prontuario-info">
-                <div className="prontuario-header">
-                  <h3>Informações do Prontuário</h3>
-                  <p><strong>Data de Criação:</strong> {new Date(prontuario.dataCriacao).toLocaleDateString('pt-BR')}</p>
-                  <p><strong>Paciente:</strong> {prontuario.paciente?.nome || 'N/A'}</p>
-                  <p><strong>CPF:</strong> {prontuario.paciente?.cpf || 'N/A'}</p>
-                </div>
+              <div>
+                <h4
+                  style={{
+                    fontSize: "1.3rem",
+                    fontWeight: 700,
+                    marginBottom: "15px"
+                  }}
+                >
+                  Anamnese Vinculada
+                </h4>
 
-                <div className="prontuario-tabs">
-                  <div className="tabs">
-                    <button className="tab active">Anamnese</button>
-                    <button className="tab">Consultas</button>
-                    <button className="tab">Registros</button>
+                <p><strong>ID da Anamnese:</strong> {prontuario.anamnese.idAnamnese}</p>
+                <p>
+                  <strong>Data de Preenchimento:</strong>{" "}
+                  {new Date(prontuario.anamnese.dataPreenchimento).toLocaleDateString("pt-BR")}
+                </p>
+
+                <div style={{ marginTop: "25px" }}>
+                  <h5
+                    style={{
+                      fontSize: "1.1rem",
+                      fontWeight: 700,
+                      marginBottom: "6px"
+                    }}
+                  >
+                    Respostas do Questionário:
+                  </h5>
+
+                  <div
+                    style={{
+                      background: "white",
+                      padding: "18px",
+                      borderRadius: "12px",
+                      border: "1px solid #e2e8f0",
+                      whiteSpace: "pre-wrap",
+                      fontSize: "0.95rem"
+                    }}
+                  >
+                    {prontuario.anamnese.respostas || "Nenhuma resposta disponível"}
                   </div>
-                  
-                  <div className="tab-content">
-                    {!prontuario.anamnese ? (
-                      <div className="warning-section">
-                        <i className="ai-warning"></i>
-                        <h4>Nenhuma Anamnese Vinculada</h4>
-                        <p>Você precisa preencher uma anamnese antes de visualizar as informações completas do prontuário.</p>
-                        <button 
-                          className="btn-primary" 
-                          onClick={() => handleSubmenuClick('Preencher Anamnese', 'anamnese')}
-                        >
-                          Preencher Anamnese
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="anamnese-content">
-                        <h4>Anamnese Vinculada</h4>
-                        <p><strong>ID da Anamnese:</strong> {prontuario.anamnese.idAnamnese}</p>
-                        <p><strong>Data de Preenchimento:</strong> {new Date(prontuario.anamnese.dataPreenchimento).toLocaleDateString('pt-BR')}</p>
-                        
-                        <div className="anamnese-details">
-                          <h5>Respostas do Questionário:</h5>
-                          {prontuario.anamnese.respostas ? (
-                            <pre>{prontuario.anamnese.respostas}</pre>
-                          ) : (
-                            <p>Nenhuma resposta disponível</p>
-                          )}
-                          
-                          <h5>Informações Médicas:</h5>
-                          {prontuario.anamnese.informacoes ? (
-                            <div className="medical-info">
-                              {prontuario.anamnese.informacoes}
-                            </div>
-                          ) : (
-                            <p>Nenhuma informação médica registrada</p>
-                          )}
-                        </div>
-                      </div>
-                    )}
+
+                  <h5
+                    style={{
+                      marginTop: "20px",
+                      fontSize: "1.1rem",
+                      fontWeight: 700
+                    }}
+                  >
+                    Informações Médicas:
+                  </h5>
+
+                  <div
+                    style={{
+                      background: "white",
+                      padding: "18px",
+                      borderRadius: "12px",
+                      border: "1px solid #e2e8f0",
+                      marginTop: "8px",
+                      fontSize: "0.95rem"
+                    }}
+                  >
+                    {prontuario.anamnese.informacoes ||
+                      "Nenhuma informação médica registrada"}
                   </div>
                 </div>
               </div>
             )}
           </div>
-        );
+        </div>
+      )}
+    </div>
+  );
 
       default:
         return <div><h2>{label}</h2><p>Conteúdo em desenvolvimento.</p></div>;

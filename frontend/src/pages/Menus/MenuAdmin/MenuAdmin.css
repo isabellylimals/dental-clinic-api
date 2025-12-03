@@ -98,9 +98,9 @@ body {
 }
 
 .sidebar button.active {
-  background: linear-gradient(135deg, #1976ff, #0d5ddb);
+  background: linear-gradient(135deg, #012254,  #0d1b2a);
   color: white !important;
-  box-shadow: 0 4px 15px rgba(25,118,255,0.45);
+  box-shadow: 0 4px 15px rgba(1, 38, 93, 0.45);
 }
 
 .sidebar button i {
@@ -145,7 +145,7 @@ body {
 }
 
 .sub-menu li button.active-sub {
-  background: linear-gradient(135deg, #1976ff, #0d5ddb);
+  background: linear-gradient(135deg, #012254, #1d1a55);
   color: white;
 }
 
@@ -228,3 +228,5 @@ body {
     font-size: 1.5rem; /* Fonte menor no mobile */
   }
 }
+
+/* isa add*/

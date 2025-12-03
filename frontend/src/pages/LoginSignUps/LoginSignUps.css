@@ -14,9 +14,9 @@ body {
 }
 
 :root {
-  --color-primary: #4672ff;
-  --color-dark: #2646ad;
-  --color-muted: #747b92;
+  --color-primary: #012254;
+  --color-dark: #0d1b2a;
+  --color-muted: #030d34;
 }
 
 ul {
@@ -260,8 +260,10 @@ h3 {
 }
 
 /* HOVER */
+
+/* botao de entrar */
 .card-form form > button:hover {
-    background: #1d3a8c;   
+    background: #010216;   
     color: #fff !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
 }

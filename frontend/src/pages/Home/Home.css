@@ -41,7 +41,7 @@ html {
 .logo-icon {
     width: 40px;
     height: 40px;
-    background: #1976ff;
+    background: #012254;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -69,7 +69,7 @@ html {
 }
 
 .btn-blue {
-    background: #1976ff;
+    background: #012254;
     color: #fff;
     padding: 10px 22px;
     border-radius: 8px;
@@ -78,12 +78,12 @@ html {
     transition: background 0.25s ease, transform 0.15s ease;
 }
 .btn-blue:hover {
-    background: #0f5bdd; 
+    background: #062253; 
     color: #fff 
 }
 .btn-blue:active {
     transform: scale(0.96); 
-    background: #0d4fc2;    
+    background: #082556;    
     color: #fff;
 }
 
@@ -116,7 +116,7 @@ html {
 
 .badge {
     background: #e4f1ff;
-    color: #1976ff;
+    color: #012254;
     padding: 8px 18px;
     display: inline-block;
     border-radius: 30px;
@@ -360,7 +360,7 @@ html {
 }
 
 .services-label {
-    color: #1976ff;
+    color: #012254;
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 10px;
@@ -481,7 +481,7 @@ html {
 }
 
 .learn-more {
-    color: #1976ff;
+    color: #012254;
     font-weight: 500;
     text-decoration: none;
     font-size: 15px;
@@ -548,7 +548,7 @@ html {
 
 .rating-box h3 {
     font-size: 28px;
-    color: #1976ff;
+    color: #012254;
 }
 
 .rating-box p {
@@ -642,7 +642,7 @@ html {
 }
 
 .contact-label {
-  color: #0077ff;
+  color: #164681;
   text-align: center;
   font-size: 18px;
 }
@@ -685,7 +685,7 @@ html {
 }
 
 .contact-card.gradient {
-  background: linear-gradient(120deg, #0077ff, #00c6ff);
+  background: linear-gradient(120deg, #164681, #012f3b);
   color: white;
 }
 
