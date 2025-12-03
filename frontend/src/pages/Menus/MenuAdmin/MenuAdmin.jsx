@@ -13,7 +13,9 @@ import {
   faList,
   faSave,
   faTooth, // Ícone para Serviços
-  faFileAlt // Ícone para Relatório (NOVO)
+  faFileAlt ,
+  faUsers,
+  faChartBar// Ícone para Relatório (NOVO)
 } from "@fortawesome/free-solid-svg-icons";
 
 const MenuAdmin = () => {
@@ -265,19 +267,36 @@ const MenuAdmin = () => {
 
       {/* ÁREA PRINCIPAL */}
       <div className="dashboard-container">
-        <header className="dashboard-header">
-          <h1>Painel Administrador</h1>
-        </header>
+       
 
         <div className="dashboard-content" style={{padding: '20px'}}>
           
           {/* DASHBOARD */}
-          {telaAtiva === "dashboard" && (
-            <div className="welcome-card">
-              <h2>Bem-vindo, Administrador!</h2>
-              <p>Utilize o menu lateral para gerenciar usuários, serviços e relatórios.</p>
-            </div>
-          )}
+       {telaAtiva === "dashboard" && (
+  <div className="admin-dashboard">
+
+    <h1 className="dash-title">Painel do Administrador</h1>
+    <p className="dash-subtitle">Gerencie usuários, serviços e relatórios do sistema.</p>
+
+    <div className="dash-separator"></div>
+
+    <div className="dash-cards">
+      {[
+        { icon: faUsers, title: "Usuários", desc: "Gerencie contas do sistema." },
+        { icon: faTooth, title: "Serviços", desc: "Controle os serviços da clínica." },
+        { icon: faChartBar, title: "Relatórios", desc: "Acompanhe métricas e dados." }
+      ].map((item, i) => (
+        <div key={i} className="dash-card">
+          <FontAwesomeIcon icon={item.icon} className="dash-icon" />
+          <h3 className="dash-card-title">{item.title}</h3>
+          <p className="dash-card-desc">{item.desc}</p>
+        </div>
+      ))}
+    </div>
+
+  </div>
+)}
+
 
           {/* 1. CADASTRAR USUÁRIO */}
           {telaAtiva === "cadastrar-usuario" && (
@@ -415,14 +434,115 @@ const MenuAdmin = () => {
 
           {/* 7. CADASTRAR SERVIÇO */}
           {telaAtiva === "cadastrar-servico" && (
-            <div className="form-card">
-                <h2><FontAwesomeIcon icon={faPlus} /> Cadastrar Novo Serviço</h2>
-                <div className="form-group"><label>Nome do Serviço:</label><input type="text" className="input-field" placeholder="Ex: Clareamento..." value={formServico.nomeServico} onChange={(e) => setFormServico({...formServico, nomeServico: e.target.value})} /></div>
-                <div className="form-group" style={{marginTop: 15}}><label>Descrição:</label><textarea rows="4" className="input-field" placeholder="Descreva..." value={formServico.descricao} onChange={(e) => setFormServico({...formServico, descricao: e.target.value})} /></div>
-                <button className="btn-green" onClick={cadastrarServico} disabled={loading} style={{marginTop: 20}}>{loading ? "Salvando..." : "Salvar Serviço"}</button>
-                {sucesso && <div className="success-msg">{sucesso}</div>}{erro && <div className="error-msg">{erro}</div>}
-            </div>
-          )}
+  <div
+    style={{
+      background: "white",
+      padding: "45px 40px",
+      borderRadius: "22px",
+      border: "1px solid #e2e8f0",
+      boxShadow: "0 8px 28px rgba(0,0,0,0.05)",
+      maxWidth: "750px",
+      margin: "50px auto",
+      animation: "fadeIn 0.35s ease"
+    }}
+  >
+    {/* Título */}
+    <h2
+      style={{
+        fontSize: "1.9rem",
+        fontWeight: 800,
+        color: "#1e293b",
+        marginBottom: "25px",
+        display: "flex",
+        alignItems: "center",
+        gap: "10px"
+      }}
+    >
+      <FontAwesomeIcon icon={faPlus} style={{ color: "#051c41ff" }} />
+      Cadastrar Novo Serviço
+    </h2>
+
+    {/* Campo: Nome */}
+    <div style={{ marginBottom: 20 }}>
+      <label style={{ fontWeight: 600, color: "#475569", fontSize: "0.95rem" }}>
+        Nome do Serviço:
+      </label>
+      <input
+        type="text"
+        className="input-field"
+        placeholder="Ex: Clareamento Dental"
+        value={formServico.nomeServico}
+        onChange={(e) =>
+          setFormServico({ ...formServico, nomeServico: e.target.value })
+        }
+        style={{ marginTop: 8 }}
+      />
+    </div>
+
+    {/* Campo: Descrição */}
+    <div style={{ marginBottom: 25 }}>
+      <label style={{ fontWeight: 600, color: "#475569", fontSize: "0.95rem" }}>
+        Descrição:
+      </label>
+      <textarea
+        rows="4"
+        className="input-field"
+        placeholder="Descreva o serviço oferecido..."
+        value={formServico.descricao}
+        onChange={(e) =>
+          setFormServico({ ...formServico, descricao: e.target.value })
+        }
+        style={{ marginTop: 8, resize: "none" }}
+      />
+    </div>
+
+    {/* Botão */}
+    <button
+      className="btn-green"
+      onClick={cadastrarServico}
+      disabled={loading}
+      style={{
+        marginTop: 10,
+        width: "100%",
+        padding: "12px",
+        fontSize: "1.05rem",
+        fontWeight: 600
+      }}
+    >
+      {loading ? "Salvando..." : "Salvar Serviço"}
+    </button>
+
+    {/* Mensagens */}
+    {sucesso && (
+      <div
+        className="success-msg"
+        style={{
+          marginTop: 20,
+          padding: "12px",
+          fontSize: "0.95rem",
+          borderRadius: 10
+        }}
+      >
+        {sucesso}
+      </div>
+    )}
+
+    {erro && (
+      <div
+        className="error-msg"
+        style={{
+          marginTop: 15,
+          padding: "12px",
+          fontSize: "0.95rem",
+          borderRadius: 10
+        }}
+      >
+        {erro}
+      </div>
+    )}
+  </div>
+)}
+
 
           {/* 8. LISTAR SERVIÇOS */}
           {telaAtiva === "listar-servicos" && (
@@ -486,14 +606,14 @@ const MenuAdmin = () => {
             width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;
             font-size: 16px; outline: none;
         }
-        .input-field:focus { border-color: #007bff; }
+        .input-field:focus { border-color: #cbd8e6ff; }
         .btn-green {
             padding: 10px 20px; background: #28a745; color: white; border: none;
             border-radius: 6px; cursor: pointer; font-weight: bold;
         }
         .btn-green:hover { background: #218838; }
         .btn-small {
-            padding: 6px 12px; background: #e0f2fe; color: #007bff; border: none;
+            padding: 6px 12px; background: #e0f2fe; color: #14d2a5ff; border: none;
             border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
         }
         .custom-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
