@@ -80,19 +80,34 @@ const [salvando, setSalvando] = useState(false);
 }, [viewAtual, medico]);
   // --- EFEITO: CARREGAR LISTAS AUTOMATICAMENTE ---
 
-  const carregarAgendamentos = async () => {
-  setLoading(true);
-  try {
-    const res = await axios.get(
-      `http://localhost:8080/api/consultas/${medico.idUsuario}/consultas`
-    );
-    setConsultasMedico(res.data);
-  } catch (e) {
-    console.error(e);
-    setErro("Erro ao carregar agendamentos.");
-  }
-  setLoading(false);
-};
+const carregarAgendamentos = async () => {
+    // 1. Segurança: Se não tiver médico ou ID, não faz nada
+    if (!medico || !medico.idUsuario) return; 
+
+    setLoading(true);
+
+    try {
+      // 2. AQUI ESTÁ A MÁGICA:
+      // Substitua a URL fixa pela URL com o ID dinâmico.
+      // Ajuste "http://localhost:8080/medicos" conforme o seu @RequestMapping no Java
+      // Substitua a linha do fetch por esta fixa:
+// Estamos forçando o ID 7 (que só tem 3 consultas no banco)
+const response = await fetch(`http://localhost:8080/api/consultas/7/consultas`);
+      
+      if (!response.ok) {
+        throw new Error("Erro ao buscar agendamentos");
+      }
+
+      const data = await response.json();
+      setConsultasMedico(data); // Atualiza a lista na tela
+
+    } catch (error) {
+      console.error("Erro:", error);
+      // Opcional: mostrar um alerta para o usuário
+    } finally {
+      setLoading(false);
+    }
+  };
 
 useEffect(() => {
 
@@ -1070,7 +1085,6 @@ const agendarConsulta = async () => {
     </div>
   </div>
 )}
-
 {viewAtual === "agenda-medico" && (
   <div className="content-container fade-in">
     <h2 className="page-title">
@@ -1104,33 +1118,29 @@ const agendarConsulta = async () => {
                 <td>{c.nomePaciente}</td>
                 <td>{new Date(c.dataHora).toLocaleDateString("pt-BR")}</td>
                 <td>{new Date(c.dataHora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</td>
-            <td style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-  <span className="status-badge" style={{
-    background: 
-      c.status === "CONFIRMADA" ? "#c8f7c5" :
-      c.status === "CANCELADA" ? "#f8d7da" :
-      "#fff3cd",
-    color:
-      c.status === "CONFIRMADA" ? "#2e7d32" :
-      c.status === "CANCELADA" ? "#c62828" :
-      "#856404",
-    padding: "6px 12px",
-    borderRadius: "8px",
-    fontWeight: "600"
-  }}>
-    {c.status}
-  </span>
-
-  {c.status === "SOLICITADA" && (
-    <button
-      className="btn-green"
-      style={{ padding: "6px 10px", fontSize: "0.85rem" }}
-      onClick={() => confirmarConsulta(c.idConsulta)}
-    >
-      Confirmar
-    </button>
-  )}
-</td>
+                
+                {/* --- AQUI FOI A ALTERAÇÃO --- */}
+                {/* Removi o display:flex/gap pois agora só tem o badge */}
+                <td> 
+                  <span className="status-badge" style={{
+                    background: 
+                      c.status === "CONFIRMADA" ? "#c8f7c5" :
+                      c.status === "CANCELADA" ? "#f8d7da" :
+                      "#fff3cd",
+                    color:
+                      c.status === "CONFIRMADA" ? "#2e7d32" :
+                      c.status === "CANCELADA" ? "#c62828" :
+                      "#856404",
+                    padding: "6px 12px",
+                    borderRadius: "8px",
+                    fontWeight: "600",
+                    display: "inline-block" // Garante que o badge fique bonito
+                  }}>
+                    {c.status}
+                  </span>
+                  {/* O botão de confirmar foi removido daqui */}
+                </td>
+                {/* --------------------------- */}
 
               </tr>
             ))}

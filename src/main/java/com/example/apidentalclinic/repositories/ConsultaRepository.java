@@ -2,12 +2,14 @@ package com.example.apidentalclinic.repositories;
 
 import java.time.LocalDateTime; 
 import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import com.example.apidentalclinic.enums.StatusConsulta;
-import com.example.apidentalclinic.models.Consulta;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import com.example.apidentalclinic.enums.StatusConsulta;
+import com.example.apidentalclinic.models.Consulta;
 
 @Repository
 public interface ConsultaRepository extends JpaRepository<Consulta, Integer> {
@@ -46,6 +48,7 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Integer> {
     );
 
    List<Consulta> findByMedicoIdUsuario(Integer idMedico);
+// Busca todas as consultas onde o médico tem esse ID
 
    @Query("SELECT c FROM Consulta c WHERE c.paciente.idUsuario = :id ORDER BY c.dataHora DESC")
     List<Consulta> findByPacienteIdOrderByDataHoraDesc(@Param("id") int id);
