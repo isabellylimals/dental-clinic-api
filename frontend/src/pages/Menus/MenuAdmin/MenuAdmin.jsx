@@ -15,8 +15,14 @@ import {
   faTooth, // Ícone para Serviços
   faFileAlt ,
   faUsers,
-  faChartBar// Ícone para Relatório (NOVO)
+  faChartBar // Ícone para Relatório
 } from "@fortawesome/free-solid-svg-icons";
+
+// --- IMPORTS PARA OS GRÁFICOS (DO CÓDIGO BEM ESTRUTURADO) ---
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  PieChart, Pie, Cell
+} from 'recharts';
 
 const MenuAdmin = () => {
   // --- 1. ESTADOS ---
@@ -28,14 +34,17 @@ const MenuAdmin = () => {
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
   const [listaServicos, setListaServicos] = useState([]);
   
-  // Estado do Relatório (NOVO)
+  // ESTADO EXTRA: Lista apenas de médicos para o filtro do relatório
+  const [listaMedicosFiltro, setListaMedicosFiltro] = useState([]);
+
+  // Estado do Relatório (ATUALIZADO PARA SUPORTAR GRÁFICOS)
   const [filtrosRelatorio, setFiltrosRelatorio] = useState({
     inicio: "",
     fim: "",
     idMedico: "",
     status: ""
   });
-  const [resultadoRelatorio, setResultadoRelatorio] = useState("");
+  const [resultadoRelatorio, setResultadoRelatorio] = useState(null); // Alterado para null inicial
 
   // Estado dos Formulários
   const [formData, setFormData] = useState({
@@ -53,7 +62,10 @@ const MenuAdmin = () => {
   // URLs da API
   const API_URL = "http://localhost:8080/api/usuarios";
   const API_SERVICOS = "http://localhost:8080/api/servicos"; 
-  const API_ADMIN = "http://localhost:8080/api/administrador"; // Nova URL para relatório
+  const API_ADMIN = "http://localhost:8080/api/administrador"; 
+
+  // CORES PARA O GRÁFICO DE PIZZA
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
   // --- 2. GERENCIAMENTO DE TELAS E LIMPEZA ---
   const toggleSubmenu = (menuName) => {
@@ -66,7 +78,7 @@ const MenuAdmin = () => {
     setListaUsuarios([]);
     setListaServicos([]); 
     setUsuarioSelecionado(null);
-    setResultadoRelatorio(""); // Limpa relatório anterior
+    setResultadoRelatorio(null); // Limpa relatório anterior
     setErro("");
     setSucesso("");
     setLoading(false);
@@ -157,13 +169,12 @@ const MenuAdmin = () => {
     } catch (error) { setErro("Erro ao carregar serviços."); } finally { setLoading(false); }
   };
 
-  // --- 5. FUNÇÃO DE RELATÓRIO (NOVO) ---
+  // --- 5. FUNÇÃO DE RELATÓRIO (TRANSFERIDA DO CÓDIGO ESTRUTURADO) ---
   const gerarRelatorio = async () => {
-    setLoading(true); setErro(""); setResultadoRelatorio("");
+    setLoading(true); setErro(""); setResultadoRelatorio(null);
     
-    // Monta a Query String manualmente para garantir o formato correto
     const params = new URLSearchParams();
-    if (filtrosRelatorio.inicio) params.append("inicio", filtrosRelatorio.inicio + ":00"); // Adiciona segundos se necessário
+    if (filtrosRelatorio.inicio) params.append("inicio", filtrosRelatorio.inicio + ":00"); 
     if (filtrosRelatorio.fim) params.append("fim", filtrosRelatorio.fim + ":59");
     if (filtrosRelatorio.idMedico) params.append("idMedico", filtrosRelatorio.idMedico);
     if (filtrosRelatorio.status) params.append("status", filtrosRelatorio.status);
@@ -172,7 +183,7 @@ const MenuAdmin = () => {
         const res = await axios.get(`${API_ADMIN}/relatorio?${params.toString()}`);
         setResultadoRelatorio(res.data);
     } catch (error) {
-        setErro("Erro ao gerar relatório. Verifique as datas.");
+        setErro("Erro ao gerar relatório. Verifique os filtros.");
     } finally {
         setLoading(false);
     }
@@ -183,6 +194,15 @@ const MenuAdmin = () => {
     if (telaAtiva === "listar-medicos") listarPorTipo("medicos");
     if (telaAtiva === "listar-pacientes") listarPorTipo("pacientes");
     if (telaAtiva === "listar-servicos") listarServicos();
+
+    // NOVO: Carregar médicos para o SELECT do relatório (VINDO DO SEGUNDO CÓDIGO)
+    if (telaAtiva === "gerar-relatorio") {
+        const carregarMedicosParaFiltro = async () => {
+            try { const res = await axios.get(`${API_URL}/medicos`); setListaMedicosFiltro(res.data); } 
+            catch (e) { console.error("Erro ao carregar médicos para filtro"); }
+        };
+        carregarMedicosParaFiltro();
+    }
 
     if (telaAtiva === "desativar-usuario" || telaAtiva === "reativar-conta" || telaAtiva === "editar-usuario") {
         const carregarTodos = async () => {
@@ -228,7 +248,7 @@ const MenuAdmin = () => {
       name: "relatorio", 
       icon: "ai-folder", 
       label: "Relatório", 
-      submenu: [{ label: "Gerar Relatório", view: "gerar-relatorio" }] // Adicionado View
+      submenu: [{ label: "Gerar Relatório", view: "gerar-relatorio" }] 
     },
     
   ];
@@ -267,7 +287,7 @@ const MenuAdmin = () => {
 
       {/* ÁREA PRINCIPAL */}
       <div className="dashboard-container">
-       
+        
 
         <div className="dashboard-content" style={{padding: '20px'}}>
           
@@ -555,18 +575,33 @@ const MenuAdmin = () => {
             </div>
           )}
 
-          {/* --- 9. RELATÓRIO (NOVO) --- */}
+          {/* --- 9. RELATÓRIO GRÁFICO (TRANSFERIDO DO SEGUNDO CÓDIGO) --- */}
           {telaAtiva === "gerar-relatorio" && (
             <div className="form-card">
-                <h2><FontAwesomeIcon icon={faFileAlt} /> Gerar Relatório Administrativo</h2>
-                <p>Preencha os filtros para gerar o relatório de consultas.</p>
+                <h2><FontAwesomeIcon icon={faFileAlt} /> Painel de Relatórios</h2>
+                <p>Selecione as datas para visualizar as estatísticas.</p>
                 
                 <div className="form-grid">
-                    <div><label>Data Início (obrigatório se fim existir):</label><input type="datetime-local" className="input-field" value={filtrosRelatorio.inicio} onChange={(e) => setFiltrosRelatorio({...filtrosRelatorio, inicio: e.target.value})} /></div>
+                    <div><label>Data Início:</label><input type="datetime-local" className="input-field" value={filtrosRelatorio.inicio} onChange={(e) => setFiltrosRelatorio({...filtrosRelatorio, inicio: e.target.value})} /></div>
                     <div><label>Data Fim:</label><input type="datetime-local" className="input-field" value={filtrosRelatorio.fim} onChange={(e) => setFiltrosRelatorio({...filtrosRelatorio, fim: e.target.value})} /></div>
-                    <div><label>ID do Médico (opcional):</label><input type="number" className="input-field" placeholder="Ex: 1" value={filtrosRelatorio.idMedico} onChange={(e) => setFiltrosRelatorio({...filtrosRelatorio, idMedico: e.target.value})} /></div>
+                    
+                    {/* SELECT DE MÉDICOS NOVO */}
                     <div>
-                        <label>Status (opcional):</label>
+                        <label>Médico (Opcional):</label>
+                        <select 
+                            className="input-field" 
+                            value={filtrosRelatorio.idMedico} 
+                            onChange={(e) => setFiltrosRelatorio({...filtrosRelatorio, idMedico: e.target.value})}
+                        >
+                            <option value="">Todos os Médicos</option>
+                            {listaMedicosFiltro.map(m => (
+                                <option key={m.idUsuario} value={m.idUsuario}>{m.nome}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Status (Opcional):</label>
                         <select className="input-field" value={filtrosRelatorio.status} onChange={(e) => setFiltrosRelatorio({...filtrosRelatorio, status: e.target.value})}>
                             <option value="">Todos</option>
                             <option value="SOLICITADA">Solicitada</option>
@@ -577,13 +612,70 @@ const MenuAdmin = () => {
                     </div>
                 </div>
 
-                <button className="btn-green" onClick={gerarRelatorio} disabled={loading}>{loading ? "Gerando..." : "Gerar Relatório"}</button>
+                <button className="btn-green" onClick={gerarRelatorio} disabled={loading}>{loading ? "Gerando..." : "Gerar Gráficos"}</button>
                 {erro && <div className="error-msg">{erro}</div>}
 
+                {/* Exibição dos Gráficos */}
                 {resultadoRelatorio && (
-                    <div style={{marginTop: 30, background: '#f9f9f9', padding: 20, borderRadius: 8, border: '1px solid #ddd'}}>
-                        <h4 style={{marginBottom: 10}}>Resultado:</h4>
-                        <pre style={{whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '0.9rem'}}>{resultadoRelatorio}</pre>
+                    <div style={{marginTop: 30}}>
+                        
+                        {/* 1. PIZZA - STATUS */}
+                        <div className="chart-box">
+                            <h3>Consultas por Status</h3>
+                            <div style={{ width: '100%', height: 300 }}>
+                                <ResponsiveContainer>
+                                    <PieChart>
+                                        <Pie data={resultadoRelatorio.consultasPorStatus} dataKey="valor" nameKey="nome" cx="50%" cy="50%" outerRadius={100} label>
+                                            {resultadoRelatorio.consultasPorStatus.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                        <Legend />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+
+                        {/* 2. BARRAS HORIZONTAIS (Médicos - Para caber todos os nomes) */}
+                        <div className="chart-box">
+                            <h3>Atendimentos por Médico</h3>
+                            {/* Altura Dinâmica: Se tiver muitos médicos, o gráfico cresce */}
+                            <div style={{ width: '100%', height: Math.max(300, resultadoRelatorio.consultasPorMedico.length * 50) }}>
+                                <ResponsiveContainer>
+                                    <BarChart layout="vertical" data={resultadoRelatorio.consultasPorMedico} margin={{left: 40}}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        {/* XAxis type="number" com allowDecimals={false} para inteiros */}
+                                        <XAxis type="number" allowDecimals={false} />
+                                        {/* YAxis type="category" para mostrar os Nomes */}
+                                        <YAxis dataKey="nome" type="category" width={150} />
+                                        <Tooltip />
+                                        <Legend />
+                                        <Bar dataKey="valor" name="Quantidade de Consultas" fill="#82ca9d" />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+
+                        {/* 3. BARRAS HORIZONTAIS (Evolução Mensal) */}
+                        <div className="chart-box">
+                            <h3>Evolução Mensal</h3>
+                            <div style={{ width: '100%', height: 300 }}>
+                                <ResponsiveContainer>
+                                    <BarChart layout="vertical" data={resultadoRelatorio.consultasPorMes} margin={{left: 20}}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        {/* Eixo X com números inteiros */}
+                                        <XAxis type="number" allowDecimals={false} />
+                                        {/* Eixo Y com as Datas (Meses) */}
+                                        <YAxis dataKey="nome" type="category" width={80} />
+                                        <Tooltip />
+                                        <Legend />
+                                        <Bar dataKey="valor" name="Consultas" fill="#8884d8" />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+
                     </div>
                 )}
             </div>
@@ -606,10 +698,10 @@ const MenuAdmin = () => {
         }
         .input-field:focus { border-color: #cbd8e6ff; }
         .btn-green {
-            padding: 10px 20px; background: #28a745; color: white; border: none;
+            padding: 10px 20px; background: #260b91ff; color: white; border: none;
             border-radius: 6px; cursor: pointer; font-weight: bold;
         }
-        .btn-green:hover { background: #218838; }
+        .btn-green:hover { background: #253092ff; }
         .btn-small {
             padding: 6px 12px; background: #e0f2fe; color: #14d2a5ff; border: none;
             border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
@@ -619,6 +711,10 @@ const MenuAdmin = () => {
         .custom-table td { padding: 12px; border-bottom: 1px solid #eee; color: #333; }
         .success-msg { color: #155724; background: #d4edda; padding: 10px; border-radius: 5px; margin-top: 15px; }
         .error-msg { color: #721c24; background: #f8d7da; padding: 10px; border-radius: 5px; margin-top: 15px; }
+        
+        /* CSS ADICIONADO PARA OS GRÁFICOS */
+        .chart-box { margin-top: 30px; padding: 20px; border: 1px solid #eee; border-radius: 10px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .chart-box h3 { margin-bottom: 20px; color: #333; font-size: 1.1rem; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
       `}</style>
     </div>
   );
