@@ -26,7 +26,7 @@ import {
   faStethoscope
 } from "@fortawesome/free-solid-svg-icons";
 
-const MenuMedico = () => {
+  const MenuMedico = () => {
   // --- 1. ESTADOS ---
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const [viewAtual, setViewAtual] = useState("dashboard");
@@ -37,9 +37,6 @@ const MenuMedico = () => {
   const [listaPacientes, setListaPacientes] = useState([]);
   const [pacienteSelecionado, setPacienteSelecionado] = useState(null);
   const [consultasMedico, setConsultasMedico] = useState([]);
-
-
-
   // Estados para Consultas
   const [listaConsultas, setListaConsultas] = useState([]);
   const [formConsulta, setFormConsulta] = useState({
@@ -49,20 +46,16 @@ const MenuMedico = () => {
     hora: "",
     especialidadeInput: ""
   });
-
-  // Estados para Serviços (NOVO)
   const [listaServicos, setListaServicos] = useState([]);
   const [buscaServico, setBuscaServico] = useState("");
-
-  // Estados de Formulário
   const [textoForm, setTextoForm] = useState(""); 
   const [msgSucesso, setMsgSucesso] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
-// PERFIL DO MÉDICO
-const [medico, setMedico] = useState(null);
-const [editMode, setEditMode] = useState(false);
-const [salvando, setSalvando] = useState(false);
+  // PERFIL DO MÉDICO
+  const [medico, setMedico] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [salvando, setSalvando] = useState(false);
 
   // URLs da API
   const API_PRONTUARIOS = "http://localhost:8080/api/prontuarios";
@@ -78,20 +71,47 @@ const [salvando, setSalvando] = useState(false);
     carregarAgendamentos();
   }
 }, [viewAtual, medico]);
-  // --- EFEITO: CARREGAR LISTAS AUTOMATICAMENTE ---
+const formatarRespostas = (respostas) => {
+
+  let obj = respostas;
+
+  if (typeof respostas === "string") {
+    try {
+      obj = JSON.parse(respostas);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  const labelsMap = {
+    doenca_cronica: "Doença crônica",
+    uso_medicamento: "Uso medicamento",
+    medicamentos: "Medicamentos",
+    alergias: "Alergias",
+    alergias_lista: "Alergias lista",
+    cirurgia: "Cirurgia",
+    cirurgias_lista: "Cirurgias lista",
+    fuma: "Fuma?",
+    alcool: "Consumo de álcool",
+    observacoes: "Observações adicionais",
+  };
+
+  return Object.entries(obj).map(([chave, valor]) => ({
+    chave,
+    label: labelsMap[chave] || chave,
+    valor: (valor ?? "").trim() === "" ? "Não informado" : valor,
+  }));
+};
+
+
 
 const carregarAgendamentos = async () => {
-    // 1. Segurança: Se não tiver médico ou ID, não faz nada
+  
     if (!medico || !medico.idUsuario) return; 
 
     setLoading(true);
 
     try {
-      // 2. AQUI ESTÁ A MÁGICA:
-      // Substitua a URL fixa pela URL com o ID dinâmico.
-      // Ajuste "http://localhost:8080/medicos" conforme o seu @RequestMapping no Java
-      // Substitua a linha do fetch por esta fixa:
-// Estamos forçando o ID 7 (que só tem 3 consultas no banco)
 const response = await fetch(`http://localhost:8080/api/consultas/7/consultas`);
       
       if (!response.ok) {
@@ -99,11 +119,11 @@ const response = await fetch(`http://localhost:8080/api/consultas/7/consultas`);
       }
 
       const data = await response.json();
-      setConsultasMedico(data); // Atualiza a lista na tela
+      setConsultasMedico(data);
 
     } catch (error) {
       console.error("Erro:", error);
-      // Opcional: mostrar um alerta para o usuário
+
     } finally {
       setLoading(false);
     }
@@ -118,8 +138,6 @@ useEffect(() => {
     if (viewAtual === "listar-servicos") {
         listarTodosServicos();
     }
-
-    // 👇 ESTA LINHA É A QUE FALTAVA!
     if (viewAtual === "agendar-consulta") {
         listarTodosServicos();
     }
@@ -134,7 +152,6 @@ useEffect(() => {
   }
 }, []);
 
-  // --- 2. LÓGICA DE NAVEGAÇÃO ---
   const toggleSubmenu = (menuName) => {
     setActiveSubmenu(activeSubmenu === menuName ? null : menuName);
   };
@@ -150,7 +167,7 @@ const salvarEdicao = async () => {
       telefone: medico.telefone,
       crm: medico.crm,
       especialidade: medico.especialidade,
-      senha: medico.senha,          // se não quiser trocar, pode deixar como está
+      senha: medico.senha,         
     };
 
     const response = await axios.put(
@@ -158,7 +175,7 @@ const salvarEdicao = async () => {
       payload
     );
 
-    // Atualiza o estado e o localStorage com o que veio do back
+  
     localStorage.setItem("userData", JSON.stringify(response.data));
     setMedico(response.data);
     setEditMode(false);
@@ -203,8 +220,6 @@ const confirmarConsulta = async (idConsulta) => {
 
   try {
     setLoading(true);
-
-    // 🔥 Atualiza imediatamente a lista no front
     setConsultasMedico(prev =>
       prev.map(cons =>
         cons.idConsulta === idConsulta
@@ -213,7 +228,7 @@ const confirmarConsulta = async (idConsulta) => {
       )
     );
 
-    // 🔥 Envia para o backend
+
     await axios.post("http://localhost:8080/api/consultas/agendar", {
       idConsulta,
     });
@@ -229,9 +244,6 @@ const confirmarConsulta = async (idConsulta) => {
     setLoading(false);
   }
 };
-
-
-
 
   const trocarTela = (viewName) => {
     if (!viewName) return;
@@ -410,8 +422,6 @@ const agendarConsulta = async () => {
     } catch (error) { alert("Erro ao atualizar status."); }
   };
 
-  // --- 4. NOVAS FUNÇÕES (SERVIÇOS) ---
-  // 1. Listar Todos (Corrige o bug da listagem)
   const listarTodosServicos = async () => {
     setLoading(true); setErro("");
     try {
@@ -480,7 +490,6 @@ const agendarConsulta = async () => {
       name: "servicos", icon: "ai-shipping-box-v1", label: "Serviços", 
       submenu: [
         { label: "Listar serviços", view: "listar-servicos" },
-        // ADICIONE O VIEW AQUI EMBAIXO:
         { label: "Buscar serviços", view: "buscar-servicos" }, 
       ],
     },
@@ -749,29 +758,82 @@ const agendarConsulta = async () => {
             )}
           </div>
         )}
+{viewAtual === "anamnese" && (
+  <div className="content-container anamnese-view">
+    <h2 className="page-title green-theme">
+      <FontAwesomeIcon icon={faNotesMedical} /> Consultar Anamnese
+    </h2>
 
-        {viewAtual === "anamnese" && (
-          <div className="content-container">
-            <h2 className="page-title green-theme"><FontAwesomeIcon icon={faNotesMedical} /> Consultar Anamnese</h2>
-            <div className="search-bar">
-              <input type="text" placeholder="Digite o CPF..." value={cpfBusca} onChange={(e) => setCpfBusca(e.target.value)} />
-              <button onClick={buscarAnamnese} disabled={loading} className="btn-green">{loading ? "..." : "Pesquisar"}</button>
-            </div>
-            {erro && <div className="error-msg">{erro}</div>}
-            {dados && (
-              <div className="result-card fade-in">
-                <div className="anamnese-header">
-                  <div><h3>Ficha de Anamnese</h3><p style={{marginTop:8, color:'#444'}}><FontAwesomeIcon icon={faUserInjured} /> Paciente: <strong>{dados.paciente ? dados.paciente.nome : "Paciente"}</strong></p></div>
-                  <span className="data-badge">Data: {new Date(dados.dataPreenchimento).toLocaleDateString('pt-BR')}</span>
-                </div>
-                <div className="anamnese-grid">
-                  <div className="anamnese-box clean-box"><strong>🗣️ Respostas</strong><p>{dados.respostas}</p></div>
-                  <div className="anamnese-box clean-box"><strong>👨‍⚕️ Observações</strong><p>{dados.informacoes || "Nenhuma."}</p></div>
-                </div>
-              </div>
-            )}
+    {/* BARRA DE BUSCA */}
+    <div className="search-bar">
+      <input
+        type="text"
+        placeholder="Digite o CPF..."
+        value={cpfBusca}
+        onChange={(e) => setCpfBusca(e.target.value)}
+      />
+      <button
+        onClick={buscarAnamnese}
+        disabled={loading}
+        className="btn-green"
+      >
+        {loading ? "..." : "Pesquisar"}
+      </button>
+    </div>
+
+    {erro && <div className="error-msg">{erro}</div>}
+
+    {/* RESULTADO */}
+    {dados && (
+      <div className="result-card fade-in anamnese-card">
+        <div className="anamnese-header">
+          <div>
+            <h3>Ficha de Anamnese</h3>
+            <p style={{ marginTop: 8, color: "#444" }}>
+              <FontAwesomeIcon icon={faUserInjured} /> Paciente:{" "}
+              <strong>
+                {dados.paciente ? dados.paciente.nome : "Paciente"}
+              </strong>
+            </p>
           </div>
-        )}
+
+          <span className="data-badge">
+            Data:{" "}
+            {new Date(dados.dataPreenchimento).toLocaleDateString("pt-BR")}
+          </span>
+        </div>
+
+        <div className="anamnese-grid">
+          {/* RESPOSTAS FORMATADAS */}
+  <div className="clean-box">
+  <strong>Respostas</strong>
+
+  <div className="respostas-grid">
+    {formatarRespostas(dados.respostas).map((item) => (
+      <div className="resposta-row" key={item.chave}>
+        <span className="resposta-pergunta">{item.label}</span>
+        <span className="resposta-valor">{item.valor}</span>
+      </div>
+    ))}
+  </div>
+</div>
+
+
+
+
+          {/* OBSERVAÇÕES */}
+          <div className="anamnese-box clean-box">
+            <strong>Observações</strong>
+            <p style={{ marginTop: 10 }}>
+              {dados.informacoes || "Nenhuma."}
+            </p>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+)}
+
 
         {viewAtual === "listar-pacientes" && (
           <div className="content-container">
@@ -836,9 +898,10 @@ const agendarConsulta = async () => {
         )}
 
         {viewAtual === "ficha-detalhe" && pacienteSelecionado && (
-          <div className="content-container fade-in">
-            <button className="btn-back" onClick={() => trocarTela("listar-pacientes")}>⬅ Voltar</button>
-            <div className="result-card">
+         <div className="content-container fade-in ficha-detalhe">
+
+            <button className="btn-back2" onClick={() => trocarTela("listar-pacientes")}>⬅ Voltar</button>
+            <div className="result-card2">
               <div className="patient-header"><div className="avatar-icon"><FontAwesomeIcon icon={faIdCard} /></div><div className="patient-info"><h3>{pacienteSelecionado.nome}</h3><p className="data-info">Status: Ativo</p></div></div><hr/>
               <div className="anamnese-grid"><div className="clean-box"><strong>Email:</strong> {pacienteSelecionado.email}</div><div className="clean-box"><strong>Telefone:</strong> {pacienteSelecionado.telefone || "-"}</div><div className="clean-box"><strong>Nascimento:</strong> {pacienteSelecionado.dataNascimento ? new Date(pacienteSelecionado.dataNascimento).toLocaleDateString('pt-BR') : "-"}</div><div className="clean-box" style={{gridColumn: 'span 2'}}><strong>Endereço:</strong> {pacienteSelecionado.endereco || "-"}</div></div>
               <div style={{marginTop: 30, textAlign: 'right'}}><button className="btn-green" onClick={() => { setCpfBusca(pacienteSelecionado.cpf); trocarTela("prontuario"); buscarProntuario(); }}>Ir para Prontuário</button></div>
@@ -862,7 +925,7 @@ const agendarConsulta = async () => {
         {viewAtual === "registrar-observacao" && (
           <div className="content-container">
             <h2 className="page-title"><FontAwesomeIcon icon={faCommentMedical} /> Registrar Observação</h2>
-            <div className="search-bar"><input type="text" placeholder="Buscar Anamnese por CPF..." value={cpfBusca} onChange={(e) => setCpfBusca(e.target.value)} /><button onClick={buscarAnamnese} className="btn-green">Buscar</button></div>
+            <div className="search-bar"><input type="text" placeholder="Buscar por CPF" value={cpfBusca} onChange={(e) => setCpfBusca(e.target.value)} /><button onClick={buscarAnamnese} className="btn-green">Buscar</button></div>
             {erro && <div className="error-msg">{erro}</div>}
             {dados && (<div className="result-card fade-in"><div style={{marginBottom: 20}}><strong style={{display:'block', marginBottom:10}}>Atual:</strong><div className="clean-box" style={{background: '#3d3a3aff', fontSize: '0.9rem'}}>{dados.informacoes || "Sem observações."}</div></div><div style={{marginBottom: 20}}><label style={{fontWeight: 'bold', display:'block', marginBottom: 8}}>Nova Observação:</label><textarea rows="4" className="textarea-field" value={textoForm} onChange={(e) => setTextoForm(e.target.value)}></textarea></div><button onClick={salvarObservacao} disabled={loading} className="btn-green"><FontAwesomeIcon icon={faSave} /> Adicionar</button>{msgSucesso && <div className="success-msg">{msgSucesso}</div>}</div>)}
           </div>
@@ -983,7 +1046,7 @@ const agendarConsulta = async () => {
             </div>
             {erro && <div className="error-msg">{erro}</div>}
             
-            {/* Reutiliza a mesma tabela para mostrar o resultado */}
+            {}
             {listaServicos.length > 0 && (
               <div className="result-card fade-in" style={{padding: 0, overflow: 'hidden'}}>
                 <table className="custom-table">
@@ -1018,7 +1081,7 @@ const agendarConsulta = async () => {
         animation: "fadeIn 0.3s ease"
       }}
     >
-      {/* TÍTULO */}
+      {}
       <h2
         style={{
           color: "#d32f2f",
@@ -1030,7 +1093,7 @@ const agendarConsulta = async () => {
         Encerrar Conta
       </h2>
 
-      {/* EXPLICAÇÃO DO QUE É A AÇÃO */}
+      {}
       <p
         style={{
           fontSize: "17px",
@@ -1043,7 +1106,7 @@ const agendarConsulta = async () => {
         Após encerrar, você não poderá mais acessar sua área médica.
       </p>
 
-      {/* ALERTA GRANDE */}
+      {}
       <div
         style={{
           background: "#fff5f5",
@@ -1119,8 +1182,8 @@ const agendarConsulta = async () => {
                 <td>{new Date(c.dataHora).toLocaleDateString("pt-BR")}</td>
                 <td>{new Date(c.dataHora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</td>
                 
-                {/* --- AQUI FOI A ALTERAÇÃO --- */}
-                {/* Removi o display:flex/gap pois agora só tem o badge */}
+                {}
+                {}
                 <td> 
                   <span className="status-badge" style={{
                     background: 
@@ -1134,11 +1197,11 @@ const agendarConsulta = async () => {
                     padding: "6px 12px",
                     borderRadius: "8px",
                     fontWeight: "600",
-                    display: "inline-block" // Garante que o badge fique bonito
+                    display: "inline-block" 
                   }}>
                     {c.status}
                   </span>
-                  {/* O botão de confirmar foi removido daqui */}
+                  {}
                 </td>
                 {/* --------------------------- */}
 
@@ -1159,15 +1222,15 @@ const agendarConsulta = async () => {
             <div className="result-card">
                 {/* Logo e Nome */}
                 <div style={{
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  marginBottom: 30
-}}>
-  <img src="logo.svg" alt="DentalClinic" style={{height: 80, marginBottom: 15}} />
-  <h3 style={{color: '#003153', fontSize: '1.5rem', margin: 0}}>DentalClinic Advanced</h3>
-  <p style={{color: '#666', marginTop: 5}}>Excelência em Odontologia Digital</p>
-</div>
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                marginBottom: 30
+              }}>
+                <img src="logo.svg" alt="DentalClinic" style={{height: 80, marginBottom: 15}} />
+                <h3 style={{color: '#003153', fontSize: '1.5rem', margin: 0}}>DentalClinic Advanced</h3>
+                <p style={{color: '#666', marginTop: 5}}>Excelência em Odontologia Digital</p>
+              </div>
 
                 
                 <hr style={{margin: '25px 0', border: 0, borderTop: '1px solid #eee'}} />
@@ -1219,15 +1282,31 @@ const agendarConsulta = async () => {
         .content-container { width: 100%; max-width: 1100px; margin: 0 auto; }
         .page-title { color: #003153; margin-bottom: 25px; font-size: 1.8rem; display: flex; align-items: center; gap: 12px; }
         .page-title.green-theme { color: #003153; }
-        .search-bar { display: flex; gap: 10px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .search-bar input { flex: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
+        .search-bar { display: flex; gap: 100px; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .search-bar input { flex: 1; padding: 5px 100px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
         .search-bar input:focus { border-color: #012254; }
-        .search-bar button { padding: 0 30px; background: #012254; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .search-bar button { padding: 0 70px; background: #012254; color: white; border: none; border-radius: 10px; font-size: 22px; font-weight: 600; cursor: pointer; }
         .search-bar button.btn-green { background: #012254; }
         .result-card { background: white; border-radius: 16px; padding: 40px; margin-top: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
+        .result-card2 {
+         width: 170%;
+        transform: translateX(-25%);
+        background: white;
+        border-radius: 16px;
+        padding: 35px 35px 10px 35px; /* reduziu o bottom */
+        margin-top: 7px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid #f0f0f0;
+      }
+
+      .content-container.ficha-detalhe {
+        margin-top: -45px !important;  /* ajuste fino */
+        padding-top: 0 !important;
+      }
+
         .error-msg { background: #fee2e2; color: #dc2626; padding: 15px; border-radius: 8px; margin-top: 20px; font-weight: 500; }
         .success-msg { background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-top: 20px; font-weight: 600; border-left: 5px solid #166534; }
-        
+    
         .patient-header { display: flex; align-items: center; gap: 25px; margin-bottom: 30px; }
         .avatar-icon { width: 70px; height: 70px; background: #f0f7ff; color: #012254; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
         .patient-info h3 { margin: 0; color: #1e293b; font-size: 1.6rem; }
@@ -1257,7 +1336,19 @@ const agendarConsulta = async () => {
         .btn-green { background: #012254; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor: pointer; font-weight: 600; }
         .btn-small { padding: 6px 12px; background: #e0f2fe; color: #012254; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
         .btn-back { background: transparent; border: none; color: #64748b; font-size: 1rem; cursor: pointer; margin-bottom: 10px; font-weight: 600; }
-        
+        .btn-back2 {
+          position: relative;        /* permite mover sem afetar o card */
+          left: -180px;               /* move para a esquerda */
+          top: 10px;                 /* move para baixo */
+          
+          background: transparent;
+          border: none;
+          color: #012254;
+          font-size: 1.1rem;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
         /* INPUTS E TEXTAREAS */
         .input-field { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
         .input-field:focus { border-color: #012254; }

@@ -12,9 +12,6 @@ body {
   background-color: #f4f7fa; /* Cor de fundo suave para o site */
 }
 
-/* ========================================= */
-/* SIDEBAR                   */
-/* ========================================= */
 .sidebar {
   position: fixed;
   top: 24px;
@@ -201,13 +198,10 @@ body {
   width: 100%;
 }
 
-/* ========================================= */
-/* RESPONSIVO                  */
-/* ========================================= */
+
 @media (max-width: 768px) {
-  /* Sidebar fica menor ou oculta no mobile */
   .sidebar {
-    width: 80px; /* Exemplo: Sidebar encolhida */
+    width: 80px; 
     left: 10px;
     padding: 0 8px;
   }
@@ -241,7 +235,7 @@ body {
   animation: fadeIn 0.4s ease;
 }
 
-/* Título */
+
 .dash-title {
   font-size: 2.4rem;
   font-weight: 74;
@@ -249,14 +243,14 @@ body {
   margin-bottom: 35px;
 }
 
-/* Subtítulo */
+
 .dash-subtitle {
   font-size: 1.1rem;
   color: #64748b;
   margin-bottom: 80px;
 }
 
-/* Cards container */
+
 .dash-cards {
   display: flex;
   justify-content: center;
@@ -264,11 +258,11 @@ body {
   flex-wrap: wrap;
 }
 
-/* Cada card — CORRIGIDO PARA ALINHAR TUDO */
+
 .dash-card {
   background: white;
   width: 300px;
-  height: 200px; /* 🔥 Altura fixa para alinhar os 3 cards */
+  height: 200px; 
   padding: 28px 25px;
   border-radius: 18px;
   border: 1px solid #e2e8f0;
@@ -276,7 +270,6 @@ body {
   transition: 0.25s ease;
   cursor: pointer;
 
-  /* 🔥 Faz todo conteúdo alinhar no topo */
   display: flex;
   flex-direction: column;
   align-items: center;

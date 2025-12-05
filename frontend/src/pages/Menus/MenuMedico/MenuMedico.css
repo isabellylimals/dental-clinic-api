@@ -3,7 +3,6 @@
   font-family: "Poppins", sans-serif;
 }
 
-/* ===== SIDEBAR ===== */
 .sidebar {
   position: fixed;
   top: 24px;
@@ -192,32 +191,48 @@
   border: 1px solid red !important;
 }
 
-/* ========================================= */
-/* CORREÇÃO DOS CAMPOS DE OBSERVAÇÃO         */
-/* ========================================= */
-
-/* Garante que os títulos "Atual" e "Nova Observação" sejam escuros */
 .result-card strong, 
 .result-card label {
-  color: #333333 !important; /* Cinza quase preto */
+  color: #333333 !important; 
   font-weight: 700 !important;
 }
 
-/* Garante que o texto dentro da caixa cinza (observação antiga) seja legível */
+
 .clean-box {
-  background-color: #f9f9f9 !important; /* Fundo cinza claro */
-  color: #000000 !important; /* Texto PRETO */
+  background-color: #f9f9f9 !important; 
+  color: #000000 !important; 
   border: 1px solid #ddd;
 }
 
-/* Garante que o que você digita na área de texto seja visível */
+
 .textarea-field {
-  background-color: #ffffff !important; /* Fundo branco */
-  color: #000000 !important; /* Texto PRETO ao digitar */
+  background-color: #ffffff !important; 
+  color: #000000 !important; 
   border: 1px solid #ccc;
 }
 
-/* Se tiver algum placeholder sumindo */
 .textarea-field::placeholder {
   color: #888888;
+}
+.respostas-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.resposta-row {
+  display: grid;
+  grid-template-columns: 1.6fr auto;
+  column-gap: 20px;
+  font-size: 0.95rem;
+}
+
+.resposta-pergunta {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.resposta-valor {
+  text-align: right;
+  color: #475569;
 }

@@ -598,8 +598,6 @@ const criarProntuario = async () => {
   const preencherAnamnese = async (respostas) => {
   try {
     setError(null);
-
-    // 1️⃣ CRIA A ANAMNESE
     const res = await fetch(`${API_URL}/anamneses/preencher`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -787,62 +785,6 @@ const criarProntuario = async () => {
           </div>
         );
 
-      case 'Cancelar solicitação':
-        return (
-          <div className="content-section">
-            <h2>Cancelar Solicitação</h2>
-            <div className="cancel-section">
-              <p>Selecione a solicitação pendente que deseja cancelar:</p>
-
-              {solicitacoesPendentes.length === 0 ? (
-                <div className="empty-state">
-                  {idPaciente ? 'Nenhuma solicitação pendente para cancelar' : 'Carregando dados do paciente...'}
-                </div>
-              ) : (
-                <div className="solicitacoes-list">
-                  {solicitacoesPendentes.map((solicitacao) => (
-                    <div key={solicitacao.idConsulta} className="solicitacao-item">
-                      <input
-                        type="checkbox"
-                        id={`solicitacao-${solicitacao.idConsulta}`}
-                        value={solicitacao.idConsulta}
-                      />
-                      <label htmlFor={`solicitacao-${solicitacao.idConsulta}`}>
-                        <strong>
-                          {solicitacao.especialidade ? `Consulta de ${solicitacao.especialidade}` : 'Consulta médica'}
-                        </strong>
-                        <span>{new Date(solicitacao.dataHora).toLocaleString('pt-BR')}</span>
-                        {solicitacao.servico && (
-                          <span>Serviço: {solicitacao.servico.nomeServico}</span>
-                        )}
-                        <small>ID: {solicitacao.idConsulta}</small>
-                      </label>
-                    </div>
-                  ))}
-                  <button
-                    className="btn-danger"
-                    onClick={() => {
-                      const checkboxes = document.querySelectorAll('.solicitacoes-list input[type="checkbox"]:checked');
-                      if (checkboxes.length === 0) {
-                        alert('Selecione pelo menos uma solicitação para cancelar');
-                        return;
-                      }
-
-                      const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
-
-                      if (window.confirm(`Cancelar ${ids.length} solicitação(ões)?`)) {
-                        ids.forEach(id => cancelarSolicitacao(id));
-                      }
-                    }}
-                  >
-                    Cancelar Selecionadas ({solicitacoesPendentes.length} pendentes)
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-
       default:
         return <div><h2>{label}</h2><p>Conteúdo em desenvolvimento.</p></div>;
     }
@@ -965,14 +907,13 @@ const criarProntuario = async () => {
             <h2>Preencher Questionário de Anamnese</h2>
             <div className="anamnese-form">
               <div className="form-section">
-                <h3>Dados Pessoais de Saúde</h3>
-                
+              
                 <div className="form-group">
                   <label>Possui alguma doença crônica? (Diabetes, Hipertensão, etc.)</label>
                   <div className="radio-group">
-                    <input type="radio" id="doenca_sim" name="doenca_cronica" value="sim" />
+                    <input type="radio" id="doenca_sim" name="doenca_cronica" value="Sim" />
                     <label htmlFor="doenca_sim">Sim</label>
-                    <input type="radio" id="doenca_nao" name="doenca_cronica" value="nao" defaultChecked />
+                    <input type="radio" id="doenca_nao" name="doenca_cronica" value="Não" defaultChecked />
                     <label htmlFor="doenca_nao">Não</label>
                   </div>
                 </div>
@@ -980,9 +921,9 @@ const criarProntuario = async () => {
                 <div className="form-group">
                   <label>Faz uso de medicamentos contínuos?</label>
                   <div className="radio-group">
-                    <input type="radio" id="medicamento_sim" name="uso_medicamento" value="sim" />
+                    <input type="radio" id="medicamento_sim" name="uso_medicamento" value="Sim" />
                     <label htmlFor="medicamento_sim">Sim</label>
-                    <input type="radio" id="medicamento_nao" name="uso_medicamento" value="nao" defaultChecked />
+                    <input type="radio" id="medicamento_nao" name="uso_medicamento" value="Não" defaultChecked />
                     <label htmlFor="medicamento_nao">Não</label>
                   </div>
                   <textarea 
@@ -996,9 +937,9 @@ const criarProntuario = async () => {
                 <div className="form-group">
                   <label>Possui alergias?</label>
                   <div className="radio-group">
-                    <input type="radio" id="alergia_sim" name="alergias" value="sim" />
+                    <input type="radio" id="alergia_sim" name="alergias" value="Sim" />
                     <label htmlFor="alergia_sim">Sim</label>
-                    <input type="radio" id="alergia_nao" name="alergias" value="nao" defaultChecked />
+                    <input type="radio" id="alergia_nao" name="alergias" value="Não" defaultChecked />
                     <label htmlFor="alergia_nao">Não</label>
                   </div>
                   <textarea 
@@ -1012,9 +953,9 @@ const criarProntuario = async () => {
                 <div className="form-group">
                   <label>Já fez cirurgia anterior?</label>
                   <div className="radio-group">
-                    <input type="radio" id="cirurgia_sim" name="cirurgia" value="sim" />
+                    <input type="radio" id="cirurgia_sim" name="cirurgia" value="Sim" />
                     <label htmlFor="cirurgia_sim">Sim</label>
-                    <input type="radio" id="cirurgia_nao" name="cirurgia" value="nao" defaultChecked />
+                    <input type="radio" id="cirurgia_nao" name="cirurgia" value="Não" defaultChecked />
                     <label htmlFor="cirurgia_nao">Não</label>
                   </div>
                   <textarea 
@@ -1028,9 +969,9 @@ const criarProntuario = async () => {
                 <div className="form-group">
                   <label>Fuma?</label>
                   <div className="radio-group">
-                    <input type="radio" id="fuma_sim" name="fuma" value="sim" />
+                    <input type="radio" id="fuma_sim" name="fuma" value="Sim" />
                     <label htmlFor="fuma_sim">Sim</label>
-                    <input type="radio" id="fuma_nao" name="fuma" value="nao" defaultChecked />
+                    <input type="radio" id="fuma_nao" name="fuma" value="Não" defaultChecked />
                     <label htmlFor="fuma_nao">Não</label>
                   </div>
                 </div>
@@ -1038,9 +979,9 @@ const criarProntuario = async () => {
                 <div className="form-group">
                   <label>Consome bebidas alcoólicas?</label>
                   <div className="radio-group">
-                    <input type="radio" id="alcool_sim" name="alcool" value="sim" />
+                    <input type="radio" id="alcool_sim" name="alcool" value="Sim" />
                     <label htmlFor="alcool_sim">Sim</label>
-                    <input type="radio" id="alcool_nao" name="alcool" value="nao" defaultChecked />
+                    <input type="radio" id="alcool_nao" name="alcool" value="Não" defaultChecked />
                     <label htmlFor="alcool_nao">Não</label>
                   </div>
                 </div>
@@ -1623,7 +1564,7 @@ case 'Adicionar dados extras':
         { label: 'Solicitar Consulta' },
         { label: 'Visualizar Consultas' },
         { label: 'Status das solicitações' },
-        { label: 'Cancelar solicitação' }
+
       ]
     },
     {

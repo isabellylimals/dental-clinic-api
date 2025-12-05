@@ -37,7 +37,7 @@ export default function LoginSignup() {
 
         // 2. Verifica se a resposta contém um erro
         if (response && response.error) {
-          setErroLogin("❌ Credenciais inválidas. Verifique seu e-mail e senha.");
+          setErroLogin("Credenciais inválidas. Verifique seu e-mail e senha.");
           return;
         }
         
@@ -64,16 +64,16 @@ export default function LoginSignup() {
             else if (tipo === "administrador") navigate("/menuadmin"); // AJUSTE: seu Enum é 'ADMINISTRADOR'
             else navigate("/"); 
           } else {
-              setErroLogin("❌ Tipo de usuário não reconhecido.");
+              setErroLogin("Tipo de usuário não reconhecido.");
           }
         } else {
           // Tratar falha de login, caso a API tenha retornado um 401
-          setErroLogin("❌ Credenciais inválidas. Verifique seu e-mail e senha.");
+          setErroLogin("Credenciais inválidas. Verifique seu e-mail e senha.");
         }
       } catch (error) {
         console.error("Erro ao fazer login:", error);
         // Se a requisição falhar completamente (ex: problema de rede, CORS)
-        setErroLogin("❌ Erro ao fazer login. Por favor, tente novamente.");
+        setErroLogin("Erro ao fazer login. Por favor, tente novamente.");
       }
     }
 
@@ -83,7 +83,7 @@ export default function LoginSignup() {
       setCadastroSucesso(false);
 
       if (!signupCpf || signupCpf.length !== 11 || !/^\d+$/.test(signupCpf)) {
-        setErroCadastro("❌ CPF inválido. Deve conter 11 dígitos numéricos.");
+        setErroCadastro("CPF inválido. Deve conter 11 dígitos numéricos.");
         return;
       }
 
@@ -102,7 +102,7 @@ export default function LoginSignup() {
 
       // 2. Verifica se a resposta contém um erro
       if (response && response.error) {
-        setErroCadastro(`❌ Erro no cadastro: ${response.error}`);
+        setErroCadastro(`Erro no cadastro: ${response.error}`);
         return;
       }
 
@@ -123,7 +123,7 @@ export default function LoginSignup() {
       }, 2000);
 
     } catch (error) {
-      setErroCadastro("❌ Erro de rede. Tente novamente.");
+      setErroCadastro("Erro de rede. Tente novamente.");
       console.error(error);
     }
   }
@@ -316,7 +316,7 @@ export default function LoginSignup() {
             )}
             {cadastroSucesso && (
               <p style={{ color: "green", fontSize: "12px", marginTop: "4px" }}>
-                ✅ Cadastro realizado com sucesso!
+                Cadastro realizado com sucesso!
               </p>
             )}
           </form>
