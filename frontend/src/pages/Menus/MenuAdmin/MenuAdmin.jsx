@@ -318,7 +318,7 @@ const MenuAdmin = () => {
 
           {/* 1. CADASTRAR USUÁRIO */}
           {telaAtiva === "cadastrar-usuario" && (
-            <div className="form-card">
+            <div className="form-card cadastro-usuario">
               <h2><FontAwesomeIcon icon={faPlus} /> Cadastrar Novo Usuário</h2>
               
               <div className="form-group">
@@ -691,6 +691,36 @@ const MenuAdmin = () => {
             background: white; padding: 30px; border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;
         }
+
+        .form-card.cadastro-usuario {
+          background: #f9fafb; 
+          padding: 70px 70px;
+          border-radius: 14px;
+
+          width: 110%;               /* aumenta horizontalmente */
+          transform: translateX(-10%); /* puxa para a esquerda */
+        }
+
+        .list-card h2 {
+          font-size: 1.8rem;   /* tamanho do texto */
+          margin-bottom: 10px; /* espaço abaixo */
+          margin-top: 0;       /* sobe o título */
+          margin-left: -20px;  /* desloca para a esquerda */
+          color: #012254;      /* cor */
+          font-weight: 700;    /* deixa mais encorpado */
+        }
+
+
+.list-card p {
+  margin-top: -5px;
+  margin-left: 5px; /* igual o h2 se quiser acompanhar alinhamento */
+  margin-bottom: 20px;
+  color: #475569;
+  font-size: 1rem;
+}
+
+
+
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .input-field {
             width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;
@@ -707,6 +737,43 @@ const MenuAdmin = () => {
             border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
         }
         .custom-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        font-size: 0.95rem;
+        color: #334155;
+      }
+        .custom-table thead th {
+        background: #f1f5f9;
+        padding: 14px 20px;
+        text-align: left;
+        font-weight: 600;
+        color: #1e293b;
+        border-bottom: 2px solid #e2e8f0;
+      }
+
+      /* Linhas */
+      .custom-table tbody td {
+        padding: 14px 20px;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      /* Hover */
+      .custom-table tbody tr:hover {
+        background: #f8fafc;
+        transition: 0.2s ease;
+      }
+
+      /* Deixa a coluna de ação mais organizada */
+      .custom-table td:last-child {
+        text-align: right;
+      }
+
+      /* Deixa a coluna do status um pouco centralizada */
+      .custom-table td:nth-child(4) {
+        text-align: center;
+      }
         .custom-table th { text-align: left; padding: 12px; background: #f8f9fa; color: #555; }
         .custom-table td { padding: 12px; border-bottom: 1px solid #eee; color: #333; }
         .success-msg { color: #155724; background: #d4edda; padding: 10px; border-radius: 5px; margin-top: 15px; }
