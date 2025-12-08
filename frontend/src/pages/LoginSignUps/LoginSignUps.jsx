@@ -16,16 +16,16 @@ export default function LoginSignup() {
   const navigate = useNavigate();
 
   const [loginEmail, setLoginEmail] = useState("");
-  const [loginSenha, setLoginSenha] = useState("");
-  const [erroLogin, setErroLogin] = useState("");
+  const [loginSenha, setLoginSenha] = useState("");
+  const [erroLogin, setErroLogin] = useState("");
   
-  const [signupNome, setSignupNome] = useState(""); 
+  const [signupNome, setSignupNome] = useState(""); 
   const [signupEmail, setSignupEmail] = useState(""); 
   const [signupSenha, setSignupSenha] = useState(""); 
   const [signupCpf, setSignupCpf] = useState("");
   
-  const [erroCadastro, setErroCadastro] = useState("");
-  const [cadastroSucesso, setCadastroSucesso] = useState(false);
+  const [erroCadastro, setErroCadastro] = useState("");
+  const [cadastroSucesso, setCadastroSucesso] = useState(false);
 
     async function handleLogin(e) {
       e.preventDefault();

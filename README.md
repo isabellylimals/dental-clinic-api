@@ -26,8 +26,8 @@ O projeto foi modernizado utilizando uma arquitetura robusta e escalável.
 ### Frontend (Client-side)
 
 - React.js: Interfaces dinâmicas
-- Tailwind CSS: Estilização responsiva
-- JavaScript (ES6+) / JSX: Lógica e componentes
+- CSS & HTML: Estilização
+- JavaScript / JSX: Lógica e componentes
 - Axios: Consumo da API REST
 
 ### Backend (Server-side)
@@ -225,6 +225,16 @@ Acesse a aplicação em `http://localhost:5173` (ou a porta indicada no terminal
 │
 └── README.md           # Documentação do Projeto
 ```
+
+## Como Navegar no Sistema
+
+Ao rodar o servidor e acessar a aplicação, você se deparará com a landing page do sistema, desenvolvida para apresentar a clínica de forma clara, moderna e profissional. Ela funciona como o primeiro ponto de contato para os usuários. Logo no acesso, o visitante encontra uma barra de navegação com o logotipo da clínica, links internos para cada seção (Serviços, Sobre e Contatos) e um botão de acesso rápido à área de login.
+
+A Home atua como a porta de entrada do sistema, destacando os principais serviços oferecidos, informações institucionais e meios de contato. Cada seção foi organizada para facilitar a leitura e permitir que o usuário encontre rapidamente o que procura, reforçando a credibilidade da clínica e proporcionando uma navegação fluida.
+
+A tela de login e cadastro complementa a landing page, oferecendo um ambiente simples, agradável e objetivo para que os pacientes acessem o sistema. O login permite que usuários já registrados entrem rapidamente, enquanto o cadastro apresenta um formulário direto e intuitivo, facilitando a criação de novas contas. Toda a interface foi estruturada para garantir clareza, acessibilidade e rapidez no processo de autenticação.
+
+Após realizar o login, você será direcionado ao menu de opções, onde poderá explorar e testar as funcionalidades do sistema, de acordo com o tipo de usuário com o qual foi cadastrado.
 
 ## Equipe de Desenvolvimento
 
