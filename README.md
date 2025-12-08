@@ -43,7 +43,7 @@ O projeto foi modernizado utilizando uma arquitetura robusta e escalável.
 - MySQL: Banco de dados relacional
 - Git & GitHub: Versionamento
 - Figma: Prototipação
-- Trello: Gestão ágil (Kanban)
+- Trello: Gestão ágil (Kanban) [Acesse aqui](https://trello.com/b/JXQ1Ondb/cl%C3%ADnica-odontol%C3%B3gica-projeto-de-software-kanban)
 
 ## Funcionalidades Principais
 
