@@ -177,7 +177,7 @@ CREATE TABLE registro_atendimento (
 ### 2. Rodando o Backend (Spring Boot)
 
 ```bash
-cd backend
+cd src
 
 # Instalar dependências (Windows)
 ./mvnw.cmd clean install
@@ -210,8 +210,8 @@ Acesse a aplicação em `http://localhost:5173` (ou a porta indicada no terminal
 
 ```
 /
-├── backend/            # Código Fonte Java/Spring Boot
-│   ├── src/main/java   # Controllers, Models, Repositories
+├── src/                # Código Fonte Java/Spring Boot
+│   ├── /main/java      # Controllers, Models, Repositories
 │   └── pom.xml         # Dependências Maven
 │
 ├── frontend/           # Código Fonte React
