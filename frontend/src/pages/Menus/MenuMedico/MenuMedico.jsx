@@ -1228,7 +1228,7 @@ const agendarConsulta = async () => {
                 marginBottom: 30
               }}>
                 <img src="logo.svg" alt="DentalClinic" style={{height: 80, marginBottom: 15}} />
-                <h3 style={{color: '#003153', fontSize: '1.5rem', margin: 0}}>DentalClinic Advanced</h3>
+                <h3 style={{color: '#003153', fontSize: '1.5rem', margin: 0}}>KLIJ Dental Clinic Advanced</h3>
                 <p style={{color: '#666', marginTop: 5}}>Excelência em Odontologia Digital</p>
               </div>
 
@@ -1254,7 +1254,7 @@ const agendarConsulta = async () => {
                         <p style={{marginTop: 15, lineHeight: 1.6}}>
                             <strong>Recepção:</strong> (11) 3333-4444<br/>
                             <strong>WhatsApp:</strong> (11) 99999-8888<br/>
-                            <strong>Email:</strong> contato@dentalclinic.com
+                            <strong>Email:</strong> contato@klijsmile.com
                         </p>
                     </div>
 

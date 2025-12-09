@@ -50,8 +50,8 @@ export default function Home() {
           </div>
 
           <div className="logo-text">
-            <span className="brand-strong">BrightSmile</span>
-            <span className="brand-light">Dental</span>
+            <span className="brand-strong">KLIJ</span>
+            <span className="brand-light"> Dental Clinic</span>
           </div>
         </div>
 
@@ -444,7 +444,7 @@ export default function Home() {
                 <div>
                   <h3>Ligue Para Nós</h3>
                   <p>(84) 98765-4321</p>
-                  <small>Seg–Sex 8h–18h</small>
+                  <small>Seg–Sex 7h–19h</small>
                 </div>
               </div>
 
@@ -455,7 +455,7 @@ export default function Home() {
 
                 <div>
                   <h3>Envie um E-mail</h3>
-                  <p>info@brightsmile.com</p>
+                  <p>info@klijsmile.com</p>
                   <small>Suporte 24/7</small>
                 </div>
               </div>
@@ -467,7 +467,7 @@ export default function Home() {
 
                 <div>
                   <h3>Horário de Funcionamento</h3>
-                  <p>Seg–Sex: 8:00 – 18:00<br />
+                  <p>Seg–Sex: 7:00 – 19:00<br />
                     Sábado: 9:00 – 16:00<br />
                     Domingo: Fechado</p>
                   <strong>Emergências: Seg a Sáb</strong>
@@ -531,7 +531,7 @@ export default function Home() {
                   <FontAwesomeIcon icon={faStar} />
                 </div>
 
-                <div className="footer-brand">BrightSmile Dental</div>
+                <div className="footer-brand">KLIJ</div>
               </div>
               <p className="footer-desc">
                 Criando sorrisos bonitos e saudáveis<br/>
@@ -581,12 +581,12 @@ export default function Home() {
               <h4>Informações de Contato</h4>
               <p>123 Rua Principal, Suite 100<br/>Pau dos Ferros, RN1</p>
               <p className="footer-phone">(84) 98765-4321</p>
-              <p className="footer-email">info@brightsmile.com</p>
+              <p className="footer-email">info@klijsmile.com</p>
             </div>
           </div>
 
           <div className="footer-bottom">
-            <div>© 2025 BrightSmile Dental. Todos os direitos reservados.</div>
+            <div>© 2025 KLIJ Dental. Todos os direitos reservados.</div>
           <div className="made-with">
             Desenvolvido para proporcionar a melhor experiência ao paciente.
           </div>
